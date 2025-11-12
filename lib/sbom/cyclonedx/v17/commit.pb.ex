@@ -1,0 +1,11 @@
+defmodule SBoM.Cyclonedx.V17.Commit do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+
+  field(:uid, 1, proto3_optional: true, type: :string)
+  field(:url, 2, proto3_optional: true, type: :string)
+  field(:author, 3, proto3_optional: true, type: SBoM.Cyclonedx.V17.IdentifiableAction)
+  field(:committer, 4, proto3_optional: true, type: SBoM.Cyclonedx.V17.IdentifiableAction)
+  field(:message, 5, proto3_optional: true, type: :string)
+end

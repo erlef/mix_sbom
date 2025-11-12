@@ -1,0 +1,15 @@
+defmodule SBoM.Cyclonedx.V17.PatentAssertionType do
+  @moduledoc false
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+
+  field(:PATENT_ASSERTION_TYPE_UNSPECIFIED, 0)
+  field(:PATENT_ASSERTION_TYPE_OWNERSHIP, 1)
+  field(:PATENT_ASSERTION_TYPE_LICENSE, 2)
+  field(:PATENT_ASSERTION_TYPE_THIRD_PARTY_CLAIM, 3)
+  field(:PATENT_ASSERTION_TYPE_STANDARDS_INCLUSION, 4)
+  field(:PATENT_ASSERTION_TYPE_PRIOR_ART, 5)
+  field(:PATENT_ASSERTION_TYPE_EXCLUSIVE_RIGHTS, 6)
+  field(:PATENT_ASSERTION_TYPE_NON_ASSERTION, 7)
+  field(:PATENT_ASSERTION_TYPE_RESEARCH_OR_EVALUATION, 8)
+end

@@ -1,0 +1,3 @@
+[submodule "schemas/cyclonedx"]
+	path = schemas/cyclonedx
+	url = https://github.com/CycloneDX/specification.git

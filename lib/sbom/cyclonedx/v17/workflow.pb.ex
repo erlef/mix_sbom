@@ -1,0 +1,23 @@
+defmodule SBoM.Cyclonedx.V17.Workflow do
+  @moduledoc false
+
+  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+
+  field(:bom_ref, 1, type: :string, json_name: "bomRef")
+  field(:uid, 2, type: :string)
+  field(:name, 3, proto3_optional: true, type: :string)
+  field(:description, 4, proto3_optional: true, type: :string)
+  field(:properties, 5, repeated: true, type: SBoM.Cyclonedx.V17.Property)
+  field(:resourceReferences, 6, repeated: true, type: SBoM.Cyclonedx.V17.ResourceReferenceChoice)
+  field(:tasks, 7, repeated: true, type: SBoM.Cyclonedx.V17.Task)
+  field(:taskDependencies, 8, repeated: true, type: SBoM.Cyclonedx.V17.Dependency)
+  field(:taskTypes, 9, repeated: true, type: SBoM.Cyclonedx.V17.TaskType, enum: true)
+  field(:trigger, 10, proto3_optional: true, type: SBoM.Cyclonedx.V17.Trigger)
+  field(:steps, 11, repeated: true, type: SBoM.Cyclonedx.V17.Step)
+  field(:inputs, 12, repeated: true, type: SBoM.Cyclonedx.V17.InputType)
+  field(:outputs, 13, repeated: true, type: SBoM.Cyclonedx.V17.OutputType)
+  field(:timeStart, 14, proto3_optional: true, type: Google.Protobuf.Timestamp)
+  field(:timeEnd, 15, proto3_optional: true, type: Google.Protobuf.Timestamp)
+  field(:workspaces, 16, repeated: true, type: SBoM.Cyclonedx.V17.Workspace)
+  field(:runtimeTopology, 17, repeated: true, type: SBoM.Cyclonedx.V17.Dependency)
+end
