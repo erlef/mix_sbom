@@ -3,6 +3,8 @@ defmodule SBoM.Cyclonedx.V17.Metadata do
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
+  alias SBoM.Cyclonedx.V17.OrganizationalEntity
+
   field(:timestamp, 1, proto3_optional: true, type: Google.Protobuf.Timestamp)
   field(:tools, 2, proto3_optional: true, type: SBoM.Cyclonedx.V17.Tool)
   field(:authors, 3, repeated: true, type: SBoM.Cyclonedx.V17.OrganizationalContact)
@@ -10,15 +12,15 @@ defmodule SBoM.Cyclonedx.V17.Metadata do
 
   field(:manufacture, 5,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.OrganizationalEntity,
+    type: OrganizationalEntity,
     deprecated: true
   )
 
-  field(:supplier, 6, proto3_optional: true, type: SBoM.Cyclonedx.V17.OrganizationalEntity)
+  field(:supplier, 6, proto3_optional: true, type: OrganizationalEntity)
   field(:licenses, 7, repeated: true, type: SBoM.Cyclonedx.V17.LicenseChoice)
   field(:properties, 8, repeated: true, type: SBoM.Cyclonedx.V17.Property)
   field(:lifecycles, 9, repeated: true, type: SBoM.Cyclonedx.V17.Lifecycles)
-  field(:manufacturer, 10, proto3_optional: true, type: SBoM.Cyclonedx.V17.OrganizationalEntity)
+  field(:manufacturer, 10, proto3_optional: true, type: OrganizationalEntity)
 
   field(:distributionConstraints, 11,
     proto3_optional: true,

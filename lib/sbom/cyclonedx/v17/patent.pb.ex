@@ -3,6 +3,8 @@ defmodule SBoM.Cyclonedx.V17.Patent do
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
+  alias Google.Protobuf.Timestamp
+
   field(:bom_ref, 1, proto3_optional: true, type: :string, json_name: "bomRef")
   field(:patent_number, 2, type: :string, json_name: "patentNumber")
 
@@ -31,19 +33,19 @@ defmodule SBoM.Cyclonedx.V17.Patent do
 
   field(:filing_date, 9,
     proto3_optional: true,
-    type: Google.Protobuf.Timestamp,
+    type: Timestamp,
     json_name: "filingDate"
   )
 
   field(:grant_date, 10,
     proto3_optional: true,
-    type: Google.Protobuf.Timestamp,
+    type: Timestamp,
     json_name: "grantDate"
   )
 
   field(:patent_expiration_date, 11,
     proto3_optional: true,
-    type: Google.Protobuf.Timestamp,
+    type: Timestamp,
     json_name: "patentExpirationDate"
   )
 

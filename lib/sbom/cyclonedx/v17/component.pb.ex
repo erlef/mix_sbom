@@ -3,10 +3,12 @@ defmodule SBoM.Cyclonedx.V17.Component do
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
+  alias SBoM.Cyclonedx.V17.OrganizationalEntity
+
   field(:type, 1, type: SBoM.Cyclonedx.V17.Classification, enum: true)
   field(:mime_type, 2, proto3_optional: true, type: :string, json_name: "mimeType")
   field(:bom_ref, 3, proto3_optional: true, type: :string, json_name: "bomRef")
-  field(:supplier, 4, proto3_optional: true, type: SBoM.Cyclonedx.V17.OrganizationalEntity)
+  field(:supplier, 4, proto3_optional: true, type: OrganizationalEntity)
   field(:author, 5, proto3_optional: true, type: :string, deprecated: true)
   field(:publisher, 6, proto3_optional: true, type: :string)
   field(:group, 7, proto3_optional: true, type: :string)
@@ -37,7 +39,7 @@ defmodule SBoM.Cyclonedx.V17.Component do
   field(:modelCard, 25, proto3_optional: true, type: SBoM.Cyclonedx.V17.ModelCard)
   field(:data, 26, repeated: true, type: SBoM.Cyclonedx.V17.ComponentData)
   field(:cryptoProperties, 27, proto3_optional: true, type: SBoM.Cyclonedx.V17.CryptoProperties)
-  field(:manufacturer, 28, proto3_optional: true, type: SBoM.Cyclonedx.V17.OrganizationalEntity)
+  field(:manufacturer, 28, proto3_optional: true, type: OrganizationalEntity)
   field(:authors, 29, repeated: true, type: SBoM.Cyclonedx.V17.OrganizationalContact)
   field(:tags, 30, repeated: true, type: :string)
   field(:omniborId, 31, repeated: true, type: :string)

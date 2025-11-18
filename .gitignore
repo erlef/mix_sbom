@@ -13,6 +13,9 @@
 # Ignore .fetch files in case you like to edit your project deps locally.
 /.fetch
 
+# Temp Files
+/tmp
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
@@ -40,3 +43,9 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+
+# EScript
+/sbom
+
+# Burrito
+/burrito_out

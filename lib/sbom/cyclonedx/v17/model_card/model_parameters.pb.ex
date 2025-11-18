@@ -3,6 +3,8 @@ defmodule SBoM.Cyclonedx.V17.ModelCard.ModelParameters do
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
+  alias SBoM.Cyclonedx.V17.ModelCard.ModelParameters.MachineLearningInputOutputParameters
+
   field(:approach, 1,
     proto3_optional: true,
     type: SBoM.Cyclonedx.V17.ModelCard.ModelParameters.Approach
@@ -15,11 +17,11 @@ defmodule SBoM.Cyclonedx.V17.ModelCard.ModelParameters do
 
   field(:inputs, 6,
     repeated: true,
-    type: SBoM.Cyclonedx.V17.ModelCard.ModelParameters.MachineLearningInputOutputParameters
+    type: MachineLearningInputOutputParameters
   )
 
   field(:outputs, 7,
     repeated: true,
-    type: SBoM.Cyclonedx.V17.ModelCard.ModelParameters.MachineLearningInputOutputParameters
+    type: MachineLearningInputOutputParameters
   )
 end

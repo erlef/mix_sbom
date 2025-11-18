@@ -3,6 +3,8 @@ defmodule SBoM.Cyclonedx.V17.ModelCard.ModelCardConsiderations.EnergyConsumption
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
+  alias SBoM.Cyclonedx.V17.CO2MeasureType
+
   field(:activity, 1,
     type: SBoM.Cyclonedx.V17.ModelCard.ModelCardConsiderations.EnergyConsumption.ActivityType,
     enum: true
@@ -10,7 +12,7 @@ defmodule SBoM.Cyclonedx.V17.ModelCard.ModelCardConsiderations.EnergyConsumption
 
   field(:energyProviders, 2, repeated: true, type: SBoM.Cyclonedx.V17.EnergyProviderType)
   field(:activityEnergyCost, 3, type: SBoM.Cyclonedx.V17.EnergyMeasureType)
-  field(:co2CostEquivalent, 4, proto3_optional: true, type: SBoM.Cyclonedx.V17.CO2MeasureType)
-  field(:co2CostOffset, 5, proto3_optional: true, type: SBoM.Cyclonedx.V17.CO2MeasureType)
+  field(:co2CostEquivalent, 4, proto3_optional: true, type: CO2MeasureType)
+  field(:co2CostOffset, 5, proto3_optional: true, type: CO2MeasureType)
   field(:properties, 6, repeated: true, type: SBoM.Cyclonedx.V17.Property)
 end

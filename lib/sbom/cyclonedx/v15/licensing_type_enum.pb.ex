@@ -1,0 +1,23 @@
+defmodule SBoM.Cyclonedx.V15.LicensingTypeEnum do
+  @moduledoc false
+
+  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+
+  field(:LICENSING_TYPE_NULL, 0)
+  field(:LICENSING_TYPE_ACADEMIC, 1)
+  field(:LICENSING_TYPE_APPLIANCE, 2)
+  field(:LICENSING_TYPE_CLIENT_ACCESS, 3)
+  field(:LICENSING_TYPE_CONCURRENT_USER, 4)
+  field(:LICENSING_TYPE_CORE_POINTS, 5)
+  field(:LICENSING_TYPE_CUSTOM_METRIC, 6)
+  field(:LICENSING_TYPE_DEVICE, 7)
+  field(:LICENSING_TYPE_EVALUATION, 8)
+  field(:LICENSING_TYPE_NAMED_USER, 9)
+  field(:LICENSING_TYPE_NODE_LOCKED, 10)
+  field(:LICENSING_TYPE_OEM, 11)
+  field(:LICENSING_TYPE_PERPETUAL, 12)
+  field(:LICENSING_TYPE_PROCESSOR_POINTS, 13)
+  field(:LICENSING_TYPE_SUBSCRIPTION, 14)
+  field(:LICENSING_TYPE_USER, 15)
+  field(:LICENSING_TYPE_OTHER, 16)
+end

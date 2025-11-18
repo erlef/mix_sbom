@@ -3,6 +3,8 @@ defmodule SBoM.Cyclonedx.V17.Task do
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
+  alias Google.Protobuf.Timestamp
+
   field(:bom_ref, 1, type: :string, json_name: "bomRef")
   field(:uid, 2, type: :string)
   field(:name, 3, proto3_optional: true, type: :string)
@@ -14,8 +16,8 @@ defmodule SBoM.Cyclonedx.V17.Task do
   field(:steps, 9, repeated: true, type: SBoM.Cyclonedx.V17.Step)
   field(:inputs, 10, repeated: true, type: SBoM.Cyclonedx.V17.InputType)
   field(:outputs, 11, repeated: true, type: SBoM.Cyclonedx.V17.OutputType)
-  field(:timeStart, 14, proto3_optional: true, type: Google.Protobuf.Timestamp)
-  field(:timeEnd, 15, proto3_optional: true, type: Google.Protobuf.Timestamp)
+  field(:timeStart, 14, proto3_optional: true, type: Timestamp)
+  field(:timeEnd, 15, proto3_optional: true, type: Timestamp)
   field(:workspaces, 16, repeated: true, type: SBoM.Cyclonedx.V17.Workspace)
   field(:runtimeTopology, 17, repeated: true, type: SBoM.Cyclonedx.V17.Dependency)
 end
