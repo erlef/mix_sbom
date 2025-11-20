@@ -8,7 +8,7 @@
           "lib/",
           "test/",
         ],
-        excluded: [~r"/_build/", ~r"/deps/", ~r"/node_modules/", ~r"/test/fixtures/"]
+        excluded: [~r"/_build/", ~r"/deps/", ~r"/node_modules/", ~r"/test/fixtures/", ~r"/lib/sbom/cyclonedx/v.+"]
       },
       strict: true,
       color: true,

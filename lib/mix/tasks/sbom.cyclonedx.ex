@@ -41,14 +41,16 @@ defmodule Mix.Tasks.Sbom.Cyclonedx do
     end
   end
 
+  @spec generate_bom(Path.t(), atom(), CLI.cli_opts()) :: boolean()
   defp generate_bom(output_path, _environment, opts) do
     bom = CLI.generate_bom_content(opts)
     create_file(output_path, bom, force: opts[:force])
   end
 
+  @spec generate_bom({Application.app(), Path.t()}, Path.t(), atom(), boolean()) :: term()
   defp generate_bom({app, path}, output_path, environment, force) do
     Mix.Project.in_project(app, path, fn _module ->
-      generate_bom(output_path, environment, %{force: force})
+      generate_bom(output_path, environment, force: force)
     end)
   end
 end

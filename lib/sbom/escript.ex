@@ -5,6 +5,7 @@ defmodule SBoM.Escript do
 
   alias SBoM.CLI
 
+  @spec main(OptionParser.argv()) :: :ok
   def main(args) do
     if "--help" in args or "-h" in args do
       print_help()
@@ -14,16 +15,22 @@ defmodule SBoM.Escript do
       force? = Keyword.get(opts, :force, false)
 
       if File.exists?(opts[:output]) and not force? do
-        raise "File #{opts[:output]} already exists. Use --force to overwrite."
+        IO.write(
+          :stderr,
+          "Error: File #{opts[:output]} already exists. Use --force to overwrite.\n"
+        )
+
+        System.halt(1)
       end
 
       File.write!(opts[:output], content)
-      IO.puts("Generated SBoM: #{opts[:output]}")
+      IO.write(:stderr, "Generated SBoM: #{opts[:output]}\n")
     end
   end
 
+  @spec print_help() :: :ok
   defp print_help do
-    IO.puts("""
+    IO.write("""
     SBoM - Software Bill of Materials Generator
 
     Generates a Software Bill-of-Materials (SBoM) in CycloneDX format.

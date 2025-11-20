@@ -5,6 +5,10 @@ defmodule SBoM.CycloneDX.XML.Helpers do
 
   alias SBoM.CycloneDX.XML.Encodable
 
+  @type action() :: :wrap | :unwrap | :keep
+  @type element_field_mapping() :: {atom(), atom() | {atom(), atom()}, action()}
+  @type attr_field_mapping() :: {atom(), atom() | {:static, term()}}
+
   @doc """
   Converts struct fields to XML child elements using explicit 3-tuple syntax.
   Format: {:"xml-element-name", :struct_field_name, :wrap|:unwrap|:keep}
@@ -12,6 +16,9 @@ defmodule SBoM.CycloneDX.XML.Helpers do
   For oneof fields, use: {:"xml-element-name", {:oneof_field_name, :choice_name}, :wrap|:unwrap|:keep}
   Only includes the element if the oneof field matches the specified choice.
   """
+  @spec encode_fields_as_elements([element_field_mapping()], struct()) :: [
+          :xmerl.simple_element()
+        ]
   def encode_fields_as_elements(field_mappings, struct) when is_list(field_mappings) do
     for_result =
       for {xml_name, struct_field, action} <- field_mappings do
@@ -23,7 +30,7 @@ defmodule SBoM.CycloneDX.XML.Helpers do
                 # Choice matches, proceed with action on the value
                 apply_action(xml_name, value, action)
 
-              _ ->
+              _other_choice ->
                 # Choice doesn't match, skip this element
                 nil
             end
@@ -38,6 +45,7 @@ defmodule SBoM.CycloneDX.XML.Helpers do
     filter_present_fields(for_result)
   end
 
+  @spec apply_action(atom(), term(), action()) :: :xmerl.simple_element() | nil
   defp apply_action(_xml_name, nil, _action), do: nil
   defp apply_action(_xml_name, "", _action), do: nil
   defp apply_action(_xml_name, [], _action), do: nil
@@ -61,6 +69,7 @@ defmodule SBoM.CycloneDX.XML.Helpers do
   Converts struct fields to XML attributes.
   Supports field mappings ({:xml_name, :struct_field}) and static values ({:xml_name, {:static, value}}).
   """
+  @spec encode_fields_as_attrs([attr_field_mapping()], struct()) :: [:xmerl.simple_attribute()]
   def encode_fields_as_attrs(field_mappings, struct) when is_list(field_mappings) do
     for_result =
       for field_spec <- field_mappings do
@@ -77,6 +86,7 @@ defmodule SBoM.CycloneDX.XML.Helpers do
     filter_present_fields(for_result)
   end
 
+  @spec encode_field_as_attr(atom(), term()) :: :xmerl.simple_attribute() | nil
   defp encode_field_as_attr(_field, nil), do: nil
   defp encode_field_as_attr(_field, ""), do: nil
 
@@ -84,6 +94,8 @@ defmodule SBoM.CycloneDX.XML.Helpers do
     {field, to_string(value)}
   end
 
+  @spec filter_present_fields([entry]) :: [entry]
+        when entry: :xmerl.simple_element() | :xmerl.simple_attribute()
   defp filter_present_fields(fields) when is_list(fields) do
     fields
     |> List.flatten()

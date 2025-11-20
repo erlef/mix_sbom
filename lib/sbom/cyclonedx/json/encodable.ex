@@ -21,6 +21,7 @@ end
 defimpl SBoM.CycloneDX.JSON.Encodable, for: Any do
   alias SBoM.CycloneDX.JSON.Encoder
 
+  @impl SBoM.CycloneDX.JSON.Encodable
   def to_encodable(%module{} = struct) do
     true = function_exported?(module, :__message_props__, 0)
     Encoder.encodable(struct)
@@ -47,6 +48,7 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
     Google.Protobuf.StringValue,
     Google.Protobuf.Any
   ] do
+  @impl SBoM.CycloneDX.JSON.Encodable
   def to_encodable(struct) do
     {:ok, encoded} = Protobuf.JSON.to_encodable(struct, [])
     encoded
@@ -63,6 +65,20 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
   ] do
   alias SBoM.CycloneDX.JSON.Encoder
 
+  @type classification() ::
+          SBoM.Cyclonedx.V13.Classification.t()
+          | SBoM.Cyclonedx.V14.Classification.t()
+          | SBoM.Cyclonedx.V15.Classification.t()
+          | SBoM.Cyclonedx.V16.Classification.t()
+          | SBoM.Cyclonedx.V17.Classification.t()
+  @type scope() ::
+          SBoM.Cyclonedx.V13.Scope.t()
+          | SBoM.Cyclonedx.V14.Scope.t()
+          | SBoM.Cyclonedx.V15.Scope.t()
+          | SBoM.Cyclonedx.V16.Scope.t()
+          | SBoM.Cyclonedx.V17.Scope.t()
+
+  @impl SBoM.CycloneDX.JSON.Encodable
   def to_encodable(component) do
     component
     |> Encoder.encodable()
@@ -71,6 +87,7 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
     |> rename_bom_ref()
   end
 
+  @spec rename_bom_ref(map()) :: map()
   defp rename_bom_ref(map) do
     case Map.pop(map, "bomRef") do
       {nil, map} -> map
@@ -78,6 +95,7 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
     end
   end
 
+  @spec classification_to_string(classification()) :: String.t() | nil
   defp classification_to_string(:CLASSIFICATION_NULL), do: nil
   defp classification_to_string(:CLASSIFICATION_APPLICATION), do: "application"
   defp classification_to_string(:CLASSIFICATION_FRAMEWORK), do: "framework"
@@ -95,6 +113,7 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
   defp classification_to_string(:CLASSIFICATION_DATA), do: "data"
   defp classification_to_string(:CLASSIFICATION_CRYPTOGRAPHIC_ASSET), do: "cryptographic-asset"
 
+  @spec scope_to_string(scope() | nil) :: String.t() | nil
   defp scope_to_string(:SCOPE_UNSPECIFIED), do: nil
   defp scope_to_string(:SCOPE_REQUIRED), do: "required"
   defp scope_to_string(:SCOPE_OPTIONAL), do: "optional"
@@ -112,12 +131,14 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
   ] do
   alias SBoM.CycloneDX.JSON.Encoder
 
+  @impl SBoM.CycloneDX.JSON.Encodable
   def to_encodable(dependency) do
     dependency
     |> Encoder.encodable()
     |> rename_dependencies_to_depends_on()
   end
 
+  @spec rename_dependencies_to_depends_on(map()) :: map()
   defp rename_dependencies_to_depends_on(map) do
     case Map.pop(map, "dependencies") do
       {nil, map} ->
@@ -143,6 +164,7 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
   ] do
   alias SBoM.CycloneDX.JSON.Encoder
 
+  @impl SBoM.CycloneDX.JSON.Encodable
   def to_encodable(bom) do
     encoded = Encoder.encodable(bom)
     Map.put(encoded, "bomFormat", "CycloneDX")

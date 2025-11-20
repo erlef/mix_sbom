@@ -35,7 +35,7 @@ defmodule SBoM.SCM do
   """
   @type lock :: list()
 
-  @type app_name() :: atom()
+  @type app_name() :: Application.app()
   @type dep() :: {app_name(), requirement :: String.t() | nil, opts :: Keyword.t()}
 
   @doc """

@@ -22,10 +22,12 @@ defmodule SBoM.Fetcher do
           optional(:version) => String.t(),
           optional(:mix_dep) => mix_dep(),
           optional(:mix_lock) => SCM.lock(),
-          # optional(:scope) => Dependency.scope(),
-          # optional(:relationship) => Dependency.relationship(),
+          optional(:scope) => :runtime | :optional | :development,
+          optional(:relationship) => :direct | :indirect,
           optional(:dependencies) => [app_name()],
-          optional(:mix_config) => Keyword.t()
+          optional(:mix_config) => Keyword.t(),
+          optional(:package_url) => Purl.t(),
+          optional(:metadata) => map()
         }
 
   @doc """
@@ -97,7 +99,7 @@ defmodule SBoM.Fetcher do
 
   Note: This test assumes an Elixir project that is currently loaded.
   """
-  @spec fetch() :: %{String.t() => Dependency.t()} | nil
+  @spec fetch() :: %{String.t() => dependency()} | nil
   def fetch do
     @manifest_fetchers
     |> Enum.map(& &1.fetch())
@@ -131,7 +133,7 @@ defmodule SBoM.Fetcher do
   defp merge_property(_key, _left, right), do: right
 
   @spec transform_all(dependencies :: %{app_name() => dependency()}) :: %{
-          String.t() => Dependency.t()
+          String.t() => dependency()
         }
   defp transform_all(dependencies) do
     dependencies =
@@ -152,7 +154,7 @@ defmodule SBoM.Fetcher do
     end)
   end
 
-  @spec transform(app_name(), dependency()) :: Dependency.t()
+  @spec transform(app_name(), dependency()) :: dependency()
   defp transform(app, dependency) do
     sub_dependencies =
       Enum.uniq((dependency[:dependencies] || []) ++ lock_dependencies(dependency))

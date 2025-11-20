@@ -19,9 +19,11 @@ defmodule SBoM.Application do
   @spec run_cli() :: :ok | no_return()
   case Code.ensure_loaded(Burrito) do
     {:module, Burrito} ->
+      alias Burrito.Util
+
       defp run_cli do
-        if Burrito.Util.running_standalone?() do
-          SBoM.Escript.main(Burrito.Util.Args.argv())
+        if Util.running_standalone?() do
+          SBoM.Escript.main(Util.Args.argv())
 
           System.stop(0)
         end
@@ -29,7 +31,7 @@ defmodule SBoM.Application do
         :ok
       end
 
-    _ ->
+    _otherwise ->
       defp run_cli, do: :ok
   end
 end

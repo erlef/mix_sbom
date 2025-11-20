@@ -3,18 +3,21 @@ alias SBoM.CycloneDX.XML.Encodable
 require Protocol
 
 defimpl SBoM.CycloneDX.XML.Encodable, for: BitString do
+  @impl Encodable
   def to_xml_element(value) do
     [[value]]
   end
 end
 
 defimpl SBoM.CycloneDX.XML.Encodable, for: List do
+  @impl Encodable
   def to_xml_element(list) do
     Enum.map(list, &Encodable.to_xml_element/1)
   end
 end
 
 defimpl SBoM.CycloneDX.XML.Encodable, for: Google.Protobuf.Timestamp do
+  @impl Encodable
   def to_xml_element(timestamp) do
     datetime = Google.Protobuf.to_datetime(timestamp)
     iso_string = DateTime.to_iso8601(datetime)

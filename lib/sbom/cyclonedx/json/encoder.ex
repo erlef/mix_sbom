@@ -1,3 +1,12 @@
+# SPDX-License-Identifier: MIT AND Apache-2.0
+# SPDX-FileCopyrightText: 2017-2025 The Elixir Protobuf Project Authors
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
+# Heavily influenced by:
+# https://github.com/elixir-protobuf/protobuf/blob/v0.15.0/lib/protobuf/json/encode.ex
+# Protobuf LICENSE: https://github.com/elixir-protobuf/protobuf/blob/main/LICENSE
+
+# credo:disable-for-this-file
 defmodule SBoM.CycloneDX.JSON.Encoder do
   @moduledoc false
 
