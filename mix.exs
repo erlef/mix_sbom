@@ -13,6 +13,7 @@ defmodule SBoM.MixProject do
       build_embedded: true,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
+      archives: archives(),
       name: "SBoM",
       description: description(),
       package: package(),
@@ -87,6 +88,12 @@ defmodule SBoM.MixProject do
       {:protobuf, "~> 0.15.0"},
       {:purl, "~> 0.3.0"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp archives do
+    [
+      {:hex, "~> 2.3"}
     ]
   end
 
