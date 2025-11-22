@@ -19,6 +19,7 @@ defmodule SBoM.Fetcher do
   @type dependency() :: %{
           optional(:scm) => module(),
           optional(:version) => String.t(),
+          optional(:version_range) => String.t(),
           optional(:mix_dep) => mix_dep(),
           optional(:mix_lock) => SCM.lock(),
           optional(:runtime) => boolean(),

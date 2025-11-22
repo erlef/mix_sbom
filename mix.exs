@@ -94,6 +94,7 @@ defmodule SBoM.MixProject do
       {:hex, github: "hexpm/hex", tag: "v2.3.1", runtime: false, targets: [:escript]},
       {:protobuf, "~> 0.15.0"},
       {:purl, "~> 0.3.0"},
+      {:stream_data, "~> 1.2", only: [:test]},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
