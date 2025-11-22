@@ -142,4 +142,27 @@ defmodule SBoM.SCM.Hex.SCMTest do
       assert SCM.group(:app, %{}) == nil
     end
   end
+
+  describe "mix_dep_to_purl/2" do
+    test "uses the resolved version" do
+      dep = {:jason, "~> 1.0", [hex: :jason, repo: "hexpm"]}
+
+      assert SCM.mix_dep_to_purl(dep, "1.4.0") == Purl.new!("pkg:hex/jason@1.4.0")
+    end
+
+    test "falls back to a vers qualifier when the version is unresolved" do
+      dep = {:jason, "~> 1.0", [hex: :jason, repo: "hexpm"]}
+
+      assert %Purl{version: nil, qualifiers: %{"vers" => "vers:hex/>=1.0.0|<2.0.0-0"}} =
+               SCM.mix_dep_to_purl(dep, nil)
+    end
+
+    test "handles deps declared without a requirement" do
+      # `{app, opts}` deps normalize to a `nil` requirement.
+      dep = {:jason, nil, [hex: :jason, repo: "hexpm"]}
+
+      assert %Purl{version: nil, qualifiers: qualifiers} = SCM.mix_dep_to_purl(dep, nil)
+      refute Map.has_key?(qualifiers, "vers")
+    end
+  end
 end
