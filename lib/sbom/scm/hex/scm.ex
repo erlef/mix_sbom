@@ -180,6 +180,42 @@ defmodule SBoM.SCM.Hex.SCM do
     Enum.map(deps, fn {app, _requirement, _opts} -> app end)
   end
 
+  @doc """
+  Extracts the version string from a locked dependency.
+
+  ## Examples
+
+      iex> lock = [
+      ...>   :hex,
+      ...>   :jason,
+      ...>   "1.4.0",
+      ...>   "checksum",
+      ...>   [:mix],
+      ...>   [],
+      ...>   "hexpm",
+      ...>   "checksum"
+      ...> ]
+      ...>
+      ...> SBoM.SCM.Hex.SCM.mix_lock_version(lock)
+      "1.4.0"
+
+  """
+  @impl SCM
+  def mix_lock_version(lock) do
+    [
+      :hex,
+      _package_name,
+      version,
+      _inner_checksum,
+      _managers,
+      _deps,
+      _repo,
+      _outer_checksum | _rest
+    ] = lock
+
+    version
+  end
+
   @spec hex_namespace(repo :: String.t() | nil) :: Purl.namespace()
   defp hex_namespace(repo)
   defp hex_namespace(nil), do: []

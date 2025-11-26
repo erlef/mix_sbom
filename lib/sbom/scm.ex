@@ -63,7 +63,12 @@ defmodule SBoM.SCM do
   """
   @callback mix_lock_deps(lock :: lock()) :: [app_name()]
 
-  @optional_callbacks mix_lock_deps: 1, mix_lock_to_purl: 2
+  @doc """
+  Extracts the version string from a locked dependency.
+  """
+  @callback mix_lock_version(lock :: lock()) :: String.t()
+
+  @optional_callbacks mix_lock_deps: 1, mix_lock_to_purl: 2, mix_lock_version: 1
 
   @doc """
   Returns the module implementing SCM-specific behavior for a given SCM module.

@@ -136,7 +136,8 @@ defmodule SBoM.Fetcher.MixFile do
        optional: Keyword.get(opts, :optional, false),
        runtime: Keyword.get(opts, :runtime, app?),
        targets: Keyword.get(opts, :targets, :*),
-       only: Keyword.get(opts, :only, :*)
+       only: Keyword.get(opts, :only, :*),
+       version_requirement: requirement
      }}
   end
 end

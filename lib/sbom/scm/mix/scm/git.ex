@@ -97,4 +97,22 @@ defmodule SBoM.SCM.Mix.SCM.Git do
         })
     end
   end
+
+  @doc """
+  Extracts the version string from a locked dependency.
+
+  ## Examples
+
+      iex> SBoM.SCM.Mix.SCM.Git.mix_lock_version([
+      ...>   :git,
+      ...>   "https://github.com/example/my_app.git",
+      ...>   "abc123"
+      ...> ])
+      "abc123"
+  """
+  @impl SCM
+  def mix_lock_version(lock) do
+    [:git, _repo_url, revision | _rest] = lock
+    revision
+  end
 end

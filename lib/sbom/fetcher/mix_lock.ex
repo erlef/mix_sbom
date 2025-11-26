@@ -60,11 +60,20 @@ defmodule SBoM.Fetcher.MixLock do
           {Fetcher.app_name(), Fetcher.dependency()}
   defp normalize_dep({app, lock} = _dep) do
     scm = Enum.find(Mix.SCM.available(), & &1.format_lock(lock: lock))
+    scm_impl = SBoM.SCM.implementation(scm)
+
+    lock = Tuple.to_list(lock)
+
+    version =
+      if scm_impl && function_exported?(scm_impl, :mix_lock_version, 1) do
+        scm_impl.mix_lock_version(lock)
+      end
 
     {app,
      %{
        scm: scm,
-       mix_lock: Tuple.to_list(lock)
+       mix_lock: lock,
+       version: version
      }}
   end
 end
