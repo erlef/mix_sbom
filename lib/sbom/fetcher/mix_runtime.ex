@@ -12,6 +12,8 @@ defmodule SBoM.Fetcher.MixRuntime do
 
   @behaviour SBoM.Fetcher
 
+  import SBoM.SCM.System, only: [is_system_app: 1]
+
   alias SBoM.Fetcher
   alias SBoM.Fetcher.Links
 
@@ -134,10 +136,21 @@ defmodule SBoM.Fetcher.MixRuntime do
       links = config[:links] || config[:package][:links] || %{}
       source_url = config[:source_url] || Links.source_url(links)
 
+      load_from_app_spec? = not is_system_app(app) or not in_burrito?()
+
+      version =
+        config[:version] ||
+          if load_from_app_spec? do
+            case Application.spec(app, :vsn) do
+              nil -> nil
+              vsn -> to_string(vsn)
+            end
+          end
+
       {app,
        %{
          scm: dep_scm,
-         version: config[:version],
+         version: version,
          runtime: true,
          optional: false,
          dependencies: dependencies,
@@ -149,5 +162,16 @@ defmodule SBoM.Fetcher.MixRuntime do
     else
       :error -> nil
     end
+  end
+
+  @spec in_burrito?() :: boolean()
+  defp in_burrito?
+
+  case Code.ensure_loaded(Burrito) do
+    {:module, Burrito} ->
+      defp in_burrito?, do: Burrito.Util.running_standalone?()
+
+    _otherwise ->
+      defp in_burrito?, do: false
   end
 end
