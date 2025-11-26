@@ -191,30 +191,35 @@ defmodule SBoM.CycloneDX do
           SBoM.Fetcher.dependency(),
           SBoM.CLI.schema_version()
         ) :: struct()
-  defp convert_component(name, component, version) do
+  defp convert_component(name, component, schema_version) do
     purl_string = to_string(component.package_url)
 
     source_url_reference =
       case component[:source_url] do
         nil -> nil
-        source_url -> source_url_reference(source_url, version)
+        source_url -> source_url_reference(source_url, schema_version)
       end
 
-    asset_reference = asset_reference(component, version)
+    asset_reference = asset_reference(component, schema_version)
 
-    bom_struct(:Component, version,
+    bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
-      version: component.package_url.version,
+      version:
+        case schema_version do
+          "1.3" -> component[:version] || component[:version_requirement] || "unknown"
+          # TODO: Handle VersionRequirement separately in 1.7+
+          _schema_version -> component[:version] || component[:version_requirement]
+        end,
       purl: purl_string,
       scope: dependency_scope(component),
-      licenses: component[:licenses] |> List.wrap() |> convert_licenses(version),
+      licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
       bom_ref: generate_bom_ref(purl_string),
       external_references:
         Enum.reject(
           [
             source_url_reference,
-            asset_reference | links_references(component[:links] || %{}, version)
+            asset_reference | links_references(component[:links] || %{}, schema_version)
           ],
           &is_nil/1
         )
