@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 on:
   pull_request:
     branches:
@@ -28,6 +31,18 @@ jobs:
       attestations: write
 
     uses: ./.github/workflows/part_build.yml
+    with:
+      attest: false
+
+  licensing:
+    name: "Licensing"
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_licensensing.yml
     with:
       attest: false
 

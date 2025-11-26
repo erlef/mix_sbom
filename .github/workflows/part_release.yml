@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 on:
   workflow_call:
     inputs:
@@ -66,6 +69,11 @@ jobs:
         with:
           name: binary
           path: .
+      - name: "Download Source SBoM Artifact"
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: source_sbom
+          path: .
 
       - name: Upload Artifacts
         env:
@@ -74,4 +82,4 @@ jobs:
           gh release upload
           --repo ${{ github.repository }}
           --clobber "${{ inputs.releaseName }}"
-          docs.tar.gz* sbom*
+          docs.tar.gz* mix_sbom* source_sbom*

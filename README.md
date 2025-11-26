@@ -1,3 +1,9 @@
+<!--
+  SPDX-License-Identifier: BSD-3-Clause
+  SPDX-FileCopyrightText: 2019 Bram Verburg
+  SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+-->
+
 # SBoM
 
 [![EEF Security WG project](https://img.shields.io/badge/EEF-Security-black)](https://github.com/erlef/security-wg)
@@ -7,6 +13,7 @@
 <!-- TODO: Do BPB
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10438/badge)](https://www.bestpractices.dev/projects/10438)
 -->
+[![REUSE status](https://api.reuse.software/badge/github.com/erlef/mix_sbom)](https://api.reuse.software/info/github.com/erlef/mix_sbom)
 
 Generates a Software Bill-of-Materials (SBoM) for Mix projects, in [CycloneDX](https://cyclonedx.org)
 format.

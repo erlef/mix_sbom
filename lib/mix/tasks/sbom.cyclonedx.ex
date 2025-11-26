@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2019 Bram Verburg
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule Mix.Tasks.Sbom.Cyclonedx do
   @shortdoc "Generates CycloneDX SBoM"
 

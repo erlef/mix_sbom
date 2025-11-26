@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 [
   # Hex Archive does not contain debug information
   ~r"Function Hex\..+ does not exist\.",

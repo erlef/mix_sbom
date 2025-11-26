@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 on:
   push:
     tags:
@@ -19,6 +22,16 @@ jobs:
 
     uses: ./.github/workflows/part_build.yml
 
+  licensing:
+    name: "Licensing"
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_licensensing.yml
+
   docs:
     name: "Docs"
     
@@ -32,7 +45,7 @@ jobs:
   release:
     name: Create Release
 
-    needs: ["build", "docs"]
+    needs: ["build", "licensing", "docs"]
 
     permissions:
       contents: write

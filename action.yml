@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 name: "Mix SBoM"
 description: "Calculates dependencies for Mix and outputs a CycloneDX File"
 author: "Erlang Ecosystem Foundation"
