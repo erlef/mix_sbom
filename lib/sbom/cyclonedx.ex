@@ -1,9 +1,6 @@
 defmodule SBoM.CycloneDX do
   @moduledoc false
 
-  alias SBoM.CycloneDX.JSON.Encodable
-  alias SBoM.CycloneDX.XML.Encodable, as: XMLEncodable
-
   @type t() ::
           SBoM.Cyclonedx.V13.Bom.t()
           | SBoM.Cyclonedx.V14.Bom.t()
@@ -59,6 +56,21 @@ defmodule SBoM.CycloneDX do
 
   @version Mix.Project.config()[:version]
 
+  json_available =
+    case {Code.ensure_loaded(JSON), Code.ensure_loaded(Jason)} do
+      {{:module, JSON}, _jason} ->
+        @json_module JSON
+        true
+
+      {_json, {:module, Jason}} ->
+        @json_module Jason
+        true
+
+      {{:error, _json_error}, {:error, _jason_error}} ->
+        @json_module nil
+        false
+    end
+
   @spec empty(SBoM.CLI.schema_version()) :: t()
   def empty(version \\ "1.7") do
     bom_struct(:Bom, version,
@@ -87,18 +99,31 @@ defmodule SBoM.CycloneDX do
   def encode(bom, type)
   def encode(%module{} = bom, :protobuf), do: module.encode(bom)
 
-  def encode(bom, :json) do
-    bom
-    |> Encodable.to_encodable()
-    |> JSON.encode!()
+  if json_available do
+    def encode(bom, :json) do
+      alias SBoM.CycloneDX.JSON.Encodable
+
+      bom
+      |> Encodable.to_encodable()
+      |> @json_module.encode!()
+    end
+  else
+    def encode(_bom, :json) do
+      raise """
+      JSON encoding is not available. Please either update to Elixir 1.18+ or add
+      {:jason, "~> 1.4"} to your dependencies.
+      """
+    end
   end
 
   def encode(bom, :xml) do
+    alias SBoM.CycloneDX.XML.Encodable
+
     utf8_bom = <<0xEF, 0xBB, 0xBF>>
 
     xml_content =
       bom
-      |> XMLEncodable.to_xml_element()
+      |> Encodable.to_xml_element()
       |> List.wrap()
       |> :xmerl.export_simple(:xmerl_xml, [
         {:prolog, ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"}
