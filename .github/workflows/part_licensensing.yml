@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
+on:
+  workflow_call:
+    inputs:
+      attest:
+        description: "Attest the SBoM"
+        default: true
+        type: boolean
+
+name: "Licensing"
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: "Generate Source SBoM"
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      
+      - name: REUSE SPDX SBOM
+        uses: fsfe/reuse-action@676e2d560c9a403aa252096d99fcab3e1132b0f5 # v6.0.0
+        with:
+          args: spdx -o source_sbom.spdx --creator-person "${{ github.actor }}" --creator-organization "Erlang Ecosystem Foundation"
+
+      - name: "Attest provenance"
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        id: attest-provenance
+        if: "${{ inputs.attest }}"
+        with:
+          subject-path: 'source_sbom.spdx'
+      - name: "Copy provenance"
+        if: "${{ inputs.attest }}"
+        run: cp "$ATTESTATION" source_sbom.spdx.sigstore
+        env:
+          ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"
+      
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: source_sbom
+          path: |
+            source_sbom.spdx
+            source_sbom.spdx.sigstore
+
+  check:
+    name: "Check Licensing Compliance"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: REUSE Check
+        uses: fsfe/reuse-action@676e2d560c9a403aa252096d99fcab3e1132b0f5 # v6.0.0

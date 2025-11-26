@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule SBoM.CycloneDX.XML.Helpers do
   @moduledoc """
   Generic XML structure building helpers for CycloneDX encoding.

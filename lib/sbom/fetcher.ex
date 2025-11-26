@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule SBoM.Fetcher do
   @moduledoc """
   Defines the behaviour for manifest fetchers and provides an entry point to collect

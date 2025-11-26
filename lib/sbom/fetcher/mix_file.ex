@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule SBoM.Fetcher.MixFile do
   @moduledoc """
   A `SBoM.Fetcher` implementation that extracts dependencies

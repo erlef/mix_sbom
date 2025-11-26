@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule SBoM.SCM do
   @moduledoc """
   Defines the behavior and helper types for working with source control managers

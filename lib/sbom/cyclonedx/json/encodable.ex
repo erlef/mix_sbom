@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defprotocol SBoM.CycloneDX.JSON.Encodable do
   @moduledoc """
   Protocol for converting CycloneDX structs to JSON-encodable data structures.

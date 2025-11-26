@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 { pkgs, lib, config, inputs, ... }:
 let
   pkgs-unstable = import inputs.nixpkgs-unstable {
@@ -12,6 +15,7 @@ in
     cyclonedx-cli
     xz
     p7zip
+    reuse
   ];
 
   languages.elixir = {
@@ -55,6 +59,15 @@ in
         pkgs-unstable.beam28Packages.elixir_1_19
         protobuf
       ];
+    };
+  };
+
+  git-hooks.hooks = {
+    reuse = {
+      enable = true;
+      name = "REUSE lint";
+      entry = "reuse lint";
+      pass_filenames = false;
     };
   };
 }

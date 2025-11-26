@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defprotocol SBoM.CycloneDX.XML.Encodable do
   @doc """
   Converts a CycloneDX struct to an XML element tuple suitable for :xmerl.

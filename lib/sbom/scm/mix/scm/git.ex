@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule SBoM.SCM.Mix.SCM.Git do
   @moduledoc """
   SCM implementation for Git-based Mix dependencies.

@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2019 Bram Verburg
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
 defmodule SBoM.MixProject do
   use Mix.Project
 
@@ -29,6 +33,8 @@ defmodule SBoM.MixProject do
       licenses: [
         # Main License
         "BSD-3-Clause",
+        # Generated Code
+        "CC0-1.0",
         # Appropriated Code from protobuf libary in
         # lib/sbom/cyclonedx/json/encoder.ex
         "MIT",
