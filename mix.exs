@@ -8,7 +8,8 @@ defmodule SBoM.MixProject do
     [
       app: :sbom,
       version: @version,
-      elixir: "~> 1.12",
+      # MIX.SCM.delete available from 1.16.2
+      elixir: "~> 1.16 and >= 1.16.2",
       start_permanent: Mix.env() == :prod,
       build_embedded: true,
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -104,6 +105,7 @@ defmodule SBoM.MixProject do
       {:excoveralls, "~> 0.5", only: [:test], runtime: false},
       # TODO: Remove once https://github.com/elixir-lang/elixir/issues/14930 is resolved
       {:hex, github: "hexpm/hex", tag: "v2.3.1", runtime: false, targets: [:escript]},
+      {:jason, "~> 1.4", optional: true},
       {:protobuf, "~> 0.15.0"},
       {:purl, "~> 0.3.0"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}

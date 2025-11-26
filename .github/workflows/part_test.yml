@@ -64,8 +64,8 @@ jobs:
       matrix:
         include:
           # Lowest Supported
-          - otp: "27.0"
-            elixir: "1.17"
+          - otp: "26.0"
+            elixir: "1.16.2"
             name: "lowest"
             runs-on: ubuntu-latest
             unstable: false
