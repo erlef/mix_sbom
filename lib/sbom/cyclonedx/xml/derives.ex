@@ -306,7 +306,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.OrganizationalEntity,
 )
 
 Protocol.derive(Encodable, SBoM.Cyclonedx.V17.LicenseChoice,
-  element_name: :licenses,
+  element_name: :license,
   attributes: [
     {:"bom-ref", :bom_ref}
   ],
@@ -431,7 +431,6 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.License,
   ]
 )
 
-# Dependency derives
 Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Dependency,
   element_name: :dependency,
   attributes: [

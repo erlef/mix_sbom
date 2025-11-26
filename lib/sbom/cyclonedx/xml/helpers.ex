@@ -64,7 +64,15 @@ defmodule SBoM.CycloneDX.XML.Helpers do
   end
 
   defp apply_action(xml_name, value, :unwrap) do
-    {_elem, attrs, content} = Encodable.to_xml_element(value)
+    {attrs, content} =
+      case Encodable.to_xml_element(value) do
+        list when is_list(list) ->
+          {[], Enum.flat_map(list, fn {_elem, _attrs, content} -> content end)}
+
+        {_elem, attrs, content} ->
+          {attrs, content}
+      end
+
     {xml_name, attrs, content}
   end
 
