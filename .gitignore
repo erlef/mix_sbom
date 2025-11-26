@@ -29,10 +29,9 @@ sbom-*.tar
 bom.xml
 
 # Ignore dependency artifacts from test fixtures
-/test/fixtures/*/deps/
-/test/fixtures/*/_build/
-
-mix.lock
+priv/test/fixtures/*/*
+!priv/test/fixtures/*/mix.exs
+!priv/test/fixtures/*/mix.lock
 
 # Devenv
 .devenv*

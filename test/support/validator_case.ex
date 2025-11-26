@@ -14,7 +14,7 @@ defmodule SBoM.ValidatorCase do
         :protobuf ->
           assert {_out, 0} =
                    System.cmd(
-                     "cyclonedx",
+                     cyclonedx_cli_path(),
                      [
                        "convert",
                        "--input-file",
@@ -32,7 +32,7 @@ defmodule SBoM.ValidatorCase do
 
           assert {_out, 0} =
                    System.cmd(
-                     "cyclonedx",
+                     cyclonedx_cli_path(),
                      ["validate", "--input-file", "#{bom_path}.json", "--input-format", "json"],
                      stderr_to_stdout: true,
                      env: %{}
@@ -41,12 +41,22 @@ defmodule SBoM.ValidatorCase do
         _other ->
           assert {_out, 0} =
                    System.cmd(
-                     "cyclonedx",
+                     cyclonedx_cli_path(),
                      ["validate", "--input-file", bom_path, "--input-format", format],
                      stderr_to_stdout: true,
                      env: %{}
                    )
       end
+    end
+  end
+
+  @spec cyclonedx_cli_path() :: Path.t()
+  def cyclonedx_cli_path do
+    ["cyclonedx-cli", "cyclonedx"]
+    |> Enum.find_value(&System.find_executable/1)
+    |> case do
+      nil -> raise "cyclonedx-cli not found in PATH"
+      path -> path
     end
   end
 end

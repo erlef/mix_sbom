@@ -1,0 +1,163 @@
+on:
+  workflow_call: {}
+
+name: "Test"
+
+permissions:
+  contents: read
+
+jobs:
+  detectToolVersions:
+    name: "Detect Tool Versions"
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      otpVersion: "${{ steps.toolVersions.outputs.OTP_VERSION }}"
+      elixirVersion: "${{ steps.toolVersions.outputs.ELIXIR_VERSION }}"
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: "Read .tool-versions"
+        id: toolVersions
+        run: |
+          OTP_VERSION="$(cat .tool-versions | grep erlang | cut -d' ' -f2-)"
+          echo OTP: $OTP_VERSION
+          echo "OTP_VERSION=${OTP_VERSION}" >> $GITHUB_OUTPUT
+
+          ELIXIR_VERSION="$(cat .tool-versions | grep elixir | cut -d' ' -f2-)"
+          echo Elixir: $ELIXIR_VERSION
+          echo "ELIXIR_VERSION=${ELIXIR_VERSION}" >> $GITHUB_OUTPUT
+
+  format:
+    name: Check Formatting
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+
+      - run: mix format --check-formatted
+
+  test:
+    name: mix test (${{ matrix.name }})
+
+    needs: ["detectToolVersions"]
+
+    runs-on: ${{ matrix.runs-on }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Lowest Supported
+          - otp: "27.0"
+            elixir: "1.17"
+            name: "lowest"
+            runs-on: ubuntu-latest
+            unstable: false
+          # Latest Supported
+          - otp: "${{ needs.detectToolVersions.outputs.otpVersion }}"
+            elixir: "${{ needs.detectToolVersions.outputs.elixirVersion }}"
+            name: "latest"
+            runs-on: ubuntu-latest
+            enable_coverage_export: "true"
+            unstable: false
+          # Test Main
+          - otp: "${{ needs.detectToolVersions.outputs.otpVersion }}"
+            elixir: "main"
+            name: "main"
+            runs-on: ubuntu-latest
+            unstable: true
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+        with:
+          mix-env: test
+
+      - name: "Install Test OS Dependencies"
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          echo "PATH=$PATH" >> "$GITHUB_ENV"
+          brew tap cyclonedx/cyclonedx
+          brew install cyclonedx/cyclonedx/cyclonedx-cli
+
+      - run: mix coveralls.github
+        if: ${{ matrix.enable_coverage_export == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: ${{ matrix.unstable }}
+      - run: mix test
+        if: ${{ !matrix.enable_coverage_export }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: ${{ matrix.unstable }}
+
+  credo:
+    name: Check Credo
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+
+      - run: mix credo --format sarif > results.sarif
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@0499de31b99561a6d14a36a5f662c2a54f91beee # v4.31.2
+        with:
+          sarif_file: results.sarif
+          category: credo
+
+  dialyzer:
+    name: "Check Dialyzer"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+
+      - run: mix dialyzer

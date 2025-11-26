@@ -8,7 +8,7 @@ defmodule SBoM.MixProject do
     [
       app: :sbom,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       build_embedded: true,
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -22,11 +22,15 @@ defmodule SBoM.MixProject do
       escript: escript(),
       source_url: @source_url,
       test_ignore_filters: [~r/test\/fixtures/],
+      test_coverage: [
+        tool: ExCoveralls
+      ],
       licenses: [
         # Main License
         "BSD-3-Clause",
         # Appropriated Code from protobuf libary in
         # lib/sbom/cyclonedx/json/encoder.ex
+        "MIT",
         "Apache-2.0"
       ]
     ]
@@ -48,6 +52,14 @@ defmodule SBoM.MixProject do
         release: :standalone,
         # TODO: Remove once https://github.com/elixir-lang/elixir/issues/14930 is resolved
         "escript.build": :escript
+      ],
+      preferred_envs: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test,
+        "coveralls.json": :test,
+        "coveralls.post": :test,
+        "coveralls.xml": :test
       ]
     ]
   end
@@ -60,7 +72,7 @@ defmodule SBoM.MixProject do
 
   defp releases do
     [
-      sbom: [
+      mix_sbom: [
         steps: [:assemble, &Burrito.wrap/1],
         burrito: [
           targets: [

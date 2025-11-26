@@ -1,0 +1,143 @@
+on:
+  workflow_call:
+    inputs:
+      attest:
+        description: "Attest the build"
+        default: true
+        type: boolean
+
+name: "Build"
+
+permissions:
+  contents: read
+
+jobs:
+  detectToolVersions:
+    name: "Detect Tool Versions"
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      zigVersion: "${{ steps.toolVersions.outputs.ZIG_VERSION }}"
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: "Read .tool-versions"
+        id: toolVersions
+        run: |
+          ZIG_VERSION="$(cat .tool-versions | grep zig | cut -d' ' -f2-)"
+          echo Zig: $ZIG_VERSION
+          echo "ZIG_VERSION=${ZIG_VERSION}" >> $GITHUB_OUTPUT
+
+  escript:
+    name: "EScript"
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    env:
+      MIX_ENV: prod
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+        with:
+          mix-env: prod
+
+      - name: "Build EScript"
+        run: mix escript.build
+
+      - name: "Correct Name"
+        run: "mv sbom mix_sbom_escript"
+
+      - name: "Attest provenance"
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        id: attest-provenance
+        if: "${{ inputs.attest }}"
+        with:
+          subject-path: 'mix_sbom_escript'
+      - name: "Copy provenance"
+        if: "${{ inputs.attest }}"
+        run: cp "$ATTESTATION" mix_sbom_escript.sigstore
+        env:
+          ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"
+      
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: escript
+          path: |
+            mix_sbom_escript
+            mix_sbom_escript.sigstore
+
+  binary:
+    name: "Binary"
+
+    runs-on: ubuntu-latest
+
+    needs: ['detectToolVersions']
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    env:
+      MIX_ENV: prod
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
+        with:
+          version: "${{ needs.detectToolVersions.outputs.zigVersion }}"
+
+      - run: sudo apt-get install -y xz-utils
+
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+        with:
+          mix-env: prod
+
+      - run: mix release --overwrite
+      - name: "Attest provenance"
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        id: attest-provenance
+        if: "${{ inputs.attest }}"
+        with:
+          subject-path: 'burrito_out/sbom*'
+      - name: "Copy provenance"
+        if: "${{ inputs.attest }}"
+        run: |-
+          for FILE in burrito_out/sbom*; do
+            cp "$ATTESTATION" $FILE.sigstore
+          done
+        env:
+          ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"
+      
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: binary
+          path: burrito_out/*
