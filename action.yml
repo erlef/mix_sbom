@@ -1,0 +1,77 @@
+name: "Mix SBoM"
+description: "Calculates dependencies for Mix and outputs a CycloneDX File"
+author: "Erlang Ecosystem Foundation"
+branding:
+  icon: arrow-up
+  color: blue
+inputs:
+  project-path:
+    required: true
+    description: "Repo path to the mix.exs file used to detect dependencies. Defaults to mix.exs in the root of the repository."
+    default: "${{ github.workspace }}"
+  schema:
+    required: true
+    description: "CycloneDX Schema Version"
+    default: "1.6"
+  format:
+    required: true
+    description: "CycloneDX Output Format"
+    default: "json"
+outputs:
+  sbom-path:
+    description: "Path to the generated SBoM"
+    value: "${{ steps.define_output.outputs.output }}"
+runs:
+  using: "composite"
+  steps:
+    - name: "Download SBoM Tool"
+      run: >-
+        gh release download
+        "$TAG"
+        --repo erlef/mix_sbom
+        --pattern "mix_sbom_${{ runner.os }}_${{ runner.arch }}"
+        --output mix_sbom
+      shell: "bash"
+      working-directory: "${{ runner.temp }}"
+      env:
+        # TODO: Put real version
+        TAG: "VERSION"
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: "Verify SBoM Tool Provenance"
+      run: >-
+        gh attestation verify
+        --repo erlef/mix_sbom
+        --source-ref "refs/tags/$TAG"
+        mix_sbom
+      shell: "bash"
+      working-directory: "${{ runner.temp }}"
+      env:
+        # TODO: Put real version
+        TAG: "VERSION"
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: "Make Tool Executable"
+      run: "chmod +x mix_sbom"
+      shell: "bash"
+      working-directory: "${{ runner.temp }}"
+    - name: "Define Output Temp File"
+      run: |
+        OUTPUT_TEMP="$RUNNER_TEMP/$RANDOM.cdx.$FORMAT"
+        echo "output=$OUTPUT_TEMP" >> "$GITHUB_OUTPUT"
+      shell: "bash"
+      env:
+        FORMAT: "${{ inputs.format }}"
+      id: define_output
+    - name: "Generate SBoM"
+      id: generate
+      run: >-
+        "${{ runner.temp }}/mix_sbom"
+        --schema="$SCHEMA"
+        --version="$VERSION"
+        --output="$OUTPUT_PATH"
+        "$PROJECT_PATH"
+      shell: "bash"
+      env:
+        PROJECT_PATH: "${{ inputs.project-path }}"
+        SCHEMA: "${{ inputs.schema }}"
+        FORMAT: "${{ inputs.format }}"
+        "OUTPUT_PATH": "${{ steps.define_output.outputs.output }}"

@@ -1,0 +1,20 @@
+version: 2
+updates:
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "weekly"
+  groups:
+    github-actions:
+      applies-to: version-updates
+      patterns:
+        - "*"
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: "weekly"
+  groups:
+    mix-dependencies:
+      applies-to: version-updates
+      patterns:
+        - "*"

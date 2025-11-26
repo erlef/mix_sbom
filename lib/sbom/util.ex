@@ -37,7 +37,7 @@ defmodule SBoM.Util do
     env when env in [:dev, :test] ->
       defp on_clean_slate(fun) do
         # This is an internal API that we need to call if the exection is run
-        # using mix (eg `mix test` / `mix mix_dependency_submission`).
+        # using mix (eg `mix test`).
         # Since it is not part of the production build, this is acceptable.
         Mix.ProjectStack.on_clean_slate(fun)
       end

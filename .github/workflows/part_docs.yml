@@ -1,0 +1,55 @@
+on:
+  workflow_call:
+    inputs:
+      attest:
+        description: "Attest the build"
+        default: true
+        type: boolean
+
+name: "Documentation"
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    name: "Generate"
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+
+      - run: mix docs
+      - name: "Create Docs Archive"
+        run: "tar -czvf docs.tar.gz doc"
+      
+      - name: "Attest docs provenance"
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        id: attest-docs-provenance
+        if: "${{ inputs.attest }}"
+        with:
+          subject-path: 'docs.tar.gz'
+      - name: "Copy docs provenance"
+        if: "${{ inputs.attest }}"
+        run: cp "$ATTESTATION" docs.tar.gz.sigstore
+        env:
+          ATTESTATION: "${{ steps.attest-docs-provenance.outputs.bundle-path }}"
+
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: docs
+          path: docs.tar.gz*

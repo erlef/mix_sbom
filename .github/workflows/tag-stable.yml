@@ -1,0 +1,43 @@
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+name: "Stable Tag"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: "Build"
+    
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_build.yml
+
+  docs:
+    name: "Docs"
+    
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_docs.yml
+
+  release:
+    name: Create Release
+
+    needs: ["build", "docs"]
+
+    permissions:
+      contents: write
+
+    uses: ./.github/workflows/part_release.yml
+    with:
+      releaseName: "${{ github.ref_name }}"
+      stable: true

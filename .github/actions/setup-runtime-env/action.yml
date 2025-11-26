@@ -1,0 +1,37 @@
+name: "Setup Application Runtime Environment"
+description: "Setup Application Runtime Environment"
+inputs:
+  mix-env:
+    description: "Mix environment to use"
+    required: false
+    default: "dev"
+runs:
+  using: "composite"
+  steps:
+    - name: "Setup BEAM"
+      uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1.18.2
+      id: setupBEAM
+      with:
+        version-file: .tool-versions
+        version-type: strict
+
+    - name: "Cache Deps / Build"
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      with:
+        path: |-
+          deps
+          _build
+        key: "${{ format('{0}-{1}-{2}', inputs.mix-env, hashFiles('.tool-versions'), hashFiles('mix.exs')) }}"
+        restore-keys: "${{ format('{0}-{1}-', inputs.mix-env, hashFiles('.tool-versions')) }}"
+
+    - name: "Install Dependencies"
+      run: mix deps.get --check-locked
+      shell: bash
+
+    - name: "Compile Dependencies"
+      run: mix deps.compile
+      shell: bash
+
+    - name: "Compile Application"
+      run: mix compile --warning-as-errors
+      shell: bash

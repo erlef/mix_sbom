@@ -28,10 +28,6 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
 
           bom_path = Path.join(app_path, "bom.cdx")
 
-          # assert_raise Mix.Error, "Can't continue due to errors on dependencies", fn ->
-          #   Mix.Task.rerun("sbom.cyclonedx", ["-d", "-f"])
-          # end
-
           Mix.Task.rerun("deps.get")
           Mix.Shell.Process.flush()
 
