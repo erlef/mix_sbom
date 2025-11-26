@@ -133,6 +133,7 @@ defmodule SBoM.Fetcher.MixFile do
      %{
        scm: scm,
        mix_dep: {app, requirement, opts},
+       version_range: requirement,
        optional: Keyword.get(opts, :optional, false),
        runtime: Keyword.get(opts, :runtime, app?),
        targets: Keyword.get(opts, :targets, :*),

@@ -202,10 +202,23 @@ defmodule SBoM.CycloneDX do
 
     asset_reference = asset_reference(component, version)
 
+    version_range =
+      case component[:version_range] do
+        nil ->
+          nil
+
+        range ->
+          case Version.Requirement.Vers.to_vers(range, "hex") do
+            {:ok, vers} -> vers
+            :error -> nil
+          end
+      end
+
     bom_struct(:Component, version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
       version: component.package_url.version,
+      versionRange: version_range,
       purl: purl_string,
       scope: dependency_scope(component),
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(version),
