@@ -20,6 +20,10 @@ inputs:
     required: true
     description: "CycloneDX Output Format"
     default: "json"
+  reuse-beam:
+    required: false
+    description: "Use local BEAM installation instead of pre-compiled binaries. Requires Elixir/Erlang to be set up beforehand."
+    default: "false"
 outputs:
   sbom-path:
     description: "Path to the generated SBoM"
@@ -28,18 +32,19 @@ runs:
   using: "composite"
   steps:
     - name: "Download SBoM Tool"
-      run: >-
-        gh release download
-        "$TAG"
-        --repo erlef/mix_sbom
-        --pattern "mix_sbom_${{ runner.os }}_${{ runner.arch }}"
-        --output mix_sbom
+      run: |
+        if [ "$REUSE_BEAM" = "true" ]; then
+          gh release download "$TAG" --repo erlef/mix_sbom --pattern "mix_sbom.escript" --output mix_sbom
+        else
+          gh release download "$TAG" --repo erlef/mix_sbom --pattern "mix_sbom_${{ runner.os }}_${{ runner.arch }}" --output mix_sbom
+        fi
       shell: "bash"
       working-directory: "${{ runner.temp }}"
       env:
         # TODO: Put real version
         TAG: "VERSION"
         GITHUB_TOKEN: ${{ github.token }}
+        REUSE_BEAM: "${{ inputs.reuse-beam }}"
     - name: "Verify SBoM Tool Provenance"
       run: >-
         gh attestation verify
@@ -69,7 +74,7 @@ runs:
       run: >-
         "${{ runner.temp }}/mix_sbom"
         --schema="$SCHEMA"
-        --version="$VERSION"
+        --format="$FORMAT"
         --output="$OUTPUT_PATH"
         "$PROJECT_PATH"
       shell: "bash"
@@ -77,4 +82,4 @@ runs:
         PROJECT_PATH: "${{ inputs.project-path }}"
         SCHEMA: "${{ inputs.schema }}"
         FORMAT: "${{ inputs.format }}"
-        "OUTPUT_PATH": "${{ steps.define_output.outputs.output }}"
+        OUTPUT_PATH: "${{ steps.define_output.outputs.output }}"

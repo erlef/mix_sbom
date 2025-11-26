@@ -129,6 +129,8 @@ an SBoM for your project.
   (defaults to repository root)
 - `schema`: CycloneDX schema version (defaults to "1.6")
 - `format`: Output format, either "json" or "xml" (defaults to "json")
+- `reuse-beam`: Use local BEAM installation instead of pre-compiled binaries
+  (defaults to "false")
 
 ### Outputs
 
@@ -137,6 +139,33 @@ an SBoM for your project.
 The action automatically handles downloading the correct binary for your 
 runner's architecture and verifies its provenance using GitHub's attestation
 system.
+
+### Using Local BEAM (Recommended)
+
+For the most accurate dependency analysis, it's recommended to use the local 
+BEAM installation by setting `reuse-beam: true`. This approach:
+
+- Properly detects Elixir and Erlang versions in the generated SBoM
+- Works with your project's specific runtime environment
+- Provides more accurate dependency information
+
+To use this approach, first set up Elixir/Erlang in your workflow:
+
+```yaml
+- name: Set up Elixir
+  uses: erlef/setup-beam@v1
+  with:
+    elixir-version: '1.17.3'
+    otp-version: '27.1'
+
+- name: Get dependencies
+  run: mix deps.get
+
+- name: Generate SBoM
+  uses: erlef/mix_sbom@v0
+  with:
+    reuse-beam: true
+```
 
 **Note**: For most detailed dependency analysis, you should run `mix deps.get`
 before using this action to ensure all dependencies are resolved.
