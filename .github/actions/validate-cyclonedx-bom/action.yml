@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
+name: "Validate CycloneDX BOM"
+description: "Validates a CycloneDX BOM file using cyclonedx-cli"
+inputs:
+  bom-file:
+    description: "Path to the BOM file to validate"
+    required: true
+  format:
+    description: "Format of the BOM file (json, xml, or protobuf)"
+    required: true
+  cyclone-version:
+    description: "CycloneDX schema version"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Install CycloneDX CLI"
+      run: |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        echo "PATH=$PATH" >> "$GITHUB_ENV"
+        brew tap cyclonedx/cyclonedx
+        brew install cyclonedx/cyclonedx/cyclonedx-cli
+      shell: bash
+
+    - name: "Convert protobuf to JSON (if needed)"
+      if: inputs.format == 'protobuf' && inputs.cyclone-version != '1.7'
+      env:
+        BOM_FILE: ${{ inputs.bom-file }}
+      run: |
+        cyclonedx convert \
+          --input-file "$BOM_FILE" \
+          --output-file "$BOM_FILE.json" \
+          --input-format protobuf \
+          --output-format json
+      shell: bash
+
+    - name: "Validate BOM"
+      env:
+        BOM_FILE: ${{ inputs.bom-file }}
+        FORMAT: ${{ inputs.format }}
+        CYCLONE_VERSION: ${{ inputs.cyclone-version }}
+      run: |
+        if [ "$CYCLONE_VERSION" == "1.7" ]; then
+          echo "⚠️ Skipping validation for CycloneDX 1.7 - CLI support not yet available"
+          echo "Enable validation once cyclonedx-cli supports schema version 1.7"
+          if [ "$FORMAT" == "protobuf" ]; then
+            echo "⚠️ Protobuf conversion also skipped for version 1.7"
+          fi
+        else
+          if [ "$FORMAT" == "protobuf" ]; then
+            cyclonedx validate --input-file "$BOM_FILE.json" --input-format json --fail-on-errors
+          else
+            cyclonedx validate --input-file "$BOM_FILE" --input-format "$FORMAT" --fail-on-errors
+          fi
+        fi
+      shell: bash
+
+    - name: "Cleanup temporary files"
+      if: inputs.format == 'protobuf' && inputs.cyclone-version != '1.7'
+      env:
+        BOM_FILE: ${{ inputs.bom-file }}
+      run: rm -f "$BOM_FILE.json"
+      shell: bash

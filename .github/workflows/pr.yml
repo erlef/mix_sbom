@@ -69,6 +69,18 @@ jobs:
 
     uses: ./.github/workflows/part_dependency_submission.yml
 
+  smoke_test:
+    name: "Smoke Test"
+
+    needs: ['build']
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_smoke_test.yml
+
   dependency-review:
     name: "Dependency Review"
 

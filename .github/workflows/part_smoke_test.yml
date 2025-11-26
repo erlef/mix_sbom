@@ -1,0 +1,159 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+
+on:
+  workflow_call: {}
+
+name: "Smoke Test"
+
+permissions:
+  contents: read
+
+jobs:
+  mix:
+    name: "Mix Task (${{ matrix.cyclone_version }}, ${{ matrix.format }})"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cyclone_version: ["1.3", "1.4", "1.5", "1.6", "1.7"]
+        format: ["json", "xml", "protobuf"]
+
+    env:
+      MIX_ENV: prod
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+        with:
+          mix-env: prod
+
+      - name: "Generate SBoM with Mix Task"
+        env:
+          CYCLONE_VERSION: ${{ matrix.cyclone_version }}
+          FORMAT: ${{ matrix.format }}
+          OUTPUT_FILE: bom_mix.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
+        run: |
+          mix sbom.cyclonedx \
+            --schema "$CYCLONE_VERSION" \
+            --format "$FORMAT" \
+            --output "$OUTPUT_FILE"
+
+      - name: "Validate SBoM"
+        uses: ./.github/actions/validate-cyclonedx-bom
+        with:
+          bom-file: bom_mix.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
+          format: ${{ matrix.format }}
+          cyclone-version: ${{ matrix.cyclone_version }}
+
+  burrito:
+    name: "Burrito Binary (${{ matrix.cyclone_version }}, ${{ matrix.format }})"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cyclone_version: ["1.3", "1.4", "1.5", "1.6", "1.7"]
+        format: ["json", "xml", "protobuf"]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          submodules: true
+
+      - name: "Download Burrito Binary"
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v5.0.0
+        with:
+          name: binary
+          path: ./burrito_artifacts
+
+      - name: "Make Binary Executable"
+        run: |
+          chmod +x ./burrito_artifacts/mix_sbom_Linux_X64
+
+      - name: "Generate SBoM with Burrito Binary"
+        env:
+          CYCLONE_VERSION: ${{ matrix.cyclone_version }}
+          FORMAT: ${{ matrix.format }}
+          OUTPUT_FILE: bom_burrito.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
+        run: |
+          ./burrito_artifacts/mix_sbom_Linux_X64 \
+            --schema "$CYCLONE_VERSION" \
+            --format "$FORMAT" \
+            --output "$OUTPUT_FILE" \
+            .
+
+      - name: "Validate SBoM"
+        uses: ./.github/actions/validate-cyclonedx-bom
+        with:
+          bom-file: bom_burrito.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
+          format: ${{ matrix.format }}
+          cyclone-version: ${{ matrix.cyclone_version }}
+
+  escript:
+    name: "EScript (${{ matrix.cyclone_version }}, ${{ matrix.format }})"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cyclone_version: ["1.3", "1.4", "1.5", "1.6", "1.7"]
+        format: ["json", "xml", "protobuf"]
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+
+      - name: "Download EScript"
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v5.0.0
+        with:
+          name: escript
+          path: ./escript_artifacts
+
+      - name: "Make EScript Executable"
+        run: |
+          chmod +x ./escript_artifacts/mix_sbom_escript
+
+      - name: "Generate SBoM with EScript"
+        env:
+          CYCLONE_VERSION: ${{ matrix.cyclone_version }}
+          FORMAT: ${{ matrix.format }}
+          OUTPUT_FILE: bom_escript.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
+        run: |
+          ./escript_artifacts/mix_sbom_escript \
+            --schema "$CYCLONE_VERSION" \
+            --format "$FORMAT" \
+            --output "$OUTPUT_FILE" \
+            .
+
+      - name: "Validate SBoM"
+        uses: ./.github/actions/validate-cyclonedx-bom
+        with:
+          bom-file: bom_escript.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
+          format: ${{ matrix.format }}
+          cyclone-version: ${{ matrix.cyclone_version }}

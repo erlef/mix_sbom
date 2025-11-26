@@ -57,6 +57,18 @@ jobs:
     with:
       attest: false
 
+  smoke_test:
+    name: "Smoke Test"
+
+    needs: ['build']
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_smoke_test.yml
+
   dependency_submission:
     name: "Mix Dependency Submission"
 
