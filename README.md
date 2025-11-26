@@ -6,6 +6,8 @@
 
 # SBoM
 
+> ⚠️ **Note**: This documentation is for the main branch. For the latest stable release, check [v0.7.0](https://github.com/erlef/mix_sbom/tree/v0.7.0).
+
 [![EEF Security WG project](https://img.shields.io/badge/EEF-Security-black)](https://github.com/erlef/security-wg)
 [![.github/workflows/branch_main.yml](https://github.com/erlef/mix_sbom/actions/workflows/branch_main.yml/badge.svg)](https://github.com/erlef/mix_sbom/actions/workflows/branch_main.yml)
 [![Coverage Status](https://coveralls.io/repos/github/erlef/mix_sbom/badge.svg?branch=main)](https://coveralls.io/github/erlef/mix_sbom?branch=main)
@@ -24,34 +26,120 @@ For a quick demo of how this might be used, check out [this blog post](https://b
 
 ## Installation
 
-To install the Mix task globally on your system, run `mix archive.install hex sbom`.
+This tool can be installed in several ways:
 
-Alternatively, the package can be added to a project's dependencies to make the
-Mix task available for that project only:
+### 1. Project Dependency (Recommended for development)
+
+Add the dependency to your project's `mix.exs` (development only):
 
 ```elixir
 def deps do
   [
-    {:sbom, "~> 0.6", only: :dev, runtime: false}
+    {:sbom, "~> 0.6", only: :dev, runtime: false},
+    # If using Elixir < 1.18 and want JSON output, also add:
+    # {:jason, "~> 1.4"}
   ]
 end
 ```
 
+### 2. Mix Escript (Global installation)
+
+Install the Mix task globally on your system:
+
+```bash
+mix escript.install hex sbom
+```
+
+### 3. Escript (From releases)
+
+Download the escript from the [releases page](https://github.com/erlef/mix_sbom/releases) 
+(requires BEAM runtime locally).
+
+### 4. Burrito Binary (From releases)
+
+Download the self-contained binary from the 
+[releases page](https://github.com/erlef/mix_sbom/releases) 
+(does not require BEAM runtime).
+
 ## Usage
 
-To produce a CycloneDX SBoM, run `mix sbom.cyclonedx` from the project
-directory. The result is written to a file named `bom.xml`, unless a different
-name is specified using the `-o` option.
+### As a Mix Task (project dependency only)
 
-By default only the dependencies used in production are included. To include all
-dependencies, including those for the 'dev' and 'test' environments, pass the
-`-d` command line option: `mix sbom.cyclonedx -d`.
+When installed as a project dependency, run from the project directory 
+containing `mix.exs`:
+
+```bash
+mix sbom.cyclonedx
+```
+
+The result is written to `bom.cdx.json` unless a different name is specified 
+using the `-o` option. Use `-d` to include dev/test dependencies.
+
+### As a Standalone Binary (escript install/download or Burrito)
+
+When using the globally installed escript, downloaded escript, or Burrito 
+binary, you must provide the project path as an argument:
+
+```bash
+# Global escript or downloaded binary
+sbom /path/to/your/project
+
+# Or with options
+sbom --output=my-sbom.json --format=json /path/to/your/project
+```
+
+### Common Notes
+
+By default only production dependencies are included. To include all 
+dependencies (dev and test environments), use the `-d` or `--dev` option.
 
 *Note that MIX_ENV does not affect which dependencies are included in the
 output; the task should normally be run in the default (dev) environment*
 
-For more information on the command line arguments accepted by the Mix task
-run `mix help sbom.cyclonedx`.
+For more information:
+- Mix task: `mix help sbom.cyclonedx`  
+- Standalone binary: `sbom --help`
+
+## GitHub Action
+
+This tool is also available as a GitHub Action for use in CI/CD workflows. 
+The action downloads and verifies the provenance of the binary, then generates
+an SBoM for your project.
+
+### Basic Usage
+
+```yaml
+- name: Generate SBoM
+  uses: erlef/mix_sbom@v0
+  id: sbom
+  with:
+    project-path: ${{ github.workspace }}
+    schema: "1.6"
+    format: "json"
+
+- name: Display SBoM
+  run: cat "$SBOM_FILE"
+  env:
+    SBOM_FILE: ${{ steps.sbom.outputs.sbom-path }}
+```
+
+### Inputs
+
+- `project-path`: Path to the directory containing mix.exs 
+  (defaults to repository root)
+- `schema`: CycloneDX schema version (defaults to "1.6")
+- `format`: Output format, either "json" or "xml" (defaults to "json")
+
+### Outputs
+
+- `sbom-path`: Path to the generated SBoM file
+
+The action automatically handles downloading the correct binary for your 
+runner's architecture and verifies its provenance using GitHub's attestation
+system.
+
+**Note**: For most detailed dependency analysis, you should run `mix deps.get`
+before using this action to ensure all dependencies are resolved.
 
 ## NPM packages and other dependencies
 
