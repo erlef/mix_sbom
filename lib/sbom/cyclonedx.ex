@@ -194,8 +194,12 @@ defmodule SBoM.CycloneDX do
 
   @spec attach_components(components_map(), SBoM.CLI.schema_version()) :: [component()]
   defp attach_components(components, version) do
-    Enum.map(components, fn {name, component_data} ->
-      convert_component(name, component_data, version)
+    Enum.flat_map(components, fn
+      {_name, %{root: true}} ->
+        []
+
+      {name, component_data} ->
+        [convert_component(name, component_data, version)]
     end)
   end
 
