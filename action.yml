@@ -20,6 +20,7 @@ inputs:
     required: true
     description: "CycloneDX Output Format"
     default: "json"
+  # TODO: Report Hex APplication Load Issue
   reuse-beam:
     required: false
     description: "Use local BEAM installation instead of pre-compiled binaries. Requires Elixir/Erlang to be set up beforehand."
@@ -27,16 +28,40 @@ inputs:
 outputs:
   sbom-path:
     description: "Path to the generated SBoM"
-    value: "${{ steps.define_output.outputs.output }}"
+    value: "${{ steps.generate.outputs.output }}"
 runs:
   using: "composite"
   steps:
-    - name: "Download SBoM Tool"
+    - name: "Install SBoM Tool"
       run: |
+        set -e
+
         if [ "$REUSE_BEAM" = "true" ]; then
-          gh release download "$TAG" --repo erlef/mix_sbom --pattern "mix_sbom.escript" --output mix_sbom
+          mix escript.install \
+            github "$REPO" \
+            tag "$TAG" \
+            --force
+
+          echo "$HOME/.mix/escripts" >> "$GITHUB_PATH"
         else
-          gh release download "$TAG" --repo erlef/mix_sbom --pattern "mix_sbom_${{ runner.os }}_${{ runner.arch }}" --output mix_sbom
+          BIN_PATH="$(pwd)/mix_sbom_bin"
+
+          mkdir "$BIN_PATH"
+
+          gh release download \
+            "$TAG" \
+            --repo "$REPO" \
+            --pattern "mix_sbom_${{ runner.os }}_${{ runner.arch }}" \
+            --output "$BIN_PATH/mix_sbom"
+
+          gh attestation verify \
+            --repo "$REPO" \
+            --source-ref "refs/tags/$TAG" \
+            "$BIN_PATH/mix_sbom"
+
+          chmod +x "$BIN_PATH/mix_sbom"
+
+          echo "$BIN_PATH" >> "$GITHUB_PATH"
         fi
       shell: "bash"
       working-directory: "${{ runner.temp }}"
@@ -44,42 +69,24 @@ runs:
         # TODO: Put real version
         TAG: "VERSION"
         GITHUB_TOKEN: ${{ github.token }}
+        REPO: "erlef/mix_sbom"
         REUSE_BEAM: "${{ inputs.reuse-beam }}"
-    - name: "Verify SBoM Tool Provenance"
-      run: >-
-        gh attestation verify
-        --repo erlef/mix_sbom
-        --source-ref "refs/tags/$TAG"
-        mix_sbom
-      shell: "bash"
-      working-directory: "${{ runner.temp }}"
-      env:
-        # TODO: Put real version
-        TAG: "VERSION"
-        GITHUB_TOKEN: ${{ github.token }}
-    - name: "Make Tool Executable"
-      run: "chmod +x mix_sbom"
-      shell: "bash"
-      working-directory: "${{ runner.temp }}"
-    - name: "Define Output Temp File"
-      run: |
-        OUTPUT_TEMP="$RUNNER_TEMP/$RANDOM.cdx.$FORMAT"
-        echo "output=$OUTPUT_TEMP" >> "$GITHUB_OUTPUT"
-      shell: "bash"
-      env:
-        FORMAT: "${{ inputs.format }}"
-      id: define_output
     - name: "Generate SBoM"
       id: generate
-      run: >-
-        "${{ runner.temp }}/mix_sbom"
-        --schema="$SCHEMA"
-        --format="$FORMAT"
-        --output="$OUTPUT_PATH"
-        "$PROJECT_PATH"
+      run: |
+        set -e
+
+        OUTPUT_TEMP="$RUNNER_TEMP/$RANDOM.cdx.$FORMAT"
+
+        mix_sbom \
+          --schema="$SCHEMA" \
+          --format="$FORMAT" \
+          --output="$OUTPUT_TEMP" \
+          "$PROJECT_PATH"
+
+        echo "output=$OUTPUT_TEMP" >> "$GITHUB_OUTPUT"
       shell: "bash"
       env:
         PROJECT_PATH: "${{ inputs.project-path }}"
         SCHEMA: "${{ inputs.schema }}"
         FORMAT: "${{ inputs.format }}"
-        OUTPUT_PATH: "${{ steps.define_output.outputs.output }}"

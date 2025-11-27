@@ -137,7 +137,7 @@ jobs:
 
       - name: "Make EScript Executable"
         run: |
-          chmod +x ./escript_artifacts/mix_sbom_escript
+          chmod +x ./escript_artifacts/mix_sbom
 
       - name: "Generate SBoM with EScript"
         env:
@@ -145,7 +145,7 @@ jobs:
           FORMAT: ${{ matrix.format }}
           OUTPUT_FILE: bom_escript.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
         run: |
-          ./escript_artifacts/mix_sbom_escript \
+          ./escript_artifacts/mix_sbom \
             --schema "$CYCLONE_VERSION" \
             --format "$FORMAT" \
             --output "$OUTPUT_FILE" \

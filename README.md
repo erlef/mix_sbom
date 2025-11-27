@@ -35,7 +35,7 @@ Add the dependency to your project's `mix.exs` (development only):
 ```elixir
 def deps do
   [
-    {:sbom, "~> 0.6", only: :dev, runtime: false},
+    {:sbom, "~> 0.8", only: :dev, runtime: false},
     # If using Elixir < 1.18 and want JSON output, also add:
     # {:jason, "~> 1.4"}
   ]
@@ -49,11 +49,6 @@ Install the Mix task globally on your system:
 ```bash
 mix escript.install hex sbom
 ```
-
-### 3. Escript (From releases)
-
-Download the escript from the [releases page](https://github.com/erlef/mix_sbom/releases) 
-(requires BEAM runtime locally).
 
 ### 4. Burrito Binary (From releases)
 
@@ -75,17 +70,17 @@ mix sbom.cyclonedx
 The result is written to `bom.cdx.json` unless a different name is specified 
 using the `-o` option. Use `-d` to include dev/test dependencies.
 
-### As a Standalone Binary (escript install/download or Burrito)
+### As a Standalone Binary (escript install or Burrito)
 
 When using the globally installed escript, downloaded escript, or Burrito 
 binary, you must provide the project path as an argument:
 
 ```bash
 # Global escript or downloaded binary
-sbom /path/to/your/project
+mix_sbom /path/to/your/project
 
 # Or with options
-sbom --output=my-sbom.json --format=json /path/to/your/project
+mix_sbom --output=my-sbom.json --format=json /path/to/your/project
 ```
 
 ### Common Notes
@@ -98,7 +93,7 @@ output; the task should normally be run in the default (dev) environment*
 
 For more information:
 - Mix task: `mix help sbom.cyclonedx`  
-- Standalone binary: `sbom --help`
+- Standalone binary: `mix_sbom --help`
 
 ## GitHub Action
 

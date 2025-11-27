@@ -30,8 +30,6 @@ jobs:
       attestations: write
 
     uses: ./.github/workflows/part_build.yml
-    with:
-      attest: false
 
   licensing:
     name: "Licensing"
@@ -42,8 +40,6 @@ jobs:
       attestations: write
 
     uses: ./.github/workflows/part_licensensing.yml
-    with:
-      attest: false
 
   docs:
     name: "Docs"
@@ -54,8 +50,6 @@ jobs:
       attestations: write
 
     uses: ./.github/workflows/part_docs.yml
-    with:
-      attest: false
 
   smoke_test:
     name: "Smoke Test"
