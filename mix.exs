@@ -5,7 +5,7 @@
 defmodule SBoM.MixProject do
   use Mix.Project
 
-  @version "0.7.0"
+  @version "0.8.0-dev"
   @source_url "https://github.com/erlef/mix_sbom"
 
   def project do
@@ -73,7 +73,8 @@ defmodule SBoM.MixProject do
 
   defp escript do
     [
-      main_module: SBoM.Escript
+      main_module: SBoM.Escript,
+      name: "mix_sbom"
     ]
   end
 

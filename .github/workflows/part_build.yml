@@ -66,28 +66,11 @@ jobs:
 
       - name: "Build EScript"
         run: mix escript.build
-
-      - name: "Correct Name"
-        run: "mv sbom mix_sbom_escript"
-
-      - name: "Attest provenance"
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
-        id: attest-provenance
-        if: "${{ inputs.attest }}"
-        with:
-          subject-path: 'mix_sbom_escript'
-      - name: "Copy provenance"
-        if: "${{ inputs.attest }}"
-        run: cp "$ATTESTATION" mix_sbom_escript.sigstore
-        env:
-          ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"
       
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: escript
-          path: |
-            mix_sbom_escript
-            mix_sbom_escript.sigstore
+          path: "mix_sbom"
 
   binary:
     name: "Binary"
@@ -130,11 +113,11 @@ jobs:
         id: attest-provenance
         if: "${{ inputs.attest }}"
         with:
-          subject-path: 'burrito_out/sbom*'
+          subject-path: 'burrito_out/mix_sbom*'
       - name: "Copy provenance"
         if: "${{ inputs.attest }}"
         run: |-
-          for FILE in burrito_out/sbom*; do
+          for FILE in burrito_out/mix_sbom*; do
             cp "$ATTESTATION" $FILE.sigstore
           done
         env:

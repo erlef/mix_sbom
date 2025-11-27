@@ -48,7 +48,7 @@ devenv.local.nix
 .pre-commit-config.yaml
 
 # EScript
-/sbom
+/mix_sbom
 
 # Burrito
 /burrito_out
