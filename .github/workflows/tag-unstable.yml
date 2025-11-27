@@ -54,3 +54,12 @@ jobs:
     with:
       releaseName: "${{ github.ref_name }}"
       stable: false
+
+  publish:
+    name: "Publish"
+
+    uses: ./.github/workflows/part_publish.yml
+    with:
+      releaseName: "${{ github.ref_name }}"
+    secrets:
+      HEX_API_KEY: "${{ secrets.HEX_API_KEY }}"
