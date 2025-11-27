@@ -16,6 +16,8 @@ in
     xz
     p7zip
     reuse
+    osv-scanner
+    scorecard
   ];
 
   languages.elixir = {

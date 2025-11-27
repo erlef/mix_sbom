@@ -1,0 +1,11 @@
+[[IgnoredVulns]]
+id = "GHSA-9fm9-hp7p-53mf"
+reason = "This is only a fixture"
+
+[[IgnoredVulns]]
+id = "GHSA-vq52-99r9-h5pw"
+reason = "This is only a fixture"
+
+[[IgnoredVulns]]
+id = "GHSA-qpmc-wprv-x746"
+reason = "This is only a fixture"
