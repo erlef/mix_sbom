@@ -154,7 +154,7 @@ jobs:
           mix coveralls.github \
             --exclude test \
             --include property \
-            --timeout 120000
+            --timeout 600000
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

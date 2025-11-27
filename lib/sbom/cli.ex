@@ -28,7 +28,7 @@ defmodule SBoM.CLI do
 
   @default_format :json
   @default_schema "1.6"
-  # @default_classification "application"
+  @default_classification :CLASSIFICATION_APPLICATION
 
   @spec run(OptionParser.argv(), cli_mode()) :: :ok
   def run(args, mode) do
@@ -49,47 +49,53 @@ defmodule SBoM.CLI do
   defp generate_bom_content(parse_result) do
     case parse_result.args[:project_path] do
       nil ->
-        _generate_bom_content(parse_result)
+        generate_bom_content_in_project(parse_result)
 
       path ->
         SBoM.Util.in_project(path, fn _mix_project ->
-          _generate_bom_content(parse_result)
+          generate_bom_content_in_project(parse_result)
         end)
     end
   end
 
-  @spec _generate_bom_content(Optimus.ParseResult.t()) :: :ok
-  defp _generate_bom_content(parse_result) do
-    if parse_result.flags.recurse do
-      Mix.Task.rerun("loadpaths", ["--no-deps-check"])
+  @spec generate_bom_content_in_project(Optimus.ParseResult.t()) :: :ok
+  defp generate_bom_content_in_project(parse_result)
 
-      Mix.Project.apps_paths()
-      |> tap(fn
-        nil ->
-          Mix.raise("""
-          --recurse option can only be used inside an umbrella project
-          """)
+  defp generate_bom_content_in_project(%Optimus.ParseResult{flags: %{recurse: true}} = parse_result) do
+    Mix.Task.rerun("loadpaths", ["--no-deps-check"])
 
-        _other ->
-          :ok
+    Mix.Project.apps_paths()
+    |> tap(fn
+      nil ->
+        Mix.raise("""
+        --recurse option can only be used inside an umbrella project
+        """)
+
+      _other ->
+        :ok
+    end)
+    |> Enum.each(fn {app, path} ->
+      Mix.Project.in_project(app, path, fn _mix_project ->
+        generate_bom_content_in_app(parse_result)
       end)
-      |> Enum.each(fn {app, path} ->
-        Mix.Project.in_project(app, path, fn _mix_project ->
-          Fetcher.fetch()
-          |> CycloneDX.bom(version: parse_result.options.schema)
-          |> CycloneDX.encode(parse_result.options.format)
-          |> write_file(
-            parse_result.options.output,
-            parse_result.flags.force
-          )
-        end)
-      end)
-    else
-      Fetcher.fetch()
-      |> CycloneDX.bom(version: parse_result.options.schema)
-      |> CycloneDX.encode(parse_result.options.format)
-      |> write_file(parse_result.options.output, parse_result.flags.force)
-    end
+    end)
+  end
+
+  defp generate_bom_content_in_project(%Optimus.ParseResult{} = parse_result) do
+    generate_bom_content_in_app(parse_result)
+  end
+
+  @spec generate_bom_content_in_app(Optimus.ParseResult.t()) :: :ok
+  defp generate_bom_content_in_app(parse_result) do
+    Fetcher.fetch()
+    |> CycloneDX.bom(
+      version: parse_result.options.schema,
+      only: parse_result.options.only,
+      targets: parse_result.options.targets,
+      classification: parse_result.options.classification
+    )
+    |> CycloneDX.encode(parse_result.options.format)
+    |> write_file(parse_result.options.output, parse_result.flags.force)
   end
 
   @spec write_file(iodata, Path.t(), boolean()) :: :ok
@@ -146,7 +152,7 @@ defmodule SBoM.CLI do
               help: "CycloneDX schema version to use (defaults to 1.6)",
               required: false,
               parser: &parse_schema/1,
-              default: fn -> @default_schema end
+              default: @default_schema
             ],
             format: [
               value_name: "FORMAT",
@@ -155,16 +161,36 @@ defmodule SBoM.CLI do
               help: "Output format, one of xml, json, protobuf (defaults to json)",
               required: false,
               parser: &parse_format/1
+            ],
+            only: [
+              value_name: "ONLY",
+              short: "-l",
+              long: "--only",
+              help: "Only include components used in the specified environment",
+              required: false,
+              default: [:*],
+              parser: &parse_atom/1,
+              multiple: true
+            ],
+            targets: [
+              value_name: "TARGETS",
+              short: "-a",
+              long: "--targets",
+              help: "Comma-separated list of Mix targets to include components from (defaults to all targets)",
+              required: false,
+              default: [:*],
+              parser: &parse_atom/1,
+              multiple: true
+            ],
+            classification: [
+              value_name: "CLASSIFICATION",
+              short: "-c",
+              long: "--classification",
+              help: "Specifies the type of application being described (defaults to application)",
+              required: false,
+              default: @default_classification,
+              parser: &parse_classification/1
             ]
-            # TODO: Implement
-            # classification: [
-            #   value_name: "CLASSIFICATION",
-            #   short: "-c",
-            #   long: "--classification",
-            #   help: "Specifies the type of application being described (defaults to application)",
-            #   required: false,
-            #   parser: :string
-            # ]
           ],
           flags: [
             force: [
@@ -176,12 +202,6 @@ defmodule SBoM.CLI do
               short: "-r",
               long: "--recurse",
               help: "Recurse into umbrella applications to generate SBoM for all apps"
-            ],
-            # TODO: Implement
-            dev: [
-              short: "-d",
-              long: "--dev",
-              help: "Include development dependencies in the SBoM"
             ]
           ]
         ]
@@ -325,4 +345,39 @@ defmodule SBoM.CLI do
   defp parse_format("protobuf"), do: {:ok, :protobuf}
 
   defp parse_format(_other), do: {:error, "available formats are xml, json, protobuf"}
+
+  @spec parse_atom(String.t()) :: {:ok, atom()} | {:error, String.t()}
+  # Since this runs once per CLI invocation, using String.to_atom is acceptable.
+  # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
+  defp parse_atom(value), do: {:ok, String.to_atom(value)}
+
+  @classifications %{
+    "application" => :CLASSIFICATION_APPLICATION,
+    "framework" => :CLASSIFICATION_FRAMEWORK,
+    "library" => :CLASSIFICATION_LIBRARY,
+    "operating-system" => :CLASSIFICATION_OPERATING_SYSTEM,
+    "device" => :CLASSIFICATION_DEVICE,
+    "file" => :CLASSIFICATION_FILE,
+    "container" => :CLASSIFICATION_CONTAINER,
+    "firmware" => :CLASSIFICATION_FIRMWARE,
+    "device-driver" => :CLASSIFICATION_DEVICE_DRIVER,
+    "platform" => :CLASSIFICATION_PLATFORM,
+    "machine-learning-model" => :CLASSIFICATION_MACHINE_LEARNING_MODEL,
+    "data" => :CLASSIFICATION_DATA,
+    "cryptographic-asset" => :CLASSIFICATION_CRYPTOGRAPHIC_ASSET
+  }
+
+  @spec parse_classification(String.t()) ::
+          {:ok, CycloneDX.classification()} | {:error, String.t()}
+  defp parse_classification(value) do
+    value = String.downcase(value)
+
+    case Map.fetch(@classifications, value) do
+      {:ok, classification} ->
+        {:ok, classification}
+
+      :error ->
+        {:error, "available classifications are #{Enum.join(Map.keys(@classifications), ", ")}"}
+    end
+  end
 end
