@@ -57,27 +57,28 @@ mix escript.install hex sbom
 
 ### 4. Burrito Binary (From releases)
 
-Download the self-contained binary from the 
-[releases page](https://github.com/erlef/mix_sbom/releases) 
+Download the self-contained binary from the
+[releases page](https://github.com/erlef/mix_sbom/releases)
 (does not require BEAM runtime).
 
 ## Usage
 
 ### As a Mix Task (project dependency only)
 
-When installed as a project dependency, run from the project directory 
+When installed as a project dependency, run from the project directory
 containing `mix.exs`:
 
 ```bash
 mix sbom.cyclonedx
 ```
 
-The result is written to `bom.cdx.json` unless a different name is specified 
-using the `-o` option. Use `-d` to include dev/test dependencies.
+The result is written to `bom.cdx.json` unless a different name is specified
+using the `-o` option. Use `--only dev --only test --only prod` to include
+dependencies from specific environments.
 
 ### As a Standalone Binary (escript install or Burrito)
 
-When using the globally installed escript, downloaded escript, or Burrito 
+When using the globally installed escript, downloaded escript, or Burrito
 binary, you must provide the project path as an argument:
 
 ```bash
@@ -85,24 +86,44 @@ binary, you must provide the project path as an argument:
 mix_sbom cyclonedx /path/to/your/project
 
 # Or with options
-mix_sbom cyclonedx --output=my-sbom.json --format=json /path/to/your/project
+mix_sbom cyclonedx --output=my-sbom.json --format=json --only prod \
+  /path/to/your/project
 ```
 
 ### Common Notes
 
-By default only production dependencies are included. To include all 
-dependencies (dev and test environments), use the `-d` or `--dev` option.
+By default dependencies from all environments are included. To include only
+production dependencies, use `--only prod`. To include specific environments,
+use multiple `--only` flags like `--only dev --only test --only prod`.
 
 *Note that MIX_ENV does not affect which dependencies are included in the
 output; the task should normally be run in the default (dev) environment*
 
+### Available Options
+
+- `-o, --output PATH`: Output file path (defaults to `bom.cdx.json`)
+- `-s, --schema VERSION`: CycloneDX schema version - 1.3, 1.4, 1.5, 1.6, 1.7
+  (defaults to 1.6)
+- `-t, --format FORMAT`: Output format - xml, json, protobuf (defaults to json)
+- `-l, --only ENV`: Only include dependencies from specified environments
+  (defaults to all, use multiple flags for multiple environments)
+- `-a, --targets TARGET`: Include components from specified Mix targets
+  (defaults to all, use multiple flags for multiple targets)
+- `-c, --classification TYPE`: Component classification type
+  (defaults to application). Common types include `application`, `framework`,
+  and `library`. See [CycloneDX documentation](https://cyclonedx.org/docs/1.7/json/#components_items_type_enum)
+  for all available types.
+- `-f, --force`: Overwrite existing output file
+- `-r, --recurse`: Recurse into umbrella applications
+
 For more information:
-- Mix task: `mix help sbom.cyclonedx`  
+
+- Mix task: `mix help sbom.cyclonedx`
 - Standalone binary: `mix_sbom --help`
 
 ## GitHub Action
 
-This tool is also available as a GitHub Action for use in CI/CD workflows. 
+This tool is also available as a GitHub Action for use in CI/CD workflows.
 The action downloads and verifies the provenance of the binary, then generates
 an SBoM for your project.
 
@@ -125,10 +146,11 @@ an SBoM for your project.
 
 ### Inputs
 
-- `project-path`: Path to the directory containing mix.exs 
+- `project-path`: Path to the directory containing mix.exs
   (defaults to repository root)
 - `schema`: CycloneDX schema version (defaults to "1.6")
-- `format`: Output format, either "json" or "xml" (defaults to "json")
+- `format`: Output format - "json", "xml", or "protobuf"
+  (defaults to "json")
 - `reuse-beam`: Use local BEAM installation instead of pre-compiled binaries
   (defaults to "false")
 
@@ -136,7 +158,7 @@ an SBoM for your project.
 
 - `sbom-path`: Path to the generated SBoM file
 
-The action automatically handles downloading the correct binary for your 
+The action automatically handles downloading the correct binary for your
 runner's architecture and verifies its provenance using GitHub's attestation
 system.
 
@@ -144,7 +166,7 @@ system.
 
 > ⚠️ **Warning**: Using `reuse-beam: true` requires Elixir >= 1.19.4
 
-For the most accurate dependency analysis, it's recommended to use the local 
+For the most accurate dependency analysis, it's recommended to use the local
 BEAM installation by setting `reuse-beam: true`. This approach:
 
 - Properly detects Elixir and Erlang versions in the generated SBoM
