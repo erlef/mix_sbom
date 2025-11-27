@@ -243,7 +243,7 @@ defimpl SBoM.CycloneDX.XML.Encodable,
       |> Map.update(:scope, nil, &scope_to_string/1)
 
     # Use helpers to build structure
-    attrs = Helpers.encode_fields_as_attrs([{:type, :type}], component)
+    attrs = Helpers.encode_fields_as_attrs([{:type, :type}, {:"bom-ref", :bom_ref}], component)
 
     content =
       Helpers.encode_fields_as_elements(

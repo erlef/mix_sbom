@@ -23,6 +23,7 @@ defmodule SBoM.MixProject do
       description: description(),
       package: package(),
       docs: docs(),
+      aliases: aliases(),
       releases: releases(),
       escript: escript(),
       source_url: @source_url,
@@ -59,6 +60,7 @@ defmodule SBoM.MixProject do
         release: :standalone
       ],
       preferred_envs: [
+        test_property: :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.html": :test,
@@ -95,6 +97,12 @@ defmodule SBoM.MixProject do
     ]
   end
 
+  defp aliases do
+    [
+      test_property: "test --exclude test --include property"
+    ]
+  end
+
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_env), do: ["lib"]
 
@@ -112,6 +120,7 @@ defmodule SBoM.MixProject do
       {:optimus, "~> 0.5.1"},
       {:protobuf, "~> 0.15.0"},
       {:purl, "~> 0.3.0"},
+      {:stream_data, "~> 1.2", only: [:test]},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
     ]
   end
