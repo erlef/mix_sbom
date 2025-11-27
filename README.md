@@ -42,6 +42,11 @@ def deps do
 end
 ```
 
+> ⚠️ **Important**: We recommend using `only: :dev, runtime: false` to prevent
+> including the SBoM tooling in production deployments. Do not run
+> `mix sbom.cyclonedx` with `MIX_ENV=prod` as the dependency will not be
+> available in that environment.
+
 ### 2. Mix Escript (Global installation)
 
 Install the Mix task globally on your system:
