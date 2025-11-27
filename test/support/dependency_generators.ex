@@ -201,7 +201,10 @@ defmodule SBoM.DependencyGenerators do
       {2, constant(%{})},
       {3,
        map_of(
-         member_of(["github", "gitlab", "homepage", "documentation", "repository"]),
+         one_of([
+           member_of(["github", "gitlab", "homepage", "documentation", "repository"]),
+           string(:alphanumeric, min_length: 3, max_length: 15)
+         ]),
          git_url(),
          max_length: 3
        )}
