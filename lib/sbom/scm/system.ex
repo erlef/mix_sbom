@@ -91,36 +91,68 @@ defmodule SBoM.SCM.SBoM.SCM.System do
   @impl SBoM.SCM
   def mix_dep_to_purl(app, version)
 
-  def mix_dep_to_purl({app, _version_requirement, _opts}, _version) when is_elixir_app(app) do
+  def mix_dep_to_purl({app, _version_requirement, _opts}, version) when is_elixir_app(app) do
+    git_ref =
+      case version do
+        nil -> "heads/main"
+        v -> "tags/v#{v}"
+      end
+
     Purl.new!(%Purl{
       type: "otp",
       name: to_string(app),
       subpath: ["lib", to_string(app)],
-      qualifiers: %{"vcs_url" => "git+https://github.com/elixir-lang/elixir.git"}
+      version: version,
+      qualifiers: %{
+        "repository_url" => "https://github.com/elixir-lang/elixir",
+        "download_url" => "https://github.com/elixir-lang/elixir/archive/refs/#{git_ref}.zip",
+        "vcs_url" => "git+https://github.com/elixir-lang/elixir.git"
+      }
     })
   end
 
-  def mix_dep_to_purl({app, _version_requirement, _opts}, _version) when is_erlang_app(app) do
+  def mix_dep_to_purl({app, _version_requirement, _opts}, version) when is_erlang_app(app) do
+    git_ref =
+      case version do
+        nil -> "heads/master"
+        v -> "tags/OTP-#{v}"
+      end
+
     Purl.new!(%Purl{
       type: "otp",
       name: to_string(app),
       subpath: ["lib", to_string(app)],
-      qualifiers: %{"vcs_url" => "git+https://github.com/erlang/otp.git"}
+      qualifiers: %{
+        "repository_url" => "https://github.com/erlang/otp",
+        "download_url" => "https://github.com/erlang/otp/archive/refs/#{git_ref}.zip",
+        "vcs_url" => "git+https://github.com/erlang/otp.git"
+      }
     })
   end
 
-  def mix_dep_to_purl({app, _version_requirement, _opts}, _version) when is_hex_app(app) do
+  def mix_dep_to_purl({app, _version_requirement, _opts}, version) when is_hex_app(app) do
+    git_ref =
+      case version do
+        nil -> "heads/main"
+        v -> "tags/v#{v}"
+      end
+
     Purl.new!(%Purl{
       type: "otp",
       name: to_string(app),
-      qualifiers: %{"vcs_url" => "git+https://github.com/hexpm/hex.git"}
+      qualifiers: %{
+        "repository_url" => "https://github.com/hexpm/hex",
+        "download_url" => "https://github.com/hexpm/hex/archive/refs/#{git_ref}.zip",
+        "vcs_url" => "git+https://github.com/hexpm/hex.git"
+      }
     })
   end
 
-  def mix_dep_to_purl({app, _version_requirement, _opts}, _version) do
+  def mix_dep_to_purl({app, _version_requirement, _opts}, version) do
     Purl.new!(%Purl{
       type: "otp",
-      name: to_string(app)
+      name: to_string(app),
+      version: version
     })
   end
 end

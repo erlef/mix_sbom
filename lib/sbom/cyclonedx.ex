@@ -79,7 +79,7 @@ defmodule SBoM.CycloneDX do
     bom_struct(:Bom, version,
       spec_version: version,
       serial_number: urn_uuid(),
-      version: 1,
+      version: 0,
       metadata: bom_struct(:Metadata, version)
     )
   end
