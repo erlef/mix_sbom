@@ -58,4 +58,39 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       end
     end)
   end
+
+  @tag :tmp_dir
+  @tag fixture_app: "umbrella"
+  test "combines umbrella without option", %{app_path: app_path} do
+    capture_io(:stderr, fn ->
+      capture_io(:stdio, fn ->
+        Util.in_project(app_path, fn _mix_module ->
+          bom_path = Path.join(app_path, "bom.cdx.json")
+
+          Mix.Task.rerun("sbom.cyclonedx", ["-d", "-f", "-o", bom_path])
+          assert_received {:mix_shell, :info, ["* creating bom.cdx.json"]}
+
+          assert_valid_cyclonedx_bom(bom_path, :json)
+        end)
+      end)
+    end)
+  end
+
+  @tag :tmp_dir
+  @tag fixture_app: "umbrella"
+  test "writes seaprate files for umbrella with option", %{app_path: app_path} do
+    capture_io(:stderr, fn ->
+      capture_io(:stdio, fn ->
+        Util.in_project(app_path, fn _mix_module ->
+          bom_path = Path.join([app_path, "apps", "child_app_name_to_replace", "bom.cdx.json"])
+
+          Mix.Task.rerun("sbom.cyclonedx", ["-d", "-f", "-r"])
+          assert_received {:mix_shell, :info, ["==> child_app_name_to_replace"]}
+          assert_received {:mix_shell, :info, ["* creating bom.cdx.json"]}
+
+          assert_valid_cyclonedx_bom(bom_path, :json)
+        end)
+      end)
+    end)
+  end
 end

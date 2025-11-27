@@ -61,6 +61,8 @@ defmodule SBoM.CLI do
   @spec _generate_bom_content(Optimus.ParseResult.t()) :: :ok
   defp _generate_bom_content(parse_result) do
     if parse_result.flags.recurse do
+      Mix.Task.rerun("loadpaths", ["--no-deps-check"])
+
       Mix.Project.apps_paths()
       |> tap(fn
         nil ->
