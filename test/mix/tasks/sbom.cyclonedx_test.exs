@@ -51,7 +51,9 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       Mix.Task.rerun("sbom.cyclonedx", ["-d", "-f", "-s", "1.3"])
       assert_received {:mix_shell, :info, ["* creating bom.cdx.json"]}
 
-      assert_raise Mix.Error, "invalid cyclonedx schema version, available versions are 1.7, 1.6, 1.5, 1.4, 1.3", fn ->
+      msg = Regex.escape("invalid value \"invalid\" for --schema(-s) option")
+
+      assert_raise Mix.Error, ~r/#{msg}/, fn ->
         Mix.Task.rerun("sbom.cyclonedx", ["-d", "-f", "-s", "invalid"])
       end
     end)

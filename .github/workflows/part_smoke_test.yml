@@ -94,6 +94,7 @@ jobs:
           OUTPUT_FILE: bom_burrito.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
         run: |
           ./burrito_artifacts/mix_sbom_Linux_X64 \
+            cyclonedx \
             --schema "$CYCLONE_VERSION" \
             --format "$FORMAT" \
             --output "$OUTPUT_FILE" \
@@ -146,6 +147,7 @@ jobs:
           OUTPUT_FILE: bom_escript.${{ matrix.format == 'protobuf' && 'cdx' || matrix.format }}
         run: |
           ./escript_artifacts/mix_sbom \
+            cyclonedx \
             --schema "$CYCLONE_VERSION" \
             --format "$FORMAT" \
             --output "$OUTPUT_FILE" \

@@ -82,10 +82,10 @@ binary, you must provide the project path as an argument:
 
 ```bash
 # Global escript or downloaded binary
-mix_sbom /path/to/your/project
+mix_sbom cyclonedx /path/to/your/project
 
 # Or with options
-mix_sbom --output=my-sbom.json --format=json /path/to/your/project
+mix_sbom cyclonedx --output=my-sbom.json --format=json /path/to/your/project
 ```
 
 ### Common Notes
