@@ -49,6 +49,8 @@ end
 
 ### 2. Mix Escript (Global installation)
 
+> ⚠️ **Warning**: Requires Elixir >= 1.19.4
+
 Install the Mix task globally on your system:
 
 ```bash
@@ -141,6 +143,8 @@ runner's architecture and verifies its provenance using GitHub's attestation
 system.
 
 ### Using Local BEAM (Recommended)
+
+> ⚠️ **Warning**: Using `reuse-beam: true` requires Elixir >= 1.19.4
 
 For the most accurate dependency analysis, it's recommended to use the local 
 BEAM installation by setting `reuse-beam: true`. This approach:

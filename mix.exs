@@ -56,9 +56,7 @@ defmodule SBoM.MixProject do
     [
       default_target: :local,
       preferred_targets: [
-        release: :standalone,
-        # TODO: Remove once https://github.com/elixir-lang/elixir/issues/14930 is resolved
-        "escript.build": :escript
+        release: :standalone
       ],
       preferred_envs: [
         coveralls: :test,
@@ -110,8 +108,6 @@ defmodule SBoM.MixProject do
       {:doctest_formatter, "~> 0.4.0", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.5", only: [:test], runtime: false},
-      # TODO: Remove once https://github.com/elixir-lang/elixir/issues/14930 is resolved
-      {:hex, github: "hexpm/hex", tag: "v2.3.1", runtime: false, targets: [:escript]},
       {:jason, "~> 1.4", optional: true},
       {:optimus, "~> 0.5.1"},
       {:protobuf, "~> 0.15.0"},
