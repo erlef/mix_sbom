@@ -79,6 +79,7 @@ runs:
         OUTPUT_TEMP="$RUNNER_TEMP/$RANDOM.cdx.$FORMAT"
 
         mix_sbom \
+          cyclonedx \
           --schema="$SCHEMA" \
           --format="$FORMAT" \
           --output="$OUTPUT_TEMP" \

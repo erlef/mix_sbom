@@ -113,6 +113,7 @@ defmodule SBoM.MixProject do
       # TODO: Remove once https://github.com/elixir-lang/elixir/issues/14930 is resolved
       {:hex, github: "hexpm/hex", tag: "v2.3.1", runtime: false, targets: [:escript]},
       {:jason, "~> 1.4", optional: true},
+      {:optimus, "~> 0.5.1"},
       {:protobuf, "~> 0.15.0"},
       {:purl, "~> 0.3.0"},
       {:styler, "~> 1.1", only: [:dev, :test], runtime: false}

@@ -12,18 +12,9 @@ defmodule SBoM.CLI do
   alias SBoM.CycloneDX
   alias SBoM.Fetcher
 
+  @version Mix.Project.config()[:version]
+
   @type cli_mode() :: :mix | :escript | :burrito
-  @type cli_opts() :: [
-          output: Path.t(),
-          force: boolean(),
-          dev: boolean(),
-          recurse: boolean(),
-          schema: schema_version(),
-          format: format(),
-          classification: String.t(),
-          path: Path.t(),
-          help: boolean()
-        ]
   @type format() :: :xml | :json | :protobuf
   @type schema_version() :: String.t()
 
@@ -37,133 +28,276 @@ defmodule SBoM.CLI do
 
   @default_format :json
   @default_schema "1.6"
-  @default_classification "application"
+  # @default_classification "application"
 
-  @default_opts [
-    schema: @default_schema,
-    classification: @default_classification
-  ]
-
-  @spec parse_and_validate_opts(OptionParser.argv(), cli_mode()) :: cli_opts()
-  def parse_and_validate_opts(args, mode) do
-    {opts, args} = parse_opts(args, mode)
-
-    opts =
-      case {args, mode} do
-        {[_first_arg | _remaining_args], :mix} ->
-          raise "too many arguments provided"
-
-        {[], :mix} ->
-          opts
-
-        {[_first_arg, _second_arg | _remaining_args], :escript} ->
-          raise "too many arguments provided"
-
-        {[path], mode} when mode in [:escript, :burrito] ->
-          Keyword.put(opts, :path, path)
-
-        {[], mode} when mode in [:escript, :burrito] ->
-          Keyword.put(opts, :path, File.cwd!())
-      end
-
-    opts
-    |> Keyword.merge(@default_opts, fn _k, v1, _v2 -> v1 end)
-    |> update_output_path_and_format!()
-    |> tap(&validate_schema!(&1[:schema]))
+  @spec run(OptionParser.argv(), cli_mode()) :: :ok
+  def run(args, mode) do
+    mode
+    |> parse!(args)
+    |> case do
+      {[:cyclonedx], parse_result} ->
+        parse_result
+        |> put_default_path(mode)
+        |> update_output_path_and_format()
+        |> generate_bom_content()
+    end
+  catch
+    :done -> :ok
   end
 
-  @spec generate_bom_content(cli_opts()) :: iodata()
-  def generate_bom_content(opts) do
-    case Keyword.fetch(opts, :path) do
-      {:ok, path} ->
-        SBoM.Util.in_project(path, fn _mix_project ->
-          _generate_bom_content(opts)
-        end)
+  @spec generate_bom_content(Optimus.ParseResult.t()) :: :ok
+  defp generate_bom_content(parse_result) do
+    case parse_result.args[:project_path] do
+      nil ->
+        _generate_bom_content(parse_result)
 
-      :error ->
-        _generate_bom_content(opts)
+      path ->
+        SBoM.Util.in_project(path, fn _mix_project ->
+          _generate_bom_content(parse_result)
+        end)
     end
   end
 
-  @spec _generate_bom_content(cli_opts()) :: iodata()
-  defp _generate_bom_content(opts) do
-    Fetcher.fetch()
-    |> CycloneDX.bom(CycloneDX.empty(opts[:schema]))
-    |> CycloneDX.encode(opts[:format])
+  @spec _generate_bom_content(Optimus.ParseResult.t()) :: :ok
+  defp _generate_bom_content(parse_result) do
+    if parse_result.flags.recurse do
+      Mix.Project.apps_paths()
+      |> tap(fn
+        nil ->
+          Mix.raise("""
+          --recurse option can only be used inside an umbrella project
+          """)
+
+        _other ->
+          :ok
+      end)
+      |> Enum.each(fn {app, path} ->
+        Mix.Project.in_project(app, path, fn _mix_project ->
+          Fetcher.fetch()
+          |> CycloneDX.bom(CycloneDX.empty(parse_result.options.schema))
+          |> CycloneDX.encode(parse_result.options.format)
+          |> write_file(
+            parse_result.options.output,
+            parse_result.flags.force
+          )
+        end)
+      end)
+    else
+      Fetcher.fetch()
+      |> CycloneDX.bom(CycloneDX.empty(parse_result.options.schema))
+      |> CycloneDX.encode(parse_result.options.format)
+      |> write_file(parse_result.options.output, parse_result.flags.force)
+    end
   end
 
-  @spec parse_opts(OptionParser.argv(), cli_mode()) :: {cli_opts(), OptionParser.argv()}
-  defp parse_opts(args, :mix) do
-    {_opts, []} =
-      OptionParser.parse!(args,
-        aliases: [
-          o: :output,
-          f: :force,
-          d: :dev,
-          r: :recurse,
-          s: :schema,
-          t: :format,
-          c: :classification
-        ],
-        strict: [
-          output: :string,
-          force: :boolean,
-          dev: :boolean,
-          recurse: :boolean,
-          schema: :string,
-          format: :string,
-          classification: :string
+  @spec write_file(iodata, Path.t(), boolean()) :: :ok
+  defp write_file(content, output_path, force) do
+    if Mix.Generator.create_file(output_path, content, force: force) do
+      :ok
+    else
+      Mix.raise("Failed to write SBoM to #{output_path}.")
+    end
+  end
+
+  @spec cli_def(cli_mode()) :: Optimus.t()
+  def cli_def(mode) do
+    Optimus.new!(
+      name: "mix_sbom",
+      description: "Mix SBoM",
+      version: @version,
+      author: "Erlang Ecosystem Foundation",
+      about: "Software Bill of Materials (SBoM) for Elixir projects",
+      allow_unknown_args: false,
+      parse_double_dash: true,
+      subcommands: [
+        cyclonedx: [
+          name: "cyclonedx",
+          about: "Generate CycloneDX SBoM",
+          args:
+            case mode do
+              :mix ->
+                []
+
+              mode when mode in [:escript, :burrito] ->
+                [
+                  project_path: [
+                    value_name: "PROJECT_PATH",
+                    help: "Path to the Mix project (defaults to current working directory)",
+                    required: false,
+                    default: &File.cwd!/0
+                  ]
+                ]
+            end,
+          options: [
+            output: [
+              value_name: "OUTPUT_PATH",
+              short: "-o",
+              long: "--output",
+              help: "Path to write the generated SBoM to (defaults to bom.cdx.json)",
+              required: false,
+              parser: :string
+            ],
+            schema: [
+              value_name: "SCHEMA_VERSION",
+              short: "-s",
+              long: "--schema",
+              help: "CycloneDX schema version to use (defaults to 1.6)",
+              required: false,
+              parser: &parse_schema/1,
+              default: fn -> @default_schema end
+            ],
+            format: [
+              value_name: "FORMAT",
+              short: "-t",
+              long: "--format",
+              help: "Output format, one of xml, json, protobuf (defaults to json)",
+              required: false,
+              parser: &parse_format/1
+            ]
+            # TODO: Implement
+            # classification: [
+            #   value_name: "CLASSIFICATION",
+            #   short: "-c",
+            #   long: "--classification",
+            #   help: "Specifies the type of application being described (defaults to application)",
+            #   required: false,
+            #   parser: :string
+            # ]
+          ],
+          flags: [
+            force: [
+              short: "-f",
+              long: "--force",
+              help: "Overwrite existing output file if it exists"
+            ],
+            recurse: [
+              short: "-r",
+              long: "--recurse",
+              help: "Recurse into umbrella applications to generate SBoM for all apps"
+            ],
+            # TODO: Implement
+            dev: [
+              short: "-d",
+              long: "--dev",
+              help: "Include development dependencies in the SBoM"
+            ]
+          ]
         ]
-      )
-  end
-
-  defp parse_opts(args, mode) when mode in [:escript, :burrito] do
-    OptionParser.parse!(args,
-      aliases: [
-        o: :output,
-        f: :force,
-        d: :dev,
-        s: :schema,
-        t: :format,
-        c: :classification,
-        h: :help
-      ],
-      strict: [
-        output: :string,
-        force: :boolean,
-        dev: :boolean,
-        schema: :string,
-        format: :string,
-        classification: :string,
-        help: :boolean
       ]
     )
   end
 
-  @spec update_output_path_and_format!(cli_opts()) :: cli_opts()
-  defp update_output_path_and_format!(opts) do
+  @spec parse!(cli_mode(), OptionParser.argv()) ::
+          {Optimus.subcommand_path(), Optimus.ParseResult.t()}
+  defp parse!(mode, command_line) do
+    optimus = cli_def(mode)
+
+    case Optimus.parse(optimus, command_line) do
+      {:ok, _parse_result} ->
+        handle_response(
+          mode,
+          0,
+          optimus_text_to_binary([
+            "No subcommand provided.",
+            "",
+            Optimus.help(optimus)
+          ])
+        )
+
+      {:ok, subcommand_path, parse_result} ->
+        {subcommand_path, parse_result}
+
+      {:error, errors} ->
+        handle_response(
+          mode,
+          1,
+          optimus |> Optimus.Errors.format(errors) |> optimus_text_to_binary()
+        )
+
+      {:error, subcommand_path, errors} ->
+        handle_response(
+          mode,
+          1,
+          optimus |> Optimus.Errors.format(subcommand_path, errors) |> optimus_text_to_binary()
+        )
+
+      :version ->
+        handle_response(mode, 0, optimus |> Optimus.Title.title() |> optimus_text_to_binary())
+
+      :help ->
+        handle_response(
+          mode,
+          0,
+          optimus |> Optimus.Help.help([], columns()) |> optimus_text_to_binary()
+        )
+
+      {:help, subcommand_path} ->
+        handle_response(
+          mode,
+          0,
+          optimus |> Optimus.Help.help(subcommand_path, columns()) |> optimus_text_to_binary()
+        )
+    end
+  end
+
+  @spec handle_response(cli_mode(), non_neg_integer(), String.t()) :: no_return()
+  defp handle_response(mode, status_code, message)
+
+  defp handle_response(:mix, 0, message) do
+    Mix.shell().info(message)
+    throw(:done)
+  end
+
+  defp handle_response(:mix, status_code, message) do
+    Mix.raise(message, exit_status: status_code)
+  end
+
+  defp handle_response(_mode, status_code, message) do
+    IO.write(:stderr, message)
+    System.halt(status_code)
+  end
+
+  @spec optimus_text_to_binary(iodata) :: String.t()
+  defp optimus_text_to_binary(text) do
+    IO.iodata_to_binary(["\e[0m" | Enum.intersperse(text, "\n")])
+  end
+
+  @spec update_output_path_and_format(Optimus.ParseResult.t()) :: Optimus.ParseResult.t()
+  defp update_output_path_and_format(%Optimus.ParseResult{} = parse_result) do
     {output, format} =
-      case {opts[:output], opts[:format]} do
-        {nil, nil} ->
-          {@default_path.json, @default_format}
-
-        {output, nil} ->
-          {output, format_from_path(output)}
-
-        {nil, "xml"} ->
-          {@default_path.xml, :xml}
-
-        {nil, "json"} ->
-          {@default_path.json, :json}
-
-        {nil, "protobuf"} ->
-          {@default_path.protobuf, :protobuf}
-
-        {output, format} when format in ["xml", "json", "protobuf"] ->
-          {output, String.to_existing_atom(format)}
+      case {parse_result.options[:output], parse_result.options[:format]} do
+        {nil, nil} -> {@default_path.json, @default_format}
+        {output, nil} -> {output, format_from_path(output)}
+        {nil, format} -> {@default_path[format], format}
+        {output, format} -> {output, format}
       end
 
-    Keyword.merge(opts, output: output, format: format)
+    %{
+      parse_result
+      | options:
+          Map.merge(parse_result.options, %{
+            output: output,
+            format: format
+          })
+    }
+  end
+
+  @spec columns() :: non_neg_integer()
+  defp columns do
+    case Optimus.Term.width() do
+      {:ok, width} -> width
+      _other -> 80
+    end
+  end
+
+  @spec put_default_path(Optimus.ParseResult.t(), cli_mode()) :: Optimus.ParseResult.t()
+  defp put_default_path(parse_result, mode)
+  defp put_default_path(parse_result, :mix), do: parse_result
+
+  defp put_default_path(%Optimus.ParseResult{} = parse_result, _mode) do
+    Map.update!(parse_result, :args, fn args ->
+      Map.put(args, :project_path, args[:project_path] || File.cwd!())
+    end)
   end
 
   @spec format_from_path(Path.t()) :: format()
@@ -176,9 +310,17 @@ defmodule SBoM.CLI do
     end
   end
 
-  @spec validate_schema!(schema_version()) :: true
-  defp validate_schema!(schema) do
-    schema in @schema_versions ||
-      Mix.raise("invalid cyclonedx schema version, available versions are #{Enum.join(@schema_versions, ", ")}")
-  end
+  @spec parse_schema(String.t()) :: {:ok, schema_version()} | {:error, String.t()}
+  defp parse_schema(schema)
+  defp parse_schema(schema) when schema in @schema_versions, do: {:ok, schema}
+
+  defp parse_schema(_other), do: {:error, "available versions are #{Enum.join(@schema_versions, ", ")}"}
+
+  @spec parse_format(String.t()) :: {:ok, format()} | {:error, String.t()}
+  defp parse_format(format)
+  defp parse_format("xml"), do: {:ok, :xml}
+  defp parse_format("json"), do: {:ok, :json}
+  defp parse_format("protobuf"), do: {:ok, :protobuf}
+
+  defp parse_format(_other), do: {:error, "available formats are xml, json, protobuf"}
 end

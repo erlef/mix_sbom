@@ -24,11 +24,18 @@ defmodule SBoM.Application do
     {:module, Burrito} ->
       defp run_cli do
         alias Burrito.Util
+        alias SBoM.CLI
 
         if Util.running_standalone?() do
-          SBoM.Escript.main(Util.Args.argv())
+          try do
+            CLI.run(Util.Args.argv(), :burrito)
 
-          System.stop(0)
+            System.stop(0)
+          rescue
+            e in Mix.Error ->
+              IO.write(:stderr, "#{e.message}\n")
+              System.halt(e.mix)
+          end
         end
 
         :ok
