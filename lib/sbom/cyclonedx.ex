@@ -84,14 +84,24 @@ defmodule SBoM.CycloneDX do
     )
   end
 
-  @spec bom(components_map(), t()) :: t()
-  def bom(components, bom \\ empty()) do
-    %{spec_version: version} = bom
+  @type bom_opts() :: [
+          starting_bom: t(),
+          serial: String.t(),
+          version: String.t()
+        ]
+
+  @spec bom(components_map(), bom_opts()) :: t()
+  def bom(components, opts \\ []) do
+    version = Keyword.get(opts, :version, "1.7")
+    starting_bom = Keyword.get(opts, :starting_bom, empty(version))
+    serial = Keyword.get(opts, :serial, urn_uuid())
+
+    %{spec_version: version} = starting_bom
 
     bom_components = attach_components(components, version)
 
-    bom
-    |> Map.put(:serial_number, urn_uuid())
+    starting_bom
+    |> Map.put(:serial_number, serial)
     |> Map.update!(:version, &(&1 + 1))
     |> Map.update!(:metadata, &attach_metadata(&1, version, components))
     |> Map.put(:components, bom_components)
@@ -141,7 +151,7 @@ defmodule SBoM.CycloneDX do
 
   defp attach_metadata(metadata, version, components) when version in ["1.3", "1.4"] do
     metadata
-    |> Map.put(:timestamp, Google.Protobuf.from_datetime(DateTime.utc_now()))
+    |> Map.put(:timestamp, timestamp_now())
     |> Map.update!(:tools, fn tools ->
       tools
       |> List.wrap()
@@ -153,7 +163,7 @@ defmodule SBoM.CycloneDX do
 
   defp attach_metadata(metadata, version, components) do
     metadata
-    |> Map.put(:timestamp, Google.Protobuf.from_datetime(DateTime.utc_now()))
+    |> Map.put(:timestamp, timestamp_now())
     |> Map.update!(:tools, fn tools ->
       tools = tools || bom_struct(:Tool, version)
 
@@ -167,6 +177,9 @@ defmodule SBoM.CycloneDX do
     end)
     |> Map.put(:component, root_component(components, version))
   end
+
+  @spec timestamp_now() :: Google.Protobuf.Timestamp.t()
+  defp timestamp_now, do: DateTime.utc_now() |> DateTime.truncate(:second) |> Google.Protobuf.from_datetime()
 
   @spec root_component(components_map(), SBoM.CLI.schema_version()) ::
           {SBoM.Fetcher.app_name(), SBoM.Fetcher.dependency()} | nil

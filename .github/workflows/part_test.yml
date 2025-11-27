@@ -101,6 +101,8 @@ jobs:
       - uses: ./.github/actions/setup-runtime-env
         with:
           mix-env: test
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
 
       - name: "Install Test OS Dependencies"
         run: |
@@ -114,11 +116,47 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: ${{ matrix.unstable }}
-      - run: mix test
+      - run: mix test --exclude property
         if: ${{ !matrix.enable_coverage_export }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: ${{ matrix.unstable }}
+
+  property_test:
+    name: mix test_property
+
+    runs-on: ubuntu-latest
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@95d9a5deda9de15063e7595e9719c11c38c90ae2 # v2.13.2
+        with:
+          egress-policy: audit
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        with:
+          submodules: true
+
+      - uses: ./.github/actions/setup-runtime-env
+        with:
+          mix-env: test
+
+      - name: "Install Test OS Dependencies"
+        run: |
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          echo "PATH=$PATH" >> "$GITHUB_ENV"
+          brew tap cyclonedx/cyclonedx
+          brew install cyclonedx/cyclonedx/cyclonedx-cli
+
+      - run: |
+          mix coveralls.github \
+            --exclude test \
+            --include property \
+            --timeout 120000
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   credo:
     name: Check Credo

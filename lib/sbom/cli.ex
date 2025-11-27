@@ -74,7 +74,7 @@ defmodule SBoM.CLI do
       |> Enum.each(fn {app, path} ->
         Mix.Project.in_project(app, path, fn _mix_project ->
           Fetcher.fetch()
-          |> CycloneDX.bom(CycloneDX.empty(parse_result.options.schema))
+          |> CycloneDX.bom(version: parse_result.options.schema)
           |> CycloneDX.encode(parse_result.options.format)
           |> write_file(
             parse_result.options.output,
@@ -84,7 +84,7 @@ defmodule SBoM.CLI do
       end)
     else
       Fetcher.fetch()
-      |> CycloneDX.bom(CycloneDX.empty(parse_result.options.schema))
+      |> CycloneDX.bom(version: parse_result.options.schema)
       |> CycloneDX.encode(parse_result.options.format)
       |> write_file(parse_result.options.output, parse_result.flags.force)
     end

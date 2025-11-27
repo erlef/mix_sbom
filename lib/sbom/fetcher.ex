@@ -155,10 +155,11 @@ defmodule SBoM.Fetcher do
   defp merge_property(:only, left, right), do: Enum.uniq(left ++ right)
   defp merge_property(_key, _left, right), do: right
 
+  @doc false
   @spec transform_all(dependencies :: %{app_name() => dependency()}) :: %{
           String.t() => dependency()
         }
-  defp transform_all(dependencies) do
+  def transform_all(dependencies) do
     dependencies =
       Map.new(dependencies, fn {app, dependency} ->
         {app, transform(app, drop_empty(dependency))}
@@ -266,7 +267,8 @@ defmodule SBoM.Fetcher do
 
   defp lock_dependencies(_dependency), do: []
 
+  @doc false
   @spec drop_empty(map :: %{key => value | nil}) :: %{key => value}
         when key: term(), value: term()
-  defp drop_empty(map), do: map |> Enum.reject(fn {_key, value} -> value in [nil, ""] end) |> Map.new()
+  def drop_empty(map), do: map |> Enum.reject(fn {_key, value} -> value in [nil, ""] end) |> Map.new()
 end
