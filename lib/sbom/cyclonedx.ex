@@ -17,6 +17,12 @@ defmodule SBoM.CycloneDX do
           | SBoM.Cyclonedx.V15.Component.t()
           | SBoM.Cyclonedx.V16.Component.t()
           | SBoM.Cyclonedx.V17.Component.t()
+  @type classification() ::
+          SBoM.Cyclonedx.V13.Classification.t()
+          | SBoM.Cyclonedx.V14.Classification.t()
+          | SBoM.Cyclonedx.V15.Classification.t()
+          | SBoM.Cyclonedx.V16.Classification.t()
+          | SBoM.Cyclonedx.V17.Classification.t()
   @type dependency_list() :: [
           SBoM.Cyclonedx.V13.Dependency.t()
           | SBoM.Cyclonedx.V14.Dependency.t()
@@ -87,7 +93,10 @@ defmodule SBoM.CycloneDX do
   @type bom_opts() :: [
           starting_bom: t(),
           serial: String.t(),
-          version: String.t()
+          version: String.t(),
+          only: [atom()],
+          targets: [atom()],
+          classification: classification()
         ]
 
   @spec bom(components_map(), bom_opts()) :: t()
@@ -95,17 +104,21 @@ defmodule SBoM.CycloneDX do
     version = Keyword.get(opts, :version, "1.7")
     starting_bom = Keyword.get(opts, :starting_bom, empty(version))
     serial = Keyword.get(opts, :serial, urn_uuid())
+    only = Keyword.get(opts, :only, [:*])
+    targets = Keyword.get(opts, :targets, [:*])
+    classification = Keyword.get(opts, :classification, :CLASSIFICATION_APPLICATION)
 
     %{spec_version: version} = starting_bom
 
-    bom_components = attach_components(components, version)
+    filtered_components = filter_components(components, only, targets)
+    bom_components = attach_components(filtered_components, version)
 
     starting_bom
     |> Map.put(:serial_number, serial)
     |> Map.update!(:version, &(&1 + 1))
-    |> Map.update!(:metadata, &attach_metadata(&1, version, components))
+    |> Map.update!(:metadata, &attach_metadata(&1, version, filtered_components, classification))
     |> Map.put(:components, bom_components)
-    |> Map.put(:dependencies, attach_dependencies(components, version))
+    |> Map.put(:dependencies, attach_dependencies(filtered_components, version))
   end
 
   @spec encode(t(), SBoM.CLI.format()) :: iodata()
@@ -146,10 +159,11 @@ defmodule SBoM.CycloneDX do
     utf8_bom <> xml_content
   end
 
-  @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map()) :: metadata()
-  defp attach_metadata(metadata, version, components)
+  @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map(), classification()) ::
+          metadata()
+  defp attach_metadata(metadata, version, components, classification)
 
-  defp attach_metadata(metadata, version, components) when version in ["1.3", "1.4"] do
+  defp attach_metadata(metadata, version, components, classification) when version in ["1.3", "1.4"] do
     metadata
     |> Map.put(:timestamp, timestamp_now())
     |> Map.update!(:tools, fn tools ->
@@ -158,10 +172,10 @@ defmodule SBoM.CycloneDX do
       |> Enum.reject(&match?(%{name: "Mix SBoM", vendor: "Erlang Ecosystem Foundation"}, &1))
       |> then(&[tool(version) | &1])
     end)
-    |> Map.put(:component, root_component(components, version))
+    |> Map.put(:component, root_component(components, version, classification))
   end
 
-  defp attach_metadata(metadata, version, components) do
+  defp attach_metadata(metadata, version, components, classification) do
     metadata
     |> Map.put(:timestamp, timestamp_now())
     |> Map.update!(:tools, fn tools ->
@@ -175,21 +189,46 @@ defmodule SBoM.CycloneDX do
 
       %{tools | components: components}
     end)
-    |> Map.put(:component, root_component(components, version))
+    |> Map.put(:component, root_component(components, version, classification))
   end
 
   @spec timestamp_now() :: Google.Protobuf.Timestamp.t()
   defp timestamp_now, do: DateTime.utc_now() |> DateTime.truncate(:second) |> Google.Protobuf.from_datetime()
 
-  @spec root_component(components_map(), SBoM.CLI.schema_version()) ::
+  @spec root_component(components_map(), SBoM.CLI.schema_version(), classification()) ::
           {SBoM.Fetcher.app_name(), SBoM.Fetcher.dependency()} | nil
-  def root_component(components, version) do
+  def root_component(components, version, classification) do
     components
     |> Enum.find(&match?({_name, %{root: true}}, &1))
     |> case do
-      nil -> nil
-      {name, component} -> convert_component(name, component, version)
+      nil ->
+        nil
+
+      {name, component} ->
+        root_comp = convert_component(name, component, version)
+        %{root_comp | type: classification}
     end
+  end
+
+  @spec env_overlaps?(:* | [:* | atom()], :* | [:* | atom()]) :: boolean()
+  defp env_overlaps?(filter_env, component_env) do
+    filter_set = filter_env |> List.wrap() |> MapSet.new()
+    component_set = component_env |> List.wrap() |> MapSet.new()
+
+    MapSet.member?(filter_set, :*) or MapSet.member?(component_set, :*) or
+      not MapSet.disjoint?(filter_set, component_set)
+  end
+
+  @spec filter_components(components_map(), [atom()], [atom()]) :: components_map()
+  defp filter_components(components, only, targets) do
+    components
+    |> Enum.filter(fn {_name, component} ->
+      component_only = Map.get(component, :only, [:*])
+      component_targets = Map.get(component, :targets, [:*])
+
+      env_overlaps?(only, component_only) and env_overlaps?(targets, component_targets)
+    end)
+    |> Map.new()
   end
 
   @spec attach_components(components_map(), SBoM.CLI.schema_version()) :: [component()]

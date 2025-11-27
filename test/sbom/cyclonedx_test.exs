@@ -96,4 +96,21 @@ defmodule SBoM.CycloneDXTest do
       assert cannonicalize_bom(bom) == cannonicalize_bom(xml_decoded_bom)
     end
   end
+
+  test "classification option sets root component type" do
+    components = Fetcher.fetch()
+
+    # Default classification
+    bom_default = CycloneDX.bom(components)
+    assert bom_default.metadata.component.type == :CLASSIFICATION_APPLICATION
+
+    # Custom classification
+    bom_framework = CycloneDX.bom(components, classification: :CLASSIFICATION_FRAMEWORK)
+    assert bom_framework.metadata.component.type == :CLASSIFICATION_FRAMEWORK
+
+    # Dependencies remain LIBRARY
+    Enum.each(bom_framework.components, fn comp ->
+      assert comp.type == :CLASSIFICATION_LIBRARY
+    end)
+  end
 end
