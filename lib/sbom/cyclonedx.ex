@@ -80,6 +80,9 @@ defmodule SBoM.CycloneDX do
         false
     end
 
+  @utf8_bom <<0xEF, 0xBB, 0xBF>>
+  @xml_prolog ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+
   @spec empty(SBoM.CLI.schema_version()) :: t()
   def empty(version \\ "1.7") do
     bom_struct(:Bom, version,
@@ -121,20 +124,21 @@ defmodule SBoM.CycloneDX do
     |> Map.put(:dependencies, attach_dependencies(filtered_components, version))
   end
 
-  @spec encode(t(), SBoM.CLI.format()) :: iodata()
-  def encode(bom, type)
-  def encode(%module{} = bom, :protobuf), do: module.encode(bom)
+  @spec encode(t(), SBoM.CLI.format(), SBoM.CLI.pretty()) :: iodata()
+  def encode(bom, type, pretty \\ false)
+
+  def encode(%module{} = bom, :protobuf, _pretty), do: module.encode(bom)
 
   if json_available do
-    def encode(bom, :json) do
+    def encode(bom, :json, pretty) do
       alias SBoM.CycloneDX.JSON.Encodable
 
       bom
       |> Encodable.to_encodable()
-      |> @json_module.encode!()
+      |> encode_json(pretty)
     end
   else
-    def encode(_bom, :json) do
+    def encode(_bom, :json, _pretty) do
       raise """
       JSON encoding is not available. Please either update to Elixir 1.18+ or add
       {:jason, "~> 1.4"} to your dependencies.
@@ -142,21 +146,12 @@ defmodule SBoM.CycloneDX do
     end
   end
 
-  def encode(bom, :xml) do
+  def encode(bom, :xml, pretty) do
     alias SBoM.CycloneDX.XML.Encodable
 
-    utf8_bom = <<0xEF, 0xBB, 0xBF>>
-
-    xml_content =
-      bom
-      |> Encodable.to_xml_element()
-      |> List.wrap()
-      |> :xmerl.export_simple(:xmerl_xml, [
-        {:prolog, ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"}
-      ])
-      |> IO.iodata_to_binary()
-
-    utf8_bom <> xml_content
+    bom
+    |> Encodable.to_xml_element()
+    |> encode_xml(pretty)
   end
 
   @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map(), classification()) ::
@@ -470,4 +465,41 @@ defmodule SBoM.CycloneDX do
     # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
     defp bom_struct(module, unquote(schema_version), attrs), do: struct(Module.concat([unquote(prefix), module]), attrs)
   end
+
+  @spec encode_json(map(), boolean()) :: binary()
+  defp encode_json(encodable, pretty)
+  # Jason selected
+  defp encode_json(encodable, pretty) when @json_module == Jason do
+    if pretty do
+      Jason.encode!(encodable, pretty: true)
+    else
+      Jason.encode!(encodable)
+    end
+  end
+
+  defp encode_json(encodable, pretty) do
+    if pretty do
+      formatter = fn
+        nil, _Enc, _State -> <<"null">>
+        other, enc, state -> :json.format_value(other, enc, state)
+      end
+
+      :json.format(encodable, formatter)
+    else
+      JSON.encode!(encodable)
+    end
+  end
+
+  @spec encode_xml(term(), boolean()) :: iodata()
+  defp encode_xml(xml_element, pretty) do
+    xml_element
+    |> List.wrap()
+    |> :xmerl.export_simple(xml_callback(pretty), prolog: @xml_prolog)
+    |> IO.iodata_to_binary()
+    |> then(&(@utf8_bom <> &1))
+  end
+
+  @spec xml_callback(boolean()) :: module()
+  defp xml_callback(true), do: :xmerl_xml_indent
+  defp xml_callback(false), do: :xmerl_xml
 end
