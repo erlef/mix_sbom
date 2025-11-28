@@ -2,16 +2,16 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.SCM do
-  @moduledoc """
-  Defines the behavior and helper types for working with source control managers
-  (SCMs) in the Mix dependency submission context.
+  @moduledoc false
 
-  SCM implementations are responsible for generating package URLs (`purl`) and
-  extracting dependency metadata from `mix.lock` or `mix.exs`.
-
-  Implementations must live under `SBoM.SCM.[NAME]` and match
-  the name of the corresponding module in `Mix.SCM.available/0`.
-  """
+  # Defines the behavior and helper types for working with source control managers
+  # (SCMs) in the Mix dependency submission context.
+  #
+  # SCM implementations are responsible for generating package URLs (`purl`) and
+  # extracting dependency metadata from `mix.lock` or `mix.exs`.
+  #
+  # Implementations must live under `SBoM.SCM.[NAME]` and match
+  # the name of the corresponding module in `Mix.SCM.available/0`.
 
   @typedoc """
   Lock for the dependency as a list.

@@ -2,17 +2,17 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Fetcher do
-  @moduledoc """
-  Defines the behaviour for manifest fetchers and provides an entry point to collect
-  dependency data from multiple sources.
+  @moduledoc false
 
-  The built-in fetchers include:
-
-    * `SBoM.Fetcher.MixFile` — parses `mix.exs`
-    * `SBoM.Fetcher.MixLock` — parses `mix.lock`
-    * `SBoM.Fetcher.MixRuntime` — inspects runtime dependency
-      graph
-  """
+  # Defines the behaviour for manifest fetchers and provides an entry point to
+  # collect dependency data from multiple sources.
+  #
+  # The built-in fetchers include:
+  #
+  #   * `SBoM.Fetcher.MixFile` — parses `mix.exs`
+  #   * `SBoM.Fetcher.MixLock` — parses `mix.lock`
+  #   * `SBoM.Fetcher.MixRuntime` — inspects runtime dependency
+  #     graph
 
   alias SBoM.SCM
 

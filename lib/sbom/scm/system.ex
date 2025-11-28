@@ -2,10 +2,10 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.SCM.System do
-  @moduledoc """
-  A `Mix.SCM` implementation that looks up the system dependencies.
-  (Erlang, Elixir, Hex, etc.)
-  """
+  @moduledoc false
+
+  # A `Mix.SCM` implementation that looks up the system dependencies.
+  # (Erlang, Elixir, Hex, etc.)
 
   @behaviour Mix.SCM
 
@@ -79,9 +79,9 @@ defmodule SBoM.SCM.System do
 end
 
 defmodule SBoM.SCM.SBoM.SCM.System do
-  @moduledoc """
-  `SBoM.SCM` implementation for system dependencies.
-  """
+  @moduledoc false
+
+  # `SBoM.SCM` implementation for system dependencies.
 
   @behaviour SBoM.SCM
 

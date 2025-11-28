@@ -2,9 +2,9 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.CycloneDX.XML.Helpers do
-  @moduledoc """
-  Generic XML structure building helpers for CycloneDX encoding.
-  """
+  @moduledoc false
+
+  # Generic XML structure building helpers for CycloneDX encoding.
 
   alias SBoM.CycloneDX.XML.Encodable
 

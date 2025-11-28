@@ -4,9 +4,11 @@
   SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 -->
 
+<!-- ex_doc_ignore_start -->
 # SBoM
 
 > ⚠️ **Note**: This documentation is for the main branch. For the latest stable release, check [v0.7.0](https://github.com/erlef/mix_sbom/tree/v0.7.0).
+<!-- ex_doc_ignore_end -->
 
 [![EEF Security WG project](https://img.shields.io/badge/EEF-Security-black)](https://github.com/erlef/security-wg)
 [![.github/workflows/branch_main.yml](https://github.com/erlef/mix_sbom/actions/workflows/branch_main.yml/badge.svg)](https://github.com/erlef/mix_sbom/actions/workflows/branch_main.yml)
@@ -18,7 +20,9 @@
 Generates a Software Bill-of-Materials (SBoM) for Mix projects, in [CycloneDX](https://cyclonedx.org)
 format.
 
+<!-- ex_doc_ignore_start -->
 Full documentation can be found at [https://hexdocs.pm/sbom](https://hexdocs.pm/sbom).
+<!-- ex_doc_ignore_end -->
 
 For a quick demo of how this might be used, check out [this blog post](https://blog.voltone.net/post/24).
 

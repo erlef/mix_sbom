@@ -67,4 +67,23 @@ defmodule SBoM.Util do
   def hash_app_name(seed) do
     seed |> :erlang.crc32() |> Integer.digits(26) |> Enum.map(&(&1 + ?a)) |> List.to_string()
   end
+
+  @spec optimus_help_to_mix_docs(Optimus.t(), Optimus.subcommand_path()) :: String.t()
+  def optimus_help_to_mix_docs(optimus, subcommand) do
+    optimus
+    |> Optimus.Help.help(subcommand, 10_000)
+    |> Enum.map(fn
+      "USAGE:" -> "## Usage"
+      "FLAGS:" -> "## Flags"
+      "OPTIONS:" -> "## Options"
+      "    -" <> rest -> " * -#{rest}"
+      other -> other
+    end)
+    |> Enum.intersperse("\n")
+    |> IO.iodata_to_binary()
+    |> String.replace(~r/\(default: (.+)\)/, "(default: `\\1`)")
+    |> String.replace(~r/ --([a-z]+)/, " `-\\1`")
+    |> String.replace(~r/ -([a-z])/, " `-\\1`")
+    |> String.replace(~r/(\[--.+\])/U, "\\\n      \\1")
+  end
 end

@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Fetcher.MixLock do
-  @moduledoc """
-  Fetches dependencies from the `mix.lock` file.
+  @moduledoc false
 
-  This module implements the `SBoM.Fetcher` behaviour to extract
-  locked dependencies and convert them into the expected internal format.
-  """
+  # Fetches dependencies from the `mix.lock` file.
+  #
+  # This module implements the `SBoM.Fetcher` behaviour to extract
+  # locked dependencies and convert them into the expected internal format.
 
   @behaviour SBoM.Fetcher
 
