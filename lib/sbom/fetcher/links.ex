@@ -4,7 +4,7 @@
 defmodule SBoM.Fetcher.Links do
   @moduledoc false
 
-  @type t() :: %{optional(String.t()) => String.t()}
+  @type t() :: %{optional(atom() | String.t()) => String.t()}
 
   @source_url_names [
     "github",
@@ -15,12 +15,22 @@ defmodule SBoM.Fetcher.Links do
     "bitbucket"
   ]
 
-  @spec source_url(links :: %{String.t() => String.t()}) :: String.t() | nil
+  @spec source_url(links :: t()) :: String.t() | nil
   def source_url(links) do
-    Enum.find_value(links, fn {name, url} ->
-      if String.downcase(name) in @source_url_names do
+    links
+    |> normalize_link_keys()
+    |> Enum.find_value(fn {name, url} ->
+      if name in @source_url_names do
         url
       end
     end)
   end
+
+  @spec normalize_link_keys(links :: t()) :: %{String.t() => String.t()}
+  def normalize_link_keys(links) do
+    Map.new(links, fn {name, value} ->
+      {name |> to_string() |> String.downcase(), value}
+    end)
+  end
+
 end

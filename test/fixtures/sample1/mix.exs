@@ -7,7 +7,13 @@ defmodule Sample1.MixProject do
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: [
+        links: %{
+          Github: "https://github.com/sample1",
+          Changelog: "https://hexdocs.pm/sample1/changelog.html"
+        }
+      ]
     ]
   end
 
