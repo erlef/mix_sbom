@@ -32,5 +32,4 @@ defmodule SBoM.Fetcher.Links do
       {name |> to_string() |> String.downcase(), value}
     end)
   end
-
 end
