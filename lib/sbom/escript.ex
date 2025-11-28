@@ -2,9 +2,9 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Escript do
-  @moduledoc """
-  Escript entry point for generating CycloneDX SBoMs.
-  """
+  @moduledoc false
+
+  # Escript entry point for generating CycloneDX SBoMs.
 
   alias SBoM.CLI
 

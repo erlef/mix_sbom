@@ -2,14 +2,14 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Fetcher.MixFile do
-  @moduledoc """
-  A `SBoM.Fetcher` implementation that extracts dependencies
-  from the current project's `mix.exs` file.
+  @moduledoc false
 
-  This module is responsible for reading and normalizing direct dependencies
-  defined in the project configuration, returning them in a standard format
-  expected by the submission tool.
-  """
+  #  A `SBoM.Fetcher` implementation that extracts dependencies
+  # from the current project's `mix.exs` file.
+  #
+  # This module is responsible for reading and normalizing direct dependencies
+  # defined in the project configuration, returning them in a standard format
+  # expected by the submission tool.
 
   @behaviour SBoM.Fetcher
 

@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.SCM.Mix.SCM.Path do
-  @moduledoc """
-  SCM implementation for path-based Mix dependencies.
+  @moduledoc false
 
-  Generates a generic `purl` for dependencies declared with `:path` in
-  `mix.exs`.
-  """
+  # SCM implementation for path-based Mix dependencies.
+  #
+  # Generates a generic `purl` for dependencies declared with `:path` in
+  # `mix.exs`.
 
   @behaviour SBoM.SCM
 

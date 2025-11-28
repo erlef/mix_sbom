@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.SCM.Hex.SCM do
-  @moduledoc """
-  SCM implementation for Hex packages.
+  @moduledoc false
 
-  Handles the conversion of Hex dependencies into `purl` format and extraction
-  of dependency information from `mix.exs` and `mix.lock`.
-  """
+  # SCM implementation for Hex packages.
+  #
+  # Handles the conversion of Hex dependencies into `purl` format and extraction
+  # of dependency information from `mix.exs` and `mix.lock`.
 
   @behaviour SBoM.SCM
 

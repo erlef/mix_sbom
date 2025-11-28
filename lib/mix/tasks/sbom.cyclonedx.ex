@@ -4,9 +4,7 @@
 help =
   :mix
   |> SBoM.CLI.cli_def()
-  |> Optimus.Help.help([:cyclonedx], 80)
-  |> Enum.intersperse("\n")
-  |> IO.iodata_to_binary()
+  |> SBoM.Util.optimus_help_to_mix_docs([:cyclonedx])
 
 defmodule Mix.Tasks.Sbom.Cyclonedx do
   @shortdoc "Generates CycloneDX SBoM"

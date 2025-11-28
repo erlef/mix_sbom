@@ -2,13 +2,13 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.SCM.Mix.SCM.Git do
-  @moduledoc """
-  SCM implementation for Git-based Mix dependencies.
+  @moduledoc false
 
-  Handles conversion of Git dependencies declared in `mix.exs` or found in
-  `mix.lock` into package URLs (purl). Falls back to a generic purl format if
-  the repository URL does not represent a specific purl type like `pkg:github`.
-  """
+  # SCM implementation for Git-based Mix dependencies.
+  #
+  # Handles conversion of Git dependencies declared in `mix.exs` or found in
+  # `mix.lock` into package URLs (purl). Falls back to a generic purl format if
+  # the repository URL does not represent a specific purl type like `pkg:github`.
 
   @behaviour SBoM.SCM
 

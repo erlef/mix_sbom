@@ -144,8 +144,7 @@ defmodule SBoM.MixProject do
 
   defp docs do
     [
-      main: "readme",
-      extras: ["README.md"],
+      main: "SBoM",
       source_ref: "v#{@version}"
     ]
   end

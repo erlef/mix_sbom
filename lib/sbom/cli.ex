@@ -3,11 +3,10 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.CLI do
-  @moduledoc """
-  Shared CLI logic for generating CycloneDX SBoMs.
+  @moduledoc false
 
-  Used by both the Mix task and escript implementations.
-  """
+  # Shared CLI logic for generating CycloneDX SBoMs.
+  # This module is used by both the Mix task and escript implementations.
 
   alias SBoM.CycloneDX
   alias SBoM.Fetcher
@@ -130,7 +129,7 @@ defmodule SBoM.CLI do
                 [
                   project_path: [
                     value_name: "PROJECT_PATH",
-                    help: "Path to the Mix project (defaults to current working directory)",
+                    help: "Path to the Mix project",
                     required: false,
                     default: &File.cwd!/0
                   ]
@@ -141,7 +140,7 @@ defmodule SBoM.CLI do
               value_name: "OUTPUT_PATH",
               short: "-o",
               long: "--output",
-              help: "Path to write the generated SBoM to (defaults to bom.cdx.json)",
+              help: "Path to write the generated SBoM to",
               required: false,
               parser: :string
             ],
@@ -149,7 +148,7 @@ defmodule SBoM.CLI do
               value_name: "SCHEMA_VERSION",
               short: "-s",
               long: "--schema",
-              help: "CycloneDX schema version to use (defaults to 1.6)",
+              help: "CycloneDX schema version to use",
               required: false,
               parser: &parse_schema/1,
               default: @default_schema
@@ -158,7 +157,7 @@ defmodule SBoM.CLI do
               value_name: "FORMAT",
               short: "-t",
               long: "--format",
-              help: "Output format, one of xml, json, protobuf (defaults to json)",
+              help: "Output format, one of xml, json, protobuf",
               required: false,
               parser: &parse_format/1
             ],
@@ -176,7 +175,7 @@ defmodule SBoM.CLI do
               value_name: "TARGETS",
               short: "-a",
               long: "--targets",
-              help: "Comma-separated list of Mix targets to include components from (defaults to all targets)",
+              help: "Comma-separated list of Mix targets to include components from",
               required: false,
               default: [:*],
               parser: &parse_atom/1,
@@ -186,7 +185,7 @@ defmodule SBoM.CLI do
               value_name: "CLASSIFICATION",
               short: "-c",
               long: "--classification",
-              help: "Specifies the type of application being described (defaults to application)",
+              help: "Specifies the type of application being described",
               required: false,
               default: @default_classification,
               parser: &parse_classification/1

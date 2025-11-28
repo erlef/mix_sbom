@@ -2,13 +2,12 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Fetcher.MixRuntime do
-  @moduledoc """
-  Fetches dependencies from the compiled Mix project at runtime.
-
-  This fetcher uses `Mix.Project.deps_tree/1` and related project metadata to
-  collect runtime dependency information including versions, SCMs, and
-  relationships.
-  """
+  @moduledoc false
+  # Fetches dependencies from the compiled Mix project at runtime.
+  #
+  # This fetcher uses `Mix.Project.deps_tree/1` and related project metadata to
+  # collect runtime dependency information including versions, SCMs, and
+  # relationships.
 
   @behaviour SBoM.Fetcher
 
