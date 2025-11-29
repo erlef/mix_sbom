@@ -16,6 +16,7 @@ defmodule SBoM.CLI do
   @type cli_mode() :: :mix | :escript | :burrito
   @type format() :: :xml | :json | :protobuf
   @type schema_version() :: String.t()
+  @type pretty() :: boolean()
 
   @schema_versions ~w[1.7 1.6 1.5 1.4 1.3]
 
@@ -93,7 +94,7 @@ defmodule SBoM.CLI do
       targets: parse_result.options.targets,
       classification: parse_result.options.classification
     )
-    |> CycloneDX.encode(parse_result.options.format)
+    |> CycloneDX.encode(parse_result.options.format, parse_result.flags.pretty)
     |> write_file(parse_result.options.output, parse_result.flags.force)
   end
 
@@ -201,6 +202,11 @@ defmodule SBoM.CLI do
               short: "-r",
               long: "--recurse",
               help: "Recurse into umbrella applications to generate SBoM for all apps"
+            ],
+            pretty: [
+              short: "-p",
+              long: "--pretty",
+              help: "Pretty print the SBoM"
             ]
           ]
         ]

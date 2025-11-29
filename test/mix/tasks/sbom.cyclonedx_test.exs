@@ -231,4 +231,62 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       end)
     end
   end
+
+  describe "format options" do
+    @tag :tmp_dir
+    @tag fixture_app: "sample1"
+    test "pretty print flag adds indentation to JSON", %{app_path: app_path} do
+      Util.in_project(app_path, fn _mix_module ->
+        compact_path = Path.join(app_path, "bom_compact.json")
+        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", compact_path, "-t", "json"])
+        assert_received {:mix_shell, :info, ["* creating bom_compact.json"]}
+
+        pretty_path = Path.join(app_path, "bom_pretty.json")
+        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", pretty_path, "-t", "json", "--pretty"])
+        assert_received {:mix_shell, :info, ["* creating bom_pretty.json"]}
+
+        compact_content = File.read!(compact_path)
+        pretty_content = File.read!(pretty_path)
+
+        # Both should be valid JSON
+        assert_valid_cyclonedx_bom(compact_path, :json)
+        assert_valid_cyclonedx_bom(pretty_path, :json)
+
+        # Pretty should have newlines and indentation
+        assert String.contains?(pretty_content, "\n")
+
+        # Pretty should have more lines than compact
+        pretty_line_count = pretty_content |> String.split("\n") |> length()
+        compact_line_count = compact_content |> String.split("\n") |> length()
+        assert pretty_line_count > compact_line_count
+      end)
+    end
+
+    @tag :tmp_dir
+    @tag fixture_app: "sample1"
+    test "pretty print flag adds indentation to XML", %{app_path: app_path} do
+      Util.in_project(app_path, fn _mix_module ->
+        compact_path = Path.join(app_path, "bom_compact.xml")
+        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", compact_path, "-t", "xml"])
+
+        pretty_path = Path.join(app_path, "bom_pretty.xml")
+        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", pretty_path, "-t", "xml", "--pretty"])
+
+        compact_content = File.read!(compact_path)
+        pretty_content = File.read!(pretty_path)
+
+        # Both should be valid XML
+        assert_valid_cyclonedx_bom(compact_path, :xml)
+        assert_valid_cyclonedx_bom(pretty_path, :xml)
+
+        # Pretty XML should have indentation (spaces before tags)
+        assert Regex.match?(~r/\n\s+</, pretty_content)
+
+        # Pretty should have more or equal line breaks
+        pretty_line_count = pretty_content |> String.split("\n") |> length()
+        compact_line_count = compact_content |> String.split("\n") |> length()
+        assert pretty_line_count >= compact_line_count
+      end)
+    end
+  end
 end
