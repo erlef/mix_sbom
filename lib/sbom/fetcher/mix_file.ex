@@ -14,7 +14,7 @@ defmodule SBoM.Fetcher.MixFile do
   @behaviour SBoM.Fetcher
 
   alias SBoM.Fetcher
-  alias SBoM.Fetcher.Links
+  alias SBoM.Metadata
 
   @doc """
   Fetches and normalizes the direct dependencies defined in the `mix.exs` file.
@@ -72,22 +72,19 @@ defmodule SBoM.Fetcher.MixFile do
   defp get_app_entry(dependencies) do
     config = Mix.Project.config()
 
-    links = config[:links] || config[:package][:links] || %{}
-    source_url = config[:source_url] || Links.source_url(links)
+    # Extract metadata using centralized normalization
+    metadata = Metadata.from_mix_config(config)
 
     {config[:app],
-     %{
+     Map.merge(metadata, %{
        version: config[:version],
        optional: false,
        runtime: true,
        targets: :*,
        only: :*,
-       licenses: config[:licenses] || config[:package][:licenses],
        dependencies: Map.keys(dependencies),
-       root: true,
-       source_url: source_url,
-       links: links
-     }}
+       root: true
+     })}
   end
 
   @spec normalize_dep(

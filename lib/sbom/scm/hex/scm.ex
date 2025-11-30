@@ -11,6 +11,7 @@ defmodule SBoM.SCM.Hex.SCM do
 
   @behaviour SBoM.SCM
 
+  alias SBoM.Metadata
   alias SBoM.SCM
 
   @doc """
@@ -214,6 +215,38 @@ defmodule SBoM.SCM.Hex.SCM do
     ] = lock
 
     version
+  end
+
+  @doc """
+  Enhances dependency metadata by fetching additional information from the Hex API.
+
+  Returns a map with metadata fields (licenses, links, source_url) that can be
+  merged with existing dependency information. Returns an empty map on error.
+  """
+  @impl SCM
+  def enhance_metadata(_app, %{mix_config: _config}) do
+    %{}
+  end
+
+  def enhance_metadata(app, _dependency) do
+    fetch_hex_metadata(app)
+  end
+
+  @spec fetch_hex_metadata(atom()) :: map()
+  defp fetch_hex_metadata(app) do
+    case :hex_api_package.get(:hex_core.default_config(), Atom.to_string(app)) do
+      {:ok, {_status, _headers, payload}} ->
+        Metadata.from_hex_payload(payload)
+
+      {:error, _reason} ->
+        %{}
+    end
+  rescue
+    _error ->
+      %{}
+  catch
+    _kind, _reason ->
+      %{}
   end
 
   @spec hex_namespace(repo :: String.t() | nil) :: Purl.namespace()
