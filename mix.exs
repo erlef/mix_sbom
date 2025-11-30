@@ -117,6 +117,7 @@ defmodule SBoM.MixProject do
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.5", only: [:test], runtime: false},
       {:jason, "~> 1.4", optional: true},
+      {:meck, "~> 0.9", only: [:test]},
       {:optimus, "~> 0.5.1"},
       {:protobuf, "~> 0.15.0"},
       {:purl, "~> 0.3.0"},

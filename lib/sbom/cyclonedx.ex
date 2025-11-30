@@ -83,6 +83,15 @@ defmodule SBoM.CycloneDX do
   @utf8_bom <<0xEF, 0xBB, 0xBF>>
   @xml_prolog ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 
+  @pretty_json_error """
+  Pretty JSON formatting is not available.
+
+  Options:
+  1. Update to a newer version of Erlang/OTP that includes :json.format/2
+  2. Use Jason for JSON encoding (add {:jason, "~> 1.4"} to your dependencies)
+  3. Disable pretty printing (set pretty: false)
+  """
+
   @spec empty(SBoM.CLI.schema_version()) :: t()
   def empty(version \\ "1.7") do
     bom_struct(:Bom, version,
@@ -467,26 +476,57 @@ defmodule SBoM.CycloneDX do
   end
 
   @spec encode_json(map(), boolean()) :: binary()
-  defp encode_json(encodable, pretty)
-  # Jason selected
-  defp encode_json(encodable, pretty) when @json_module == Jason do
-    if pretty do
-      Jason.encode!(encodable, pretty: true)
-    else
-      Jason.encode!(encodable)
-    end
-  end
-
-  defp encode_json(encodable, pretty) do
-    if pretty do
-      formatter = fn
-        nil, _Enc, _State -> <<"null">>
-        other, enc, state -> :json.format_value(other, enc, state)
+  if @json_module == Jason do
+    defp encode_json(encodable, pretty) do
+      if pretty do
+        Jason.encode!(encodable, pretty: true)
+      else
+        Jason.encode!(encodable)
       end
+    end
+  else
+    defp encode_json(encodable, pretty) do
+      if pretty do
+        encode_json_pretty(encodable)
+      else
+        JSON.encode!(encodable)
+      end
+    end
 
-      :json.format(encodable, formatter)
-    else
-      JSON.encode!(encodable)
+    @spec encode_json_pretty(term()) :: binary()
+    defp encode_json_pretty(encodable) do
+      case Code.ensure_loaded(:json) do
+        {:module, :json} ->
+          formatter = fn
+            nil, _enc, _state -> <<"null">>
+            other, enc, state -> :json.format_value(other, enc, state)
+          end
+
+          try do
+            encodable
+            |> :json.format(formatter)
+            |> IO.iodata_to_binary()
+          rescue
+            e in UndefinedFunctionError ->
+              if e.module == :json and e.function == :format and e.arity == 2 do
+                error_msg =
+                  "The JSON module is available, but :json.format/2 could not be called. " <>
+                    "This function was introduced in a later version of the :json module.\n\n" <>
+                    @pretty_json_error
+
+                reraise RuntimeError.exception(error_msg), __STACKTRACE__
+              else
+                reraise e, __STACKTRACE__
+              end
+          end
+
+        {:error, _reason} ->
+          error_msg =
+            "The JSON module is available, but the native :json Erlang module is not loaded.\n\n" <>
+              @pretty_json_error
+
+          raise RuntimeError, error_msg
+      end
     end
   end
 
