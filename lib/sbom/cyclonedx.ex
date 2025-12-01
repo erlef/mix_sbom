@@ -69,28 +69,22 @@ defmodule SBoM.CycloneDX do
     case {Code.ensure_loaded(JSON), Code.ensure_loaded(Jason)} do
       {{:module, JSON}, _jason} ->
         @json_module JSON
+        @json_available :json_module
         true
 
       {_json, {:module, Jason}} ->
         @json_module Jason
+        @json_available :jason_module
         true
 
       {{:error, _json_error}, {:error, _jason_error}} ->
         @json_module nil
+        @json_available nil
         false
     end
 
   @utf8_bom <<0xEF, 0xBB, 0xBF>>
   @xml_prolog ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-
-  @pretty_json_error """
-  Pretty JSON formatting is not available.
-
-  Options:
-  1. Update to a newer version of Erlang/OTP that includes :json.format/2
-  2. Use Jason for JSON encoding (add {:jason, "~> 1.4"} to your dependencies)
-  3. Disable pretty printing (set pretty: false)
-  """
 
   @spec empty(SBoM.CLI.schema_version()) :: t()
   def empty(version \\ "1.7") do
@@ -147,7 +141,7 @@ defmodule SBoM.CycloneDX do
       |> encode_json(pretty)
     end
   else
-    def encode(_bom, :json, _pretty) do
+    def encode(bom, :json, _pretty) do
       raise """
       JSON encoding is not available. Please either update to Elixir 1.18+ or add
       {:jason, "~> 1.4"} to your dependencies.
@@ -476,57 +470,48 @@ defmodule SBoM.CycloneDX do
   end
 
   @spec encode_json(map(), boolean()) :: binary()
-  if @json_module == Jason do
-    defp encode_json(encodable, pretty) do
-      if pretty do
-        Jason.encode!(encodable, pretty: true)
-      else
-        Jason.encode!(encodable)
-      end
+  if @json_available == :json_module do
+    defp encode_json(encodable, true) do
+      encode_json_pretty(encodable)
     end
   else
-    defp encode_json(encodable, pretty) do
-      if pretty do
-        encode_json_pretty(encodable)
-      else
-        JSON.encode!(encodable)
-      end
+    defp encode_json(encodable, true) do
+      @json_module.encode!(encodable, pretty: true)
+    end
+  end
+
+  defp encode_json(encodable, false) do
+    @json_module.encode!(encodable)
+  end
+
+  @spec encode_json_pretty(term()) :: binary()
+  defp encode_json_pretty(encodable) do
+    formatter = fn
+      nil, _enc, _state -> <<"null">>
+      other, enc, state -> :json.format_value(other, enc, state)
     end
 
-    @spec encode_json_pretty(term()) :: binary()
-    defp encode_json_pretty(encodable) do
-      case Code.ensure_loaded(:json) do
-        {:module, :json} ->
-          formatter = fn
-            nil, _enc, _state -> <<"null">>
-            other, enc, state -> :json.format_value(other, enc, state)
-          end
-
-          try do
-            encodable
-            |> :json.format(formatter)
-            |> IO.iodata_to_binary()
-          rescue
-            e in UndefinedFunctionError ->
-              if e.module == :json and e.function == :format and e.arity == 2 do
-                error_msg =
-                  "The JSON module is available, but :json.format/2 could not be called. " <>
-                    "This function was introduced in a later version of the :json module.\n\n" <>
-                    @pretty_json_error
-
-                reraise RuntimeError.exception(error_msg), __STACKTRACE__
-              else
-                reraise e, __STACKTRACE__
-              end
-          end
-
-        {:error, _reason} ->
+    try do
+      encodable
+      |> :json.format(formatter)
+      |> IO.iodata_to_binary()
+    rescue
+      e in UndefinedFunctionError ->
+        if e.module == :json and e.function == :format and e.arity == 2 do
           error_msg =
-            "The JSON module is available, but the native :json Erlang module is not loaded.\n\n" <>
-              @pretty_json_error
+            """
+            Pretty JSON formatting is not available.
 
-          raise RuntimeError, error_msg
-      end
+            Options:
+            1. Update to a newer version of Erlang/OTP that includes :json.format/2 (OTP 27.1 or later)
+            2. Use Jason for JSON encoding (add {:jason, "~> 1.4"} to your dependencies)
+            3. Disable pretty printing
+            """
+
+          reraise RuntimeError.exception(error_msg), __STACKTRACE__
+        else
+          reraise e, __STACKTRACE__
+        end
     end
   end
 
@@ -540,6 +525,21 @@ defmodule SBoM.CycloneDX do
   end
 
   @spec xml_callback(boolean()) :: module()
-  defp xml_callback(true), do: :xmerl_xml_indent
+  defp xml_callback(true) do
+    case Code.ensure_loaded(:xmerl_xml_indent) do
+      {:module, _mod} ->
+        :xmerl_xml_indent
+
+      {:error, _reason} ->
+        raise """
+        Pretty XML formatting is not available.
+
+        Options:
+        1. Update to a newer version of Erlang/OTP (OTP 27.0 or later)
+        2. Disable pretty printing
+        """
+    end
+  end
+
   defp xml_callback(false), do: :xmerl_xml
 end

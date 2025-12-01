@@ -22,6 +22,21 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
     :ok
   end
 
+  @spec json_module_loaded?() :: boolean()
+  defp json_module_loaded? do
+    Code.ensure_loaded(:json) == {:module, :json}
+  end
+
+  @spec json_format_available?() :: boolean()
+  defp json_format_available? do
+    json_module_loaded?() and function_exported?(:json, :format, 2)
+  end
+
+  @spec xml_pretty_available?() :: boolean()
+  defp xml_pretty_available? do
+    Code.ensure_loaded?(:xmerl_xml_indent)
+  end
+
   @tag :tmp_dir
   @tag fixture_app: "sample1"
   test "mix task", %{app_path: app_path} do
@@ -232,61 +247,87 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
     end
   end
 
-  describe "format options" do
+  describe "pretty JSON encoding (OTP-dependent)" do
     @tag :tmp_dir
-    @tag fixture_app: "sample1"
-    test "pretty print flag adds indentation to JSON", %{app_path: app_path} do
-      Util.in_project(app_path, fn _mix_module ->
-        compact_path = Path.join(app_path, "bom_compact.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", compact_path, "-t", "json"])
-        assert_received {:mix_shell, :info, ["* creating bom_compact.json"]}
+    test "behaves correctly on this OTP", %{tmp_dir: tmp_dir} do
+      components = Fetcher.fetch()
+      bom = CycloneDX.bom(components)
 
-        pretty_path = Path.join(app_path, "bom_pretty.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", pretty_path, "-t", "json", "--pretty"])
-        assert_received {:mix_shell, :info, ["* creating bom_pretty.json"]}
+      cond do
+        # OTP < 27: :json module not present
+        not json_module_loaded?() ->
+          assert_raise RuntimeError,
+                       ~r/native :json Erlang module is not loaded/,
+                       fn ->
+                         CycloneDX.encode(bom, :json, true)
+                       end
 
-        compact_content = File.read!(compact_path)
-        pretty_content = File.read!(pretty_path)
+        # OTP >= 27.1: :json.format/2 exists – we expect pretty output
+        json_format_available?() ->
+          compact = CycloneDX.encode(bom, :json, false)
+          pretty = CycloneDX.encode(bom, :json, true)
 
-        # Both should be valid JSON
-        assert_valid_cyclonedx_bom(compact_path, :json)
-        assert_valid_cyclonedx_bom(pretty_path, :json)
+          # Optionally keep the “valid CycloneDX” check by writing files:
+          compact_path = Path.join(tmp_dir, "bom_compact.json")
+          pretty_path = Path.join(tmp_dir, "bom_pretty.json")
 
-        # Pretty should have newlines and indentation
-        assert String.contains?(pretty_content, "\n")
+          File.write!(compact_path, compact)
+          File.write!(pretty_path, pretty)
 
-        # Pretty should have more lines than compact
-        pretty_line_count = pretty_content |> String.split("\n") |> length()
-        compact_line_count = compact_content |> String.split("\n") |> length()
-        assert pretty_line_count > compact_line_count
-      end)
+          assert_valid_cyclonedx_bom(compact_path, :json)
+          assert_valid_cyclonedx_bom(pretty_path, :json)
+
+          # Pretty should be more readable
+          pretty_lines = pretty |> String.split("\n") |> length()
+          compact_lines = compact |> String.split("\n") |> length()
+          assert pretty_lines > compact_lines
+
+        # OTP 27.0: :json present but format/2 missing – we expect your wrapped error
+        true ->
+          assert_raise RuntimeError,
+                       ~r/:json\.format\/2 is not available/,
+                       fn ->
+                         CycloneDX.encode(bom, :json, true)
+                       end
+      end
     end
+  end
 
+  describe "pretty XML encoding (OTP-dependent)" do
     @tag :tmp_dir
-    @tag fixture_app: "sample1"
-    test "pretty print flag adds indentation to XML", %{app_path: app_path} do
-      Util.in_project(app_path, fn _mix_module ->
-        compact_path = Path.join(app_path, "bom_compact.xml")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", compact_path, "-t", "xml"])
+    test "behaves correctly on this OTP", %{tmp_dir: tmp_dir} do
+      components = Fetcher.fetch()
+      bom = CycloneDX.bom(components)
 
-        pretty_path = Path.join(app_path, "bom_pretty.xml")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", pretty_path, "-t", "xml", "--pretty"])
+      if xml_pretty_available?() do
+        # Pretty available: we expect nicer XML
+        compact = CycloneDX.encode(bom, :xml, false)
+        pretty = CycloneDX.encode(bom, :xml, true)
 
-        compact_content = File.read!(compact_path)
-        pretty_content = File.read!(pretty_path)
+        # Still validate as CycloneDX
+        compact_path = Path.join(tmp_dir, "bom_compact.xml")
+        pretty_path = Path.join(tmp_dir, "bom_pretty.xml")
 
-        # Both should be valid XML
+        File.write!(compact_path, compact)
+        File.write!(pretty_path, pretty)
+
         assert_valid_cyclonedx_bom(compact_path, :xml)
         assert_valid_cyclonedx_bom(pretty_path, :xml)
 
-        # Pretty XML should have indentation (spaces before tags)
-        assert Regex.match?(~r/\n\s+</, pretty_content)
+        # Indentation: line breaks + spaces before tags
+        assert Regex.match?(~r/\n\s+</, pretty)
 
-        # Pretty should have more or equal line breaks
-        pretty_line_count = pretty_content |> String.split("\n") |> length()
-        compact_line_count = compact_content |> String.split("\n") |> length()
-        assert pretty_line_count >= compact_line_count
-      end)
+        compact_lines = compact |> String.split("\n") |> length()
+        pretty_lines = pretty |> String.split("\n") |> length()
+        assert pretty_lines >= compact_lines
+      else
+        # Pretty not available: we expect your helpful RuntimeError
+        assert_raise RuntimeError,
+                     ~r/Pretty XML formatting is not available/,
+                     fn ->
+                       CycloneDX.encode(bom, :xml, true)
+                     end
+      end
     end
   end
 end
