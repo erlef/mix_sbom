@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
-defmodule SBoM.CycloneDX.XML.Helpers do
+defmodule SBoM.CycloneDX.XML.Encoder do
   @moduledoc false
-
-  # Generic XML structure building helpers for CycloneDX encoding.
 
   alias SBoM.CycloneDX.XML.Encodable
 

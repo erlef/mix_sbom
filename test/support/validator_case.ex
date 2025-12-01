@@ -96,6 +96,7 @@ defmodule SBoM.ValidatorCase do
   defp replace_empty_strings(value) when is_map(value) do
     Map.new(value, fn
       {key, ""} -> {key, nil}
+      {key, []} -> {key, nil}
       {key, val} -> {key, replace_empty_strings(val)}
     end)
   end

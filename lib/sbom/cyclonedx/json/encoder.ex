@@ -10,11 +10,12 @@
 defmodule SBoM.CycloneDX.JSON.Encoder do
   @moduledoc false
 
+  alias SBoM.CycloneDX.Common.Constants
   alias SBoM.CycloneDX.JSON.Encodable
 
-  @int32_types ~w(int32 sint32 sfixed32 fixed32 uint32)a
-  @int64_types ~w(int64 sint64 sfixed64 fixed64 uint64)a
-  @float_types [:float, :double]
+  @int32_types Constants.int32_types()
+  @int64_types Constants.int64_types()
+  @float_types Constants.float_types()
 
   def encodable(%module{} = struct) do
     message_props = module.__message_props__()
