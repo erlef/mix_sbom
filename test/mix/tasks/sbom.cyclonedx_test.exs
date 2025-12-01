@@ -9,6 +9,9 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
   import ExUnit.CaptureIO
 
   alias SBoM.Util
+  alias SBoM.Fetcher
+  alias SBoM.CycloneDX
+
 
   setup do
     Mix.Shell.Process.flush()
