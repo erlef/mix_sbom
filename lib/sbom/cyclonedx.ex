@@ -65,20 +65,8 @@ defmodule SBoM.CycloneDX do
 
   @version Mix.Project.config()[:version]
 
-  json_available =
-    case {Code.ensure_loaded(JSON), Code.ensure_loaded(Jason)} do
-      {{:module, JSON}, _jason} ->
-        @json_module JSON
-        true
-
-      {_json, {:module, Jason}} ->
-        @json_module Jason
-        true
-
-      {{:error, _json_error}, {:error, _jason_error}} ->
-        @json_module nil
-        false
-    end
+  @utf8_bom <<0xEF, 0xBB, 0xBF>>
+  @xml_prolog ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
 
   @spec empty(SBoM.CLI.schema_version()) :: t()
   def empty(version \\ "1.7") do
@@ -121,42 +109,25 @@ defmodule SBoM.CycloneDX do
     |> Map.put(:dependencies, attach_dependencies(filtered_components, version))
   end
 
-  @spec encode(t(), SBoM.CLI.format()) :: iodata()
-  def encode(bom, type)
-  def encode(%module{} = bom, :protobuf), do: module.encode(bom)
+  @spec encode(t(), SBoM.CLI.format(), SBoM.CLI.pretty()) :: iodata()
+  def encode(bom, type, pretty \\ false)
 
-  if json_available do
-    def encode(bom, :json) do
-      alias SBoM.CycloneDX.JSON.Encodable
+  def encode(%module{} = bom, :protobuf, _pretty), do: module.encode(bom)
 
-      bom
-      |> Encodable.to_encodable()
-      |> @json_module.encode!()
-    end
-  else
-    def encode(_bom, :json) do
-      raise """
-      JSON encoding is not available. Please either update to Elixir 1.18+ or add
-      {:jason, "~> 1.4"} to your dependencies.
-      """
-    end
+  def encode(bom, :json, pretty) do
+    alias SBoM.CycloneDX.JSON.Encodable
+
+    bom
+    |> Encodable.to_encodable()
+    |> encode_json(pretty)
   end
 
-  def encode(bom, :xml) do
+  def encode(bom, :xml, pretty) do
     alias SBoM.CycloneDX.XML.Encodable
 
-    utf8_bom = <<0xEF, 0xBB, 0xBF>>
-
-    xml_content =
-      bom
-      |> Encodable.to_xml_element()
-      |> List.wrap()
-      |> :xmerl.export_simple(:xmerl_xml, [
-        {:prolog, ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"}
-      ])
-      |> IO.iodata_to_binary()
-
-    utf8_bom <> xml_content
+    bom
+    |> Encodable.to_xml_element()
+    |> encode_xml(pretty)
   end
 
   @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map(), classification()) ::
@@ -474,4 +445,82 @@ defmodule SBoM.CycloneDX do
     # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
     defp bom_struct(module, unquote(schema_version), attrs), do: struct(Module.concat([unquote(prefix), module]), attrs)
   end
+
+  @spec encode_json(map(), boolean()) :: binary()
+  defp encode_json(encodable, pretty)
+
+  # Pretty
+  cond do
+    Code.ensure_loaded?(:json) and function_exported?(:json, :format, 2) ->
+      defp encode_json(encodable, true) do
+        :json.format(encodable, fn
+          nil, _enc, _state -> <<"null">>
+          other, enc, state -> :json.format_value(other, enc, state)
+        end)
+      end
+
+    Code.ensure_loaded?(Jason) ->
+      defp encode_json(encodable, true), do: Jason.encode!(encodable, pretty: true)
+
+    true ->
+      defp encode_json(encodable, true) do
+        Mix.shell().error("""
+        Pretty JSON formatting is not available.
+
+        Options:
+        1. Update to a newer version of Erlang/OTP that includes :json.format/2 (OTP 27.1 or later)
+        2. Use Jason for JSON encoding (add {:jason, "~> 1.4"} to your dependencies)
+        3. Disable pretty printing
+        """)
+
+        encode_json(encodable, false)
+      end
+  end
+
+  # Non-pretty
+  cond do
+    Code.ensure_loaded?(JSON) ->
+      defp encode_json(encodable, false), do: JSON.encode!(encodable)
+
+    Code.ensure_loaded?(Jason) ->
+      defp encode_json(encodable, false), do: Jason.encode!(encodable)
+
+    true ->
+      defp encode_json(_encodable, false) do
+        Mix.raise("""
+        JSON encoding is not available. Please either update to Elixir 1.18+ or add
+        {:jason, "~> 1.4"} to your dependencies.
+        """)
+      end
+  end
+
+  @spec encode_xml(term(), boolean()) :: iodata()
+  defp encode_xml(xml_element, pretty) do
+    xml_element
+    |> List.wrap()
+    |> :xmerl.export_simple(xml_callback(pretty), prolog: @xml_prolog)
+    |> IO.iodata_to_binary()
+    |> then(&(@utf8_bom <> &1))
+  end
+
+  @spec xml_callback(boolean()) :: module()
+  defp xml_callback(pretty)
+
+  case Code.ensure_loaded(:xmerl_xml_indent) do
+    {:module, :xmerl_xml_indent} ->
+      defp xml_callback(true), do: :xmerl_xml_indent
+
+    {:error, _reason} ->
+      defp xml_callback(true) do
+        raise """
+        Pretty XML formatting is not available.
+
+        Options:
+        1. Update to a newer version of Erlang/OTP (OTP 27.0 or later)
+        2. Disable pretty printing
+        """
+      end
+  end
+
+  defp xml_callback(false), do: :xmerl_xml
 end
