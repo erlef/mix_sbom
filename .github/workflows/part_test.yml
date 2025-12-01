@@ -77,7 +77,6 @@ jobs:
             elixir: "${{ needs.detectToolVersions.outputs.elixirVersion }}"
             name: "latest"
             runs-on: ubuntu-latest
-            enable_coverage_export: "true"
             unstable: false
           # Test Main
           - otp: "${{ needs.detectToolVersions.outputs.otpVersion }}"
@@ -111,16 +110,15 @@ jobs:
           brew tap cyclonedx/cyclonedx
           brew install cyclonedx/cyclonedx/cyclonedx-cli
 
-      - run: mix coveralls.github
-        if: ${{ matrix.enable_coverage_export == 'true' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mix coveralls.lcov --exclude property
         continue-on-error: ${{ matrix.unstable }}
-      - run: mix test --exclude property
-        if: ${{ !matrix.enable_coverage_export }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: ${{ matrix.unstable }}
+
+      - name: Send Coverage to Coveralls
+        if: always()
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          flag-name: "${{ matrix.name }}"
+          parallel: true
 
   property_test:
     name: mix test_property
@@ -151,12 +149,33 @@ jobs:
           brew install cyclonedx/cyclonedx/cyclonedx-cli
 
       - run: |
-          mix coveralls.github \
+          mix coveralls.lcov \
             --exclude test \
             --include property \
             --timeout 600000
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Coverage to Coveralls
+        if: always()
+        uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+        with:
+          flag-name: "property"
+          parallel: true
+
+  finish_coverage:
+    name: Finish Coveralls Report
+
+    needs: ["test", "property_test"]
+
+    if: ${{ always() }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@648a8eb78e6d50909eff900e4ec85cab4524a45b # v2.3.6
+      with:
+        parallel-finished: true
+        carryforward: "lowest,latest,main,property"
 
   credo:
     name: Check Credo
