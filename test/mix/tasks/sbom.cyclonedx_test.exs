@@ -8,8 +8,6 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
 
   import ExUnit.CaptureIO
 
-  alias SBoM.CycloneDX
-  alias SBoM.Fetcher
   alias SBoM.Util
 
   setup do
@@ -22,21 +20,6 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
     end)
 
     :ok
-  end
-
-  @spec json_module_loaded?() :: boolean()
-  defp json_module_loaded? do
-    Code.ensure_loaded(:json) == {:module, :json}
-  end
-
-  @spec json_format_available?() :: boolean()
-  defp json_format_available? do
-    json_module_loaded?() and function_exported?(:json, :format, 2)
-  end
-
-  @spec xml_pretty_available?() :: boolean()
-  defp xml_pretty_available? do
-    Code.ensure_loaded?(:xmerl_xml_indent)
   end
 
   @tag :tmp_dir
@@ -246,90 +229,6 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
         refute String.contains?(combined_bom_content, "hackney")
         refute String.contains?(combined_bom_content, "nerves")
       end)
-    end
-  end
-
-  describe "pretty JSON encoding (OTP-dependent)" do
-    @tag :tmp_dir
-    test "behaves correctly on this OTP", %{tmp_dir: tmp_dir} do
-      components = Fetcher.fetch()
-      bom = CycloneDX.bom(components)
-
-      cond do
-        # OTP < 27: :json module not present
-        not json_module_loaded?() ->
-          assert_raise RuntimeError,
-                       ~r/native :json Erlang module is not loaded/,
-                       fn ->
-                         CycloneDX.encode(bom, :json, true)
-                       end
-
-        # OTP >= 27.1: :json.format/2 exists – we expect pretty output
-        json_format_available?() ->
-          compact = CycloneDX.encode(bom, :json, false)
-          pretty = CycloneDX.encode(bom, :json, true)
-
-          # Optionally keep the “valid CycloneDX” check by writing files:
-          compact_path = Path.join(tmp_dir, "bom_compact.json")
-          pretty_path = Path.join(tmp_dir, "bom_pretty.json")
-
-          File.write!(compact_path, compact)
-          File.write!(pretty_path, pretty)
-
-          assert_valid_cyclonedx_bom(compact_path, :json)
-          assert_valid_cyclonedx_bom(pretty_path, :json)
-
-          # Pretty should be more readable
-          pretty_lines = pretty |> String.split("\n") |> length()
-          compact_lines = compact |> String.split("\n") |> length()
-          assert pretty_lines > compact_lines
-
-        # OTP 27.0: :json present but format/2 missing – we expect your wrapped error
-        true ->
-          assert_raise RuntimeError,
-                       ~r/:json\.format\/2 is not available/,
-                       fn ->
-                         CycloneDX.encode(bom, :json, true)
-                       end
-      end
-    end
-  end
-
-  describe "pretty XML encoding (OTP-dependent)" do
-    @tag :tmp_dir
-    test "behaves correctly on this OTP", %{tmp_dir: tmp_dir} do
-      components = Fetcher.fetch()
-      bom = CycloneDX.bom(components)
-
-      if xml_pretty_available?() do
-        # Pretty available: we expect nicer XML
-        compact = CycloneDX.encode(bom, :xml, false)
-        pretty = CycloneDX.encode(bom, :xml, true)
-
-        # Still validate as CycloneDX
-        compact_path = Path.join(tmp_dir, "bom_compact.xml")
-        pretty_path = Path.join(tmp_dir, "bom_pretty.xml")
-
-        File.write!(compact_path, compact)
-        File.write!(pretty_path, pretty)
-
-        assert_valid_cyclonedx_bom(compact_path, :xml)
-        assert_valid_cyclonedx_bom(pretty_path, :xml)
-
-        # Indentation: line breaks + spaces before tags
-        assert Regex.match?(~r/\n\s+</, pretty)
-
-        compact_lines = compact |> String.split("\n") |> length()
-        pretty_lines = pretty |> String.split("\n") |> length()
-        assert pretty_lines >= compact_lines
-      else
-        # Pretty not available: we expect your helpful RuntimeError
-        assert_raise RuntimeError,
-                     ~r/Pretty XML formatting is not available/,
-                     fn ->
-                       CycloneDX.encode(bom, :xml, true)
-                     end
-      end
     end
   end
 end

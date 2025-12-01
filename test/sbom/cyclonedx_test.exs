@@ -113,4 +113,54 @@ defmodule SBoM.CycloneDXTest do
       assert comp.type == :CLASSIFICATION_LIBRARY
     end)
   end
+
+  describe "pretty JSON encoding (OTP-dependent)" do
+    @tag :tmp_dir
+    test "behaves correctly on this OTP", %{tmp_dir: tmp_dir} do
+      components = Fetcher.fetch()
+      bom = CycloneDX.bom(components)
+
+      pretty = CycloneDX.encode(bom, :json, true)
+
+      pretty_path = Path.join(tmp_dir, "bom_pretty.json")
+      File.write!(pretty_path, pretty)
+      assert_valid_cyclonedx_bom(pretty_path, :json)
+
+      assert pretty |> IO.iodata_to_binary() |> String.split("\n") |> length() > 1
+    end
+  end
+
+  describe "Pretty XML encoding" do
+    case Code.ensure_loaded(:xmerl_xml_indent) do
+      {:module, :xmerl_xml_indent} ->
+        @tag :tmp_dir
+        test "prints XML", %{tmp_dir: tmp_dir} do
+          components = Fetcher.fetch()
+          bom = CycloneDX.bom(components)
+
+          pretty = CycloneDX.encode(bom, :xml, true)
+
+          pretty_path = Path.join(tmp_dir, "bom_pretty.xml")
+          File.write!(pretty_path, pretty)
+          assert_valid_cyclonedx_bom(pretty_path, :xml)
+
+          assert Regex.match?(~r/\n\s+</, pretty)
+          assert pretty |> String.split("\n") |> length() > 1
+        end
+
+      {:error, _reason} ->
+        @tag :tmp_dir
+        test "errors when not available" do
+          components = Fetcher.fetch()
+          bom = CycloneDX.bom(components)
+
+          # Pretty not available: we expect your helpful RuntimeError
+          assert_raise RuntimeError,
+                       ~r/Pretty XML formatting is not available/,
+                       fn ->
+                         CycloneDX.encode(bom, :xml, true)
+                       end
+        end
+    end
+  end
 end
