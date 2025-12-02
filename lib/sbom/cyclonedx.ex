@@ -127,6 +127,38 @@ defmodule SBoM.CycloneDX do
   def decode(data, :json), do: JSON.decode(data)
   def decode(data, :xml), do: XML.decode(data)
 
+  @doc """
+  Compare two BOMs for equivalence.
+
+  First compares directly. If not equal, canonicalizes both BOMs by removing
+  volatile fields (serial_number, version, timestamp) and compares again.
+  """
+  @spec equivalent?(t(), t()) :: boolean()
+  def equivalent?(bom1, bom2) do
+    bom1 == bom2 or canonicalize_bom(bom1) == canonicalize_bom(bom2)
+  end
+
+  @doc """
+  Canonicalize a BOM for comparison by removing volatile fields that change
+  between generations but don't indicate actual content changes.
+
+  Removes: serial_number, version, and timestamp from metadata.
+  """
+  @spec canonicalize_bom(t()) :: t()
+  def canonicalize_bom(%{} = bom) do
+    bom
+    |> Map.put(:serial_number, nil)
+    |> Map.put(:version, nil)
+    |> Map.update(:metadata, nil, &canonicalize_metadata/1)
+  end
+
+  @spec canonicalize_metadata(metadata() | nil) :: metadata() | nil
+  defp canonicalize_metadata(nil), do: nil
+
+  defp canonicalize_metadata(%{} = metadata) do
+    Map.put(metadata, :timestamp, nil)
+  end
+
   @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map(), classification()) ::
           metadata()
   defp attach_metadata(metadata, version, components, classification)
