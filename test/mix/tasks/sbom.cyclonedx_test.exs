@@ -39,6 +39,9 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
           assert_received {:mix_shell, :info, ["* creating bom.cdx"]}
 
           assert_valid_cyclonedx_bom(bom_path, :protobuf)
+
+          Mix.Task.rerun("sbom.cyclonedx", ["-o", bom_path])
+          assert_received {:mix_shell, :info, ["* unchanged bom.cdx"]}
         end)
       end)
     end)

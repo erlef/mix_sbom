@@ -4,6 +4,10 @@
 defmodule SBoM.CycloneDX do
   @moduledoc false
 
+  alias SBoM.CycloneDX.JSON
+  alias SBoM.CycloneDX.Protobuf
+  alias SBoM.CycloneDX.XML
+
   @type t() ::
           SBoM.Cyclonedx.V13.Bom.t()
           | SBoM.Cyclonedx.V14.Bom.t()
@@ -65,9 +69,6 @@ defmodule SBoM.CycloneDX do
 
   @version Mix.Project.config()[:version]
 
-  @utf8_bom <<0xEF, 0xBB, 0xBF>>
-  @xml_prolog ~c"<?xml version=\"1.0\" encoding=\"utf-8\"?>"
-
   @spec empty(SBoM.CLI.schema_version()) :: t()
   def empty(version \\ "1.7") do
     bom_struct(:Bom, version,
@@ -111,23 +112,51 @@ defmodule SBoM.CycloneDX do
 
   @spec encode(t(), SBoM.CLI.format(), SBoM.CLI.pretty()) :: iodata()
   def encode(bom, type, pretty \\ false)
+  def encode(bom, :protobuf, _pretty), do: Protobuf.encode(bom)
+  def encode(bom, :json, pretty), do: JSON.encode(bom, pretty)
+  def encode(bom, :xml, pretty), do: XML.encode(bom, pretty)
 
-  def encode(%module{} = bom, :protobuf, _pretty), do: module.encode(bom)
+  @doc """
+  Decode a BOM from JSON format.
 
-  def encode(bom, :json, pretty) do
-    alias SBoM.CycloneDX.JSON.Encodable
+  Returns the parsed BOM struct based on the version found in the JSON.
+  """
+  @spec decode(String.t(), :json) :: t()
+  def decode(data, format)
+  def decode(data, :protobuf), do: Protobuf.decode(data)
+  def decode(data, :json), do: JSON.decode(data)
+  def decode(data, :xml), do: XML.decode(data)
 
-    bom
-    |> Encodable.to_encodable()
-    |> encode_json(pretty)
+  @doc """
+  Compare two BOMs for equivalence.
+
+  First compares directly. If not equal, canonicalizes both BOMs by removing
+  volatile fields (serial_number, version, timestamp) and compares again.
+  """
+  @spec equivalent?(t(), t()) :: boolean()
+  def equivalent?(bom1, bom2) do
+    bom1 == bom2 or canonicalize_bom(bom1) == canonicalize_bom(bom2)
   end
 
-  def encode(bom, :xml, pretty) do
-    alias SBoM.CycloneDX.XML.Encodable
+  @doc """
+  Canonicalize a BOM for comparison by removing volatile fields that change
+  between generations but don't indicate actual content changes.
 
+  Removes: serial_number, version, and timestamp from metadata.
+  """
+  @spec canonicalize_bom(t()) :: t()
+  def canonicalize_bom(%{} = bom) do
     bom
-    |> Encodable.to_xml_element()
-    |> encode_xml(pretty)
+    |> Map.put(:serial_number, nil)
+    |> Map.put(:version, nil)
+    |> Map.update(:metadata, nil, &canonicalize_metadata/1)
+  end
+
+  @spec canonicalize_metadata(metadata() | nil) :: metadata() | nil
+  defp canonicalize_metadata(nil), do: nil
+
+  defp canonicalize_metadata(%{} = metadata) do
+    Map.put(metadata, :timestamp, nil)
   end
 
   @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map(), classification()) ::
@@ -434,6 +463,9 @@ defmodule SBoM.CycloneDX do
   @spec bom_struct(module(), SBoM.CLI.schema_version(), Keyword.t()) :: struct()
   defp bom_struct(module, version, attrs \\ [])
 
+  @spec bom_struct_module(module(), SBoM.CLI.schema_version()) :: module()
+  def bom_struct_module(module, version)
+
   for {schema_version, prefix} <- %{
         "1.7" => SBoM.Cyclonedx.V17,
         "1.6" => SBoM.Cyclonedx.V16,
@@ -444,83 +476,22 @@ defmodule SBoM.CycloneDX do
     # Safe: Module.concat is called at compile time with well-known module names from a fixed map
     # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
     defp bom_struct(module, unquote(schema_version), attrs), do: struct(Module.concat([unquote(prefix), module]), attrs)
+
+    # Safe: Module.concat is called at compile time with well-known module names from a fixed map
+    # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
+    def bom_struct_module(module, unquote(schema_version)), do: Module.concat([unquote(prefix), module])
   end
 
-  @spec encode_json(map(), boolean()) :: binary()
-  defp encode_json(encodable, pretty)
+  @spec bom_struct_version(module()) :: SBoM.CLI.schema_version()
+  def bom_struct_version(module) do
+    ["SBoM", "Cyclonedx", "V" <> version | _rest] = Module.split(module)
 
-  # Pretty
-  cond do
-    Code.ensure_loaded?(:json) and function_exported?(:json, :format, 2) ->
-      defp encode_json(encodable, true) do
-        :json.format(encodable, fn
-          nil, _enc, _state -> <<"null">>
-          other, enc, state -> :json.format_value(other, enc, state)
-        end)
-      end
-
-    Code.ensure_loaded?(Jason) ->
-      defp encode_json(encodable, true), do: Jason.encode!(encodable, pretty: true)
-
-    true ->
-      defp encode_json(encodable, true) do
-        Mix.shell().error("""
-        Pretty JSON formatting is not available.
-
-        Options:
-        1. Update to a newer version of Erlang/OTP that includes :json.format/2 (OTP 27.1 or later)
-        2. Use Jason for JSON encoding (add {:jason, "~> 1.4"} to your dependencies)
-        3. Disable pretty printing
-        """)
-
-        encode_json(encodable, false)
-      end
+    case version do
+      "13" -> "1.3"
+      "14" -> "1.4"
+      "15" -> "1.5"
+      "16" -> "1.6"
+      "17" -> "1.7"
+    end
   end
-
-  # Non-pretty
-  cond do
-    Code.ensure_loaded?(JSON) ->
-      defp encode_json(encodable, false), do: JSON.encode!(encodable)
-
-    Code.ensure_loaded?(Jason) ->
-      defp encode_json(encodable, false), do: Jason.encode!(encodable)
-
-    true ->
-      defp encode_json(_encodable, false) do
-        Mix.raise("""
-        JSON encoding is not available. Please either update to Elixir 1.18+ or add
-        {:jason, "~> 1.4"} to your dependencies.
-        """)
-      end
-  end
-
-  @spec encode_xml(term(), boolean()) :: iodata()
-  defp encode_xml(xml_element, pretty) do
-    xml_element
-    |> List.wrap()
-    |> :xmerl.export_simple(xml_callback(pretty), prolog: @xml_prolog)
-    |> IO.iodata_to_binary()
-    |> then(&(@utf8_bom <> &1))
-  end
-
-  @spec xml_callback(boolean()) :: module()
-  defp xml_callback(pretty)
-
-  case Code.ensure_loaded(:xmerl_xml_indent) do
-    {:module, :xmerl_xml_indent} ->
-      defp xml_callback(true), do: :xmerl_xml_indent
-
-    {:error, _reason} ->
-      defp xml_callback(true) do
-        raise """
-        Pretty XML formatting is not available.
-
-        Options:
-        1. Update to a newer version of Erlang/OTP (OTP 27.0 or later)
-        2. Disable pretty printing
-        """
-      end
-  end
-
-  defp xml_callback(false), do: :xmerl_xml
 end

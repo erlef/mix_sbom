@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
+alias SBoM.CycloneDX.XML.Encodable
+
+require Protocol
+
 defprotocol SBoM.CycloneDX.XML.Encodable do
   @moduledoc false
 
@@ -34,11 +38,11 @@ defimpl SBoM.CycloneDX.XML.Encodable, for: Any do
 
     quote do
       defimpl SBoM.CycloneDX.XML.Encodable, for: unquote(module) do
-        alias SBoM.CycloneDX.XML.Helpers
+        alias SBoM.CycloneDX.XML.Encoder
 
         def to_xml_element(struct) do
-          attrs = Helpers.encode_fields_as_attrs(unquote(attributes), struct)
-          element_content = Helpers.encode_fields_as_elements(unquote(elements), struct)
+          attrs = Encoder.encode_fields_as_attrs(unquote(attributes), struct)
+          element_content = Encoder.encode_fields_as_elements(unquote(elements), struct)
 
           {unquote(element_name), attrs, element_content}
         end
@@ -55,25 +59,19 @@ defimpl SBoM.CycloneDX.XML.Encodable,
     SBoM.Cyclonedx.V14.ExternalReference,
     SBoM.Cyclonedx.V13.ExternalReference
   ] do
-  alias SBoM.CycloneDX.XML.Helpers
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.XML.Encoder
 
-  @type external_reference_type() ::
-          SBoM.Cyclonedx.V13.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V14.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V15.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V16.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V17.ExternalReferenceType.t()
-
-  @impl SBoM.CycloneDX.XML.Encodable
+  @impl Encodable
   def to_xml_element(external_reference) do
     external_reference =
-      Map.update!(external_reference, :type, &external_reference_type_to_string/1)
+      Map.update!(external_reference, :type, &EnumHelpers.external_reference_type_to_string/1)
 
     # Use helpers to build structure
-    attrs = Helpers.encode_fields_as_attrs([{:type, :type}], external_reference)
+    attrs = Encoder.encode_fields_as_attrs([{:type, :type}], external_reference)
 
     content =
-      Helpers.encode_fields_as_elements(
+      Encoder.encode_fields_as_elements(
         [
           {:url, :url, :wrap},
           {:comment, :comment, :wrap},
@@ -85,94 +83,6 @@ defimpl SBoM.CycloneDX.XML.Encodable,
 
     {:reference, attrs, content}
   end
-
-  @spec external_reference_type_to_string(external_reference_type()) :: String.t()
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_OTHER), do: "other"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_VCS), do: "vcs"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_ISSUE_TRACKER), do: "issue-tracker"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_WEBSITE), do: "website"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_ADVISORIES), do: "advisories"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_BOM), do: "bom"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_MAILING_LIST), do: "mailing-list"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_SOCIAL), do: "social"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_CHAT), do: "chat"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_DOCUMENTATION), do: "documentation"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_SUPPORT), do: "support"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_SOURCE_DISTRIBUTION), do: "source-distribution"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_DISTRIBUTION), do: "distribution"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_DISTRIBUTION_INTAKE), do: "distribution-intake"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_LICENSE), do: "license"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_BUILD_META), do: "build-meta"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_BUILD_SYSTEM), do: "build-system"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_RELEASE_NOTES), do: "release-notes"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_SECURITY_CONTACT), do: "security-contact"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_MODEL_CARD), do: "model-card"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_LOG), do: "log"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_CONFIGURATION), do: "configuration"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_EVIDENCE), do: "evidence"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_FORMULATION), do: "formulation"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_ATTESTATION), do: "attestation"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_THREAT_MODEL), do: "threat-model"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_ADVERSARY_MODEL), do: "adversary-model"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_RISK_ASSESSMENT), do: "risk-assessment"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_VULNERABILITY_ASSERTION), do: "vulnerability-assertion"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_EXPLOITABILITY_STATEMENT),
-    do: "exploitability-statement"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_PENTEST_REPORT), do: "pentest-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_STATIC_ANALYSIS_REPORT), do: "static-analysis-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_DYNAMIC_ANALYSIS_REPORT), do: "dynamic-analysis-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_RUNTIME_ANALYSIS_REPORT), do: "runtime-analysis-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_COMPONENT_ANALYSIS_REPORT),
-    do: "component-analysis-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_MATURITY_REPORT), do: "maturity-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_CERTIFICATION_REPORT), do: "certification-report"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_QUALITY_METRICS), do: "quality-metrics"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_CODIFIED_INFRASTRUCTURE), do: "codified-infrastructure"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_POAM), do: "poam"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_ELECTRONIC_SIGNATURE), do: "electronic-signature"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_DIGITAL_SIGNATURE), do: "digital-signature"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_RFC_9116), do: "rfc-9116"
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_PATENT), do: "patent"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_PATENT_FAMILY), do: "patent-family"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_PATENT_ASSERTION), do: "patent-assertion"
-
-  defp external_reference_type_to_string(:EXTERNAL_REFERENCE_TYPE_CITATION), do: "citation"
 end
 
 defimpl SBoM.CycloneDX.XML.Encodable,
@@ -183,35 +93,13 @@ defimpl SBoM.CycloneDX.XML.Encodable,
     SBoM.Cyclonedx.V14.Hash,
     SBoM.Cyclonedx.V13.Hash
   ] do
-  @type hash_alg() ::
-          SBoM.Cyclonedx.V13.HashAlg.t()
-          | SBoM.Cyclonedx.V14.HashAlg.t()
-          | SBoM.Cyclonedx.V15.HashAlg.t()
-          | SBoM.Cyclonedx.V16.HashAlg.t()
-          | SBoM.Cyclonedx.V17.HashAlg.t()
+  alias SBoM.CycloneDX.Common.EnumHelpers
 
-  @impl SBoM.CycloneDX.XML.Encodable
+  @impl Encodable
   def to_xml_element(hash) do
-    alg_string = hash_alg_to_string(hash.alg)
+    alg_string = EnumHelpers.hash_alg_to_string(hash.alg)
     {:hash, [{:alg, alg_string}], [[hash.value]]}
   end
-
-  @spec hash_alg_to_string(hash_alg()) :: String.t()
-  defp hash_alg_to_string(:HASH_ALG_NULL), do: ""
-  defp hash_alg_to_string(:HASH_ALG_MD_5), do: "MD5"
-  defp hash_alg_to_string(:HASH_ALG_SHA_1), do: "SHA-1"
-  defp hash_alg_to_string(:HASH_ALG_SHA_256), do: "SHA-256"
-  defp hash_alg_to_string(:HASH_ALG_SHA_384), do: "SHA-384"
-  defp hash_alg_to_string(:HASH_ALG_SHA_512), do: "SHA-512"
-  defp hash_alg_to_string(:HASH_ALG_SHA_3_256), do: "SHA3-256"
-  defp hash_alg_to_string(:HASH_ALG_SHA_3_384), do: "SHA3-384"
-  defp hash_alg_to_string(:HASH_ALG_SHA_3_512), do: "SHA3-512"
-  defp hash_alg_to_string(:HASH_ALG_BLAKE_2_B_256), do: "BLAKE2b-256"
-  defp hash_alg_to_string(:HASH_ALG_BLAKE_2_B_384), do: "BLAKE2b-384"
-  defp hash_alg_to_string(:HASH_ALG_BLAKE_2_B_512), do: "BLAKE2b-512"
-  defp hash_alg_to_string(:HASH_ALG_BLAKE_3), do: "BLAKE3"
-  defp hash_alg_to_string(:HASH_ALG_STREEBOG_256), do: "Streebog-256"
-  defp hash_alg_to_string(:HASH_ALG_STREEBOG_512), do: "Streebog-512"
 end
 
 defimpl SBoM.CycloneDX.XML.Encodable,
@@ -222,33 +110,21 @@ defimpl SBoM.CycloneDX.XML.Encodable,
     SBoM.Cyclonedx.V14.Component,
     SBoM.Cyclonedx.V13.Component
   ] do
-  alias SBoM.CycloneDX.XML.Helpers
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.XML.Encoder
 
-  @type classification() ::
-          SBoM.Cyclonedx.V13.Classification.t()
-          | SBoM.Cyclonedx.V14.Classification.t()
-          | SBoM.Cyclonedx.V15.Classification.t()
-          | SBoM.Cyclonedx.V16.Classification.t()
-          | SBoM.Cyclonedx.V17.Classification.t()
-  @type scope() ::
-          SBoM.Cyclonedx.V13.Scope.t()
-          | SBoM.Cyclonedx.V14.Scope.t()
-          | SBoM.Cyclonedx.V15.Scope.t()
-          | SBoM.Cyclonedx.V16.Scope.t()
-          | SBoM.Cyclonedx.V17.Scope.t()
-
-  @impl SBoM.CycloneDX.XML.Encodable
+  @impl Encodable
   def to_xml_element(component) do
     component =
       component
-      |> Map.update!(:type, &classification_to_string/1)
-      |> Map.update(:scope, nil, &scope_to_string/1)
+      |> Map.update!(:type, &EnumHelpers.classification_to_string_xml/1)
+      |> Map.update(:scope, nil, &EnumHelpers.scope_to_string/1)
 
     # Use helpers to build structure
-    attrs = Helpers.encode_fields_as_attrs([{:type, :type}, {:"bom-ref", :bom_ref}], component)
+    attrs = Encoder.encode_fields_as_attrs([{:type, :type}, {:"bom-ref", :bom_ref}], component)
 
     content =
-      Helpers.encode_fields_as_elements(
+      Encoder.encode_fields_as_elements(
         [
           {:supplier, :supplier, :unwrap},
           {:manufacturer, :manufacturer, :unwrap},
@@ -281,29 +157,481 @@ defimpl SBoM.CycloneDX.XML.Encodable,
 
     {:component, attrs, content}
   end
-
-  @spec classification_to_string(classification()) :: String.t()
-  defp classification_to_string(:CLASSIFICATION_NULL), do: ""
-  defp classification_to_string(:CLASSIFICATION_APPLICATION), do: "application"
-  defp classification_to_string(:CLASSIFICATION_FRAMEWORK), do: "framework"
-  defp classification_to_string(:CLASSIFICATION_LIBRARY), do: "library"
-  defp classification_to_string(:CLASSIFICATION_OPERATING_SYSTEM), do: "operating-system"
-  defp classification_to_string(:CLASSIFICATION_DEVICE), do: "device"
-  defp classification_to_string(:CLASSIFICATION_FILE), do: "file"
-  defp classification_to_string(:CLASSIFICATION_CONTAINER), do: "container"
-  defp classification_to_string(:CLASSIFICATION_FIRMWARE), do: "firmware"
-  defp classification_to_string(:CLASSIFICATION_DEVICE_DRIVER), do: "device-driver"
-  defp classification_to_string(:CLASSIFICATION_PLATFORM), do: "platform"
-
-  defp classification_to_string(:CLASSIFICATION_MACHINE_LEARNING_MODEL), do: "machine-learning-model"
-
-  defp classification_to_string(:CLASSIFICATION_DATA), do: "data"
-  defp classification_to_string(:CLASSIFICATION_CRYPTOGRAPHIC_ASSET), do: "cryptographic-asset"
-
-  @spec scope_to_string(scope() | nil) :: String.t() | nil
-  defp scope_to_string(:SCOPE_UNSPECIFIED), do: nil
-  defp scope_to_string(:SCOPE_REQUIRED), do: "required"
-  defp scope_to_string(:SCOPE_OPTIONAL), do: "optional"
-  defp scope_to_string(:SCOPE_EXCLUDED), do: "excluded"
-  defp scope_to_string(nil), do: nil
 end
+
+defimpl SBoM.CycloneDX.XML.Encodable, for: BitString do
+  @impl Encodable
+  def to_xml_element(value) do
+    [[value]]
+  end
+end
+
+defimpl SBoM.CycloneDX.XML.Encodable, for: List do
+  @impl Encodable
+  def to_xml_element(list) do
+    Enum.map(list, &Encodable.to_xml_element/1)
+  end
+end
+
+defimpl SBoM.CycloneDX.XML.Encodable, for: Google.Protobuf.Timestamp do
+  @impl Encodable
+  def to_xml_element(timestamp) do
+    datetime = Google.Protobuf.to_datetime(timestamp)
+    iso_string = DateTime.to_iso8601(datetime)
+    [List.wrap(iso_string)]
+  end
+end
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Bom,
+  element_name: :bom,
+  attributes: [
+    {:version, :version},
+    {:serialNumber, :serial_number},
+    {:"xmlns:xsi", {:static, "http://www.w3.org/2001/XMLSchema-instance"}},
+    {:"xmlns:xsd", {:static, "http://www.w3.org/2001/XMLSchema"}},
+    {:xmlns, {:static, "http://cyclonedx.org/schema/bom/1.7"}}
+  ],
+  elements: [
+    {:metadata, :metadata, :unwrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap},
+    {:"external-references", :external_references, :wrap},
+    {:dependencies, :dependencies, :wrap},
+    {:compositions, :compositions, :wrap},
+    {:vulnerabilities, :vulnerabilities, :wrap},
+    {:annotations, :annotations, :wrap},
+    {:properties, :properties, :wrap},
+    {:formulation, :formulation, :wrap},
+    {:declarations, :declarations, :wrap},
+    {:definitions, :definitions, :wrap},
+    {:citations, :citations, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Bom,
+  element_name: :bom,
+  attributes: [
+    {:version, :version},
+    {:serialNumber, :serial_number},
+    {:"xmlns:xsi", {:static, "http://www.w3.org/2001/XMLSchema-instance"}},
+    {:"xmlns:xsd", {:static, "http://www.w3.org/2001/XMLSchema"}},
+    {:xmlns, {:static, "http://cyclonedx.org/schema/bom/1.6"}}
+  ],
+  elements: [
+    {:metadata, :metadata, :unwrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap},
+    {:"external-references", :external_references, :wrap},
+    {:dependencies, :dependencies, :wrap},
+    {:compositions, :compositions, :wrap},
+    {:vulnerabilities, :vulnerabilities, :wrap},
+    {:annotations, :annotations, :wrap},
+    {:properties, :properties, :wrap},
+    {:formulation, :formulation, :wrap},
+    {:declarations, :declarations, :wrap},
+    {:definitions, :definitions, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Bom,
+  element_name: :bom,
+  attributes: [
+    {:version, :version},
+    {:serialNumber, :serial_number},
+    {:"xmlns:xsi", {:static, "http://www.w3.org/2001/XMLSchema-instance"}},
+    {:"xmlns:xsd", {:static, "http://www.w3.org/2001/XMLSchema"}},
+    {:xmlns, {:static, "http://cyclonedx.org/schema/bom/1.5"}}
+  ],
+  elements: [
+    {:metadata, :metadata, :unwrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap},
+    {:"external-references", :external_references, :wrap},
+    {:dependencies, :dependencies, :wrap},
+    {:compositions, :compositions, :wrap},
+    {:vulnerabilities, :vulnerabilities, :wrap},
+    {:annotations, :annotations, :wrap},
+    {:properties, :properties, :wrap},
+    {:formulation, :formulation, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Bom,
+  element_name: :bom,
+  attributes: [
+    {:version, :version},
+    {:serialNumber, :serial_number},
+    {:"xmlns:xsi", {:static, "http://www.w3.org/2001/XMLSchema-instance"}},
+    {:"xmlns:xsd", {:static, "http://www.w3.org/2001/XMLSchema"}},
+    {:xmlns, {:static, "http://cyclonedx.org/schema/bom/1.4"}}
+  ],
+  elements: [
+    {:metadata, :metadata, :unwrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap},
+    {:"external-references", :external_references, :wrap},
+    {:dependencies, :dependencies, :wrap},
+    {:compositions, :compositions, :wrap},
+    {:vulnerabilities, :vulnerabilities, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Bom,
+  element_name: :bom,
+  attributes: [
+    {:version, :version},
+    {:serialNumber, :serial_number},
+    {:"xmlns:xsi", {:static, "http://www.w3.org/2001/XMLSchema-instance"}},
+    {:"xmlns:xsd", {:static, "http://www.w3.org/2001/XMLSchema"}},
+    {:xmlns, {:static, "http://cyclonedx.org/schema/bom/1.3"}}
+  ],
+  elements: [
+    {:metadata, :metadata, :unwrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap},
+    {:"external-references", :external_references, :wrap},
+    {:dependencies, :dependencies, :wrap},
+    {:compositions, :compositions, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Metadata,
+  elements: [
+    {:timestamp, :timestamp, :wrap},
+    {:lifecycles, :lifecycles, :wrap},
+    {:tools, :tools, :unwrap},
+    {:authors, :authors, :wrap},
+    {:component, :component, :unwrap},
+    {:manufacturer, :manufacturer, :unwrap},
+    {:manufacture, :manufacture, :unwrap},
+    {:supplier, :supplier, :unwrap},
+    {:licenses, :licenses, :wrap},
+    {:properties, :properties, :wrap},
+    {:distributionConstraints, :distribution_constraints, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Metadata,
+  elements: [
+    {:timestamp, :timestamp, :wrap},
+    {:lifecycles, :lifecycles, :wrap},
+    {:tools, :tools, :unwrap},
+    {:authors, :authors, :wrap},
+    {:component, :component, :unwrap},
+    {:manufacturer, :manufacturer, :unwrap},
+    {:manufacture, :manufacture, :unwrap},
+    {:supplier, :supplier, :unwrap},
+    {:licenses, :licenses, :wrap},
+    {:properties, :properties, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Metadata,
+  elements: [
+    {:timestamp, :timestamp, :wrap},
+    {:lifecycles, :lifecycles, :wrap},
+    {:tools, :tools, :unwrap},
+    {:authors, :authors, :wrap},
+    {:component, :component, :unwrap},
+    {:manufacture, :manufacture, :unwrap},
+    {:supplier, :supplier, :unwrap},
+    {:licenses, :licenses, :wrap},
+    {:properties, :properties, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Metadata,
+  elements: [
+    {:timestamp, :timestamp, :wrap},
+    {:tools, :tools, :wrap},
+    {:authors, :authors, :wrap},
+    {:component, :component, :unwrap},
+    {:manufacture, :manufacture, :unwrap},
+    {:supplier, :supplier, :unwrap},
+    {:licenses, :licenses, :wrap},
+    {:properties, :properties, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Metadata,
+  elements: [
+    {:timestamp, :timestamp, :wrap},
+    {:tools, :tools, :wrap},
+    {:authors, :authors, :wrap},
+    {:component, :component, :unwrap},
+    {:manufacture, :manufacture, :unwrap},
+    {:supplier, :supplier, :unwrap},
+    {:licenses, :licenses, :wrap},
+    {:properties, :properties, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Tool,
+  element_name: :tool,
+  elements: [
+    {:vendor, :vendor, :wrap},
+    {:name, :name, :wrap},
+    {:version, :version, :wrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Tool,
+  element_name: :tool,
+  elements: [
+    {:vendor, :vendor, :wrap},
+    {:name, :name, :wrap},
+    {:version, :version, :wrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Tool,
+  element_name: :tool,
+  elements: [
+    {:vendor, :vendor, :wrap},
+    {:name, :name, :wrap},
+    {:version, :version, :wrap},
+    {:components, :components, :wrap},
+    {:services, :services, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Tool,
+  element_name: :tool,
+  elements: [
+    {:vendor, :vendor, :wrap},
+    {:name, :name, :wrap},
+    {:version, :version, :wrap},
+    {:hashes, :hashes, :wrap},
+    {:"external-references", :external_references, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Tool,
+  element_name: :tool,
+  elements: [
+    {:vendor, :vendor, :wrap},
+    {:name, :name, :wrap},
+    {:version, :version, :wrap},
+    {:hashes, :hashes, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.OrganizationalEntity,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap},
+    {:contact, :contact, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.OrganizationalEntity,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap},
+    {:contact, :contact, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.OrganizationalEntity,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap},
+    {:contact, :contact, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.OrganizationalEntity,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap},
+    {:contact, :contact, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.OrganizationalEntity,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap},
+    {:contact, :contact, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.LicenseChoice,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:license, {:choice, :license}, :unwrap},
+    {:expression, {:choice, :expression}, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.LicenseChoice,
+  element_name: :licenses,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:license, {:choice, :license}, :unwrap},
+    {:expression, {:choice, :expression}, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.LicenseChoice,
+  element_name: :licenses,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:license, {:choice, :license}, :unwrap},
+    {:expression, {:choice, :expression}, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.LicenseChoice,
+  element_name: :licenses,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:license, {:choice, :license}, :unwrap},
+    {:expression, {:choice, :expression}, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.LicenseChoice,
+  element_name: :licenses,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:license, {:choice, :license}, :unwrap},
+    {:expression, {:choice, :expression}, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.License,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:id, {:license, :id}, :wrap},
+    {:name, {:license, :name}, :wrap},
+    {:text, :text, :unwrap},
+    {:url, :url, :wrap},
+    {:licensing, :licensing, :unwrap},
+    {:properties, :properties, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.License,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:id, {:license, :id}, :wrap},
+    {:name, {:license, :name}, :wrap},
+    {:text, :text, :unwrap},
+    {:url, :url, :wrap},
+    {:licensing, :licensing, :unwrap},
+    {:properties, :properties, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.License,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:id, {:license, :id}, :wrap},
+    {:name, {:license, :name}, :wrap},
+    {:text, :text, :unwrap},
+    {:url, :url, :wrap},
+    {:licensing, :licensing, :unwrap},
+    {:properties, :properties, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.License,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:id, {:license, :id}, :wrap},
+    {:name, {:license, :name}, :wrap},
+    {:text, :text, :unwrap},
+    {:url, :url, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.License,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:id, {:license, :id}, :wrap},
+    {:name, {:license, :name}, :wrap},
+    {:text, :text, :unwrap},
+    {:url, :url, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Dependency,
+  element_name: :dependency,
+  attributes: [
+    {:ref, :ref}
+  ],
+  elements: [
+    {:dependency, :dependencies, :keep}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Dependency,
+  element_name: :dependency,
+  attributes: [
+    {:ref, :ref}
+  ],
+  elements: [
+    {:dependency, :dependencies, :keep}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Dependency,
+  element_name: :dependency,
+  attributes: [
+    {:ref, :ref}
+  ],
+  elements: [
+    {:dependency, :dependencies, :keep}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Dependency,
+  element_name: :dependency,
+  attributes: [
+    {:ref, :ref}
+  ],
+  elements: [
+    {:dependency, :dependencies, :keep}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Dependency,
+  element_name: :dependency,
+  attributes: [
+    {:ref, :ref}
+  ],
+  elements: [
+    {:dependency, :dependencies, :keep}
+  ]
+)

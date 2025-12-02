@@ -47,56 +47,6 @@ defmodule SBoM.CycloneDXTest do
     end
   end
 
-  @tag :tmp_dir
-  property "encodes equivalent data across all formats", %{tmp_dir: tmp_dir} do
-    check all(
-            raw_dependencies <- DependencyGenerators.dependency_map(),
-            # TODO: Add "1.7" when CycloneDX CLI supports it
-            schema <- member_of(["1.6", "1.5", "1.4", "1.3"])
-          ) do
-      atom_dependencies =
-        Map.new(raw_dependencies, fn {app_string, dep} ->
-          {String.to_existing_atom(app_string), dep}
-        end)
-
-      dependencies = Fetcher.transform_all(atom_dependencies)
-
-      bom = CycloneDX.bom(dependencies, version: schema)
-
-      json_bom = CycloneDX.encode(bom, :json)
-      xml_bom = CycloneDX.encode(bom, :xml)
-      protobuf_bom = CycloneDX.encode(bom, :protobuf)
-
-      base_filename = "test_bom_#{:erlang.phash2({dependencies, schema})}"
-      json_path = Path.join(tmp_dir, "#{base_filename}.cdx.json")
-      xml_path = Path.join(tmp_dir, "#{base_filename}.cdx.xml")
-      protobuf_path = Path.join(tmp_dir, "#{base_filename}.cdx")
-
-      File.write!(json_path, json_bom)
-      File.write!(xml_path, xml_bom)
-      File.write!(protobuf_path, protobuf_bom)
-
-      json_to_protobuf_path = Path.join(tmp_dir, "#{base_filename}_json.cdx")
-      xml_to_protobuf_path = Path.join(tmp_dir, "#{base_filename}_xml.cdx")
-
-      # Convert JSON and XML to Protobuf for canonical comparison
-      convert_cyclonedx_bom(json_path, json_to_protobuf_path, :json, :protobuf)
-      convert_cyclonedx_bom(xml_path, xml_to_protobuf_path, :xml, :protobuf)
-
-      # Decode converted protobuf files and compare the structures
-      json_converted_protobuf_binary = File.read!(json_to_protobuf_path)
-      xml_converted_protobuf_binary = File.read!(xml_to_protobuf_path)
-
-      # Get the protobuf module from the BOM struct
-      %bom_struct{} = bom
-      json_decoded_bom = bom_struct.decode(json_converted_protobuf_binary)
-      xml_decoded_bom = bom_struct.decode(xml_converted_protobuf_binary)
-
-      assert cannonicalize_bom(bom) == cannonicalize_bom(json_decoded_bom)
-      assert cannonicalize_bom(bom) == cannonicalize_bom(xml_decoded_bom)
-    end
-  end
-
   test "classification option sets root component type" do
     components = Fetcher.fetch()
 
@@ -112,6 +62,84 @@ defmodule SBoM.CycloneDXTest do
     Enum.each(bom_framework.components, fn comp ->
       assert comp.type == :CLASSIFICATION_LIBRARY
     end)
+  end
+
+  property "XML round-trip preserves BOM structure" do
+    check all(
+            raw_dependencies <- DependencyGenerators.dependency_map(),
+            schema <- member_of(["1.7", "1.6", "1.5", "1.4", "1.3"])
+          ) do
+      atom_dependencies =
+        Map.new(raw_dependencies, fn {app_string, dep} ->
+          {String.to_existing_atom(app_string), dep}
+        end)
+
+      dependencies = Fetcher.transform_all(atom_dependencies)
+
+      # Generate original BOM
+      original_bom = CycloneDX.bom(dependencies, version: schema)
+
+      # Encode to XML
+      xml_string = CycloneDX.encode(original_bom, :xml)
+
+      # Decode from XML
+      decoded_bom = CycloneDX.decode(xml_string, :xml)
+
+      # Compare canonicalized versions
+      assert cannonicalize_bom(original_bom) == cannonicalize_bom(decoded_bom)
+    end
+  end
+
+  property "JSON round-trip preserves BOM structure" do
+    check all(
+            raw_dependencies <- DependencyGenerators.dependency_map(),
+            schema <- member_of(["1.7", "1.6", "1.5", "1.4", "1.3"])
+          ) do
+      atom_dependencies =
+        Map.new(raw_dependencies, fn {app_string, dep} ->
+          {String.to_existing_atom(app_string), dep}
+        end)
+
+      dependencies = Fetcher.transform_all(atom_dependencies)
+
+      # Generate original BOM
+      original_bom = CycloneDX.bom(dependencies, version: schema)
+
+      # Encode to JSON
+      json_string = CycloneDX.encode(original_bom, :json)
+
+      # Decode from JSON
+      decoded_bom = CycloneDX.decode(json_string, :json)
+
+      # Compare canonicalized versions
+      assert cannonicalize_bom(original_bom) == cannonicalize_bom(decoded_bom)
+    end
+  end
+
+  property "Protobuf round-trip preserves BOM structure" do
+    check all(
+            raw_dependencies <- DependencyGenerators.dependency_map(),
+            schema <- member_of(["1.7", "1.6", "1.5", "1.4", "1.3"])
+          ) do
+      atom_dependencies =
+        Map.new(raw_dependencies, fn {app_string, dep} ->
+          {String.to_existing_atom(app_string), dep}
+        end)
+
+      dependencies = Fetcher.transform_all(atom_dependencies)
+
+      # Generate original BOM
+      original_bom = CycloneDX.bom(dependencies, version: schema)
+
+      # Encode to Protobuf
+      protobuf_binary = CycloneDX.encode(original_bom, :protobuf)
+
+      # Decode from protobuf
+      decoded_bom = CycloneDX.decode(protobuf_binary, :protobuf)
+
+      # Compare canonicalized versions
+      assert cannonicalize_bom(original_bom) == cannonicalize_bom(decoded_bom)
+    end
   end
 
   describe "pretty JSON encoding (OTP-dependent)" do

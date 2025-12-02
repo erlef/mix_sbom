@@ -107,11 +107,38 @@ defmodule SBoM.CLI do
   end
 
   defp write_file(content, output_path, force) do
-    if Mix.Generator.create_file(output_path, content, force: force) do
+    if not force and should_skip_write?(content, output_path) do
+      # File is unchanged, skip writing
+      Mix.shell().info("* unchanged #{Path.relative_to_cwd(output_path)}")
       :ok
     else
-      Mix.raise("Failed to write SBoM to #{output_path}.")
+      # File doesn't exist, is different, we can't compare, or force is true - write it
+      if Mix.Generator.create_file(output_path, content, force: force) do
+        :ok
+      else
+        Mix.raise("Failed to write SBoM to #{output_path}.")
+      end
     end
+  end
+
+  @spec should_skip_write?(iodata, Path.t()) :: boolean()
+  defp should_skip_write?(new_content, output_path) do
+    with true <- File.exists?(output_path),
+         {:ok, existing_content} <- File.read(output_path),
+         format = format_from_path(output_path),
+         {:ok, existing_bom} <- safe_decode(existing_content, format),
+         {:ok, new_bom} <- safe_decode(IO.iodata_to_binary(new_content), format) do
+      CycloneDX.equivalent?(existing_bom, new_bom)
+    else
+      _other -> false
+    end
+  end
+
+  @spec safe_decode(String.t(), format()) :: {:ok, CycloneDX.t()} | {:error, any()}
+  defp safe_decode(content, format) do
+    {:ok, CycloneDX.decode(content, format)}
+  rescue
+    exception -> {:error, exception}
   end
 
   @spec cli_def(cli_mode()) :: Optimus.t()
