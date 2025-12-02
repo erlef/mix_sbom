@@ -46,6 +46,26 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
 
   @tag :tmp_dir
   @tag fixture_app: "sample1"
+  test "STDOUT output", %{app_path: app_path} do
+    out =
+      capture_io(:stdio, fn ->
+        Util.in_project(app_path, fn _mix_module ->
+          Mix.Task.rerun("deps.clean", ["--all"])
+
+          Mix.Task.rerun("deps.get")
+          Mix.Shell.Process.flush()
+
+          Mix.Task.rerun("sbom.cyclonedx", ["-o", "-"])
+        end)
+      end)
+
+    bom_path = Path.join(app_path, "bom.cdx.json")
+    File.write!(bom_path, out)
+    assert_valid_cyclonedx_bom(bom_path, :json)
+  end
+
+  @tag :tmp_dir
+  @tag fixture_app: "sample1"
   test "schema validation", %{app_path: app_path} do
     Util.in_project(app_path, fn _mix_module ->
       Mix.Task.rerun("sbom.cyclonedx", ["-f", "-s", "1.3"])

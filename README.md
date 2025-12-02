@@ -106,6 +106,7 @@ output; the task should normally be run in the default (dev) environment*
 ### Available Options
 
 - `-o, --output PATH`: Output file path (defaults to `bom.cdx.json`)
+  Use `-` for STDOUT
 - `-s, --schema VERSION`: CycloneDX schema version - 1.3, 1.4, 1.5, 1.6, 1.7
   (defaults to 1.6)
 - `-t, --format FORMAT`: Output format - xml, json, protobuf (defaults to json)

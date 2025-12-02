@@ -99,6 +99,13 @@ defmodule SBoM.CLI do
   end
 
   @spec write_file(iodata, Path.t(), boolean()) :: :ok
+  defp write_file(content, output_path, force)
+
+  defp write_file(content, "-", _force) do
+    IO.binwrite(content)
+    :ok
+  end
+
   defp write_file(content, output_path, force) do
     if Mix.Generator.create_file(output_path, content, force: force) do
       :ok
@@ -141,7 +148,7 @@ defmodule SBoM.CLI do
               value_name: "OUTPUT_PATH",
               short: "-o",
               long: "--output",
-              help: "Path to write the generated SBoM to",
+              help: "Path to write the generated SBoM to. Use '-' for STDOUT",
               required: false,
               parser: :string
             ],
