@@ -14,7 +14,7 @@ defmodule SBoM.Fetcher.MixRuntime do
   import SBoM.SCM.System, only: [is_system_app: 1]
 
   alias SBoM.Fetcher
-  alias SBoM.Fetcher.Links
+  alias SBoM.Metadata
 
   @doc """
   Fetches all runtime dependencies from the current Mix project.
@@ -132,8 +132,8 @@ defmodule SBoM.Fetcher.MixRuntime do
           []
         end
 
-      links = config[:links] || config[:package][:links] || %{}
-      source_url = config[:source_url] || Links.source_url(links)
+      # Extract metadata using centralized normalization
+      metadata = Metadata.from_mix_config(config)
 
       load_from_app_spec? = not is_system_app(app) or not in_burrito?()
 
@@ -147,17 +147,14 @@ defmodule SBoM.Fetcher.MixRuntime do
           end
 
       {app,
-       %{
+       Map.merge(metadata, %{
          scm: dep_scm,
          version: version,
          runtime: true,
          optional: false,
          dependencies: dependencies,
-         mix_config: config,
-         licenses: config[:licenses] || config[:package][:licenses],
-         source_url: source_url,
-         links: links
-       }}
+         mix_config: config
+       })}
     else
       :error -> nil
     end

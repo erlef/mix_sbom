@@ -183,6 +183,13 @@ defmodule SBoM.Fetcher do
     sub_dependencies =
       Enum.uniq((dependency[:dependencies] || []) ++ lock_dependencies(dependency))
 
+    # Fetch package metadata from SCM if available
+    package_metadata = get_package_metadata(app, dependency)
+
+    # Merge package metadata with dependency (prefer existing values, fill gaps)
+    dependency =
+      Map.merge(package_metadata, dependency, &merge_property/3)
+
     purl = package_url(dependency, app)
 
     purl =
@@ -245,6 +252,23 @@ defmodule SBoM.Fetcher do
           {:ok, purl} -> purl
           :error -> fallback
         end
+    end
+  end
+
+  @spec get_package_metadata(app_name(), dependency()) :: dependency()
+  defp get_package_metadata(app, dependency) do
+    with scm when not is_nil(scm) <- dependency[:scm],
+         impl when not is_nil(impl) <- SCM.implementation(scm),
+         true <- function_exported?(impl, :enhance_metadata, 2) do
+      try do
+        impl.enhance_metadata(app, dependency)
+      rescue
+        _error -> %{}
+      catch
+        _reason -> %{}
+      end
+    else
+      _otherwise -> %{}
     end
   end
 

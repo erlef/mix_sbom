@@ -57,6 +57,14 @@ defmodule SBoM.SCM do
   @callback mix_lock_to_purl(app :: atom(), lock :: lock()) :: Purl.t()
 
   @doc """
+  Enhances dependency metadata by fetching additional information from external sources.
+
+  Returns a map with metadata fields that can be merged with existing dependency
+  information. Returns an empty map if metadata cannot be fetched or is unavailable.
+  """
+  @callback enhance_metadata(app :: atom(), dependency :: map()) :: map()
+
+  @doc """
   Returns a list of app names representing sub-dependencies found in the lock.
 
   Only used if the SCM implementation supports this and provides custom logic.
@@ -68,7 +76,10 @@ defmodule SBoM.SCM do
   """
   @callback mix_lock_version(lock :: lock()) :: String.t()
 
-  @optional_callbacks mix_lock_deps: 1, mix_lock_to_purl: 2, mix_lock_version: 1
+  @optional_callbacks mix_lock_deps: 1,
+                      mix_lock_to_purl: 2,
+                      enhance_metadata: 2,
+                      mix_lock_version: 1
 
   @doc """
   Returns the module implementing SCM-specific behavior for a given SCM module.

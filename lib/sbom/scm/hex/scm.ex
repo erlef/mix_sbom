@@ -11,6 +11,7 @@ defmodule SBoM.SCM.Hex.SCM do
 
   @behaviour SBoM.SCM
 
+  alias SBoM.Metadata
   alias SBoM.SCM
 
   @doc """
@@ -214,6 +215,83 @@ defmodule SBoM.SCM.Hex.SCM do
     ] = lock
 
     version
+  end
+
+  @doc """
+  Enhances dependency metadata by fetching additional information from the Hex API.
+
+  Returns a map with metadata fields (licenses, links, source_url) that can be
+  merged with existing dependency information. Returns an empty map on error.
+  """
+  @impl SCM
+  def enhance_metadata(app, dependency) do
+    # Check if any metadata key is missing or has empty/nil values
+    # Handle both atom and string keys in the dependency map
+    needs_fetch =
+      Enum.any?(Metadata.keys(), fn key ->
+        value = get_metadata_value(dependency, key)
+        value_empty?(value)
+      end)
+
+    if needs_fetch do
+      metadata = fetch_hex_metadata(app, dependency[:version])
+      # Return empty map if all metadata values are empty/nil
+      if metadata_empty?(metadata) do
+        %{}
+      else
+        metadata
+      end
+    else
+      %{}
+    end
+  end
+
+  @spec get_metadata_value(map(), atom()) :: term()
+  defp get_metadata_value(dependency, key) when is_atom(key) do
+    # Try atom key first, then string key
+    Map.get(dependency, key) || Map.get(dependency, Atom.to_string(key))
+  end
+
+  @spec value_empty?(term()) :: boolean()
+  defp value_empty?(value) do
+    case value do
+      nil -> true
+      [] -> true
+      %{} -> true
+      _value -> false
+    end
+  end
+
+  @spec metadata_empty?(map()) :: boolean()
+  defp metadata_empty?(metadata) do
+    Enum.all?(Metadata.keys(), fn key ->
+      value = Map.get(metadata, key)
+      value_empty?(value)
+    end)
+  end
+
+  @spec fetch_hex_metadata(atom(), String.t() | nil) :: map()
+  defp fetch_hex_metadata(app, version) do
+    result =
+      if version do
+        :hex_api_release.get(:hex_core.default_config(), Atom.to_string(app), version)
+      else
+        :hex_api_package.get(:hex_core.default_config(), Atom.to_string(app))
+      end
+
+    case result do
+      {:ok, {_status, _headers, payload}} ->
+        Metadata.from_hex_payload(payload)
+
+      {:error, _reason} ->
+        %{}
+    end
+  rescue
+    _error ->
+      %{}
+  catch
+    _kind, _reason ->
+      %{}
   end
 
   @spec hex_namespace(repo :: String.t() | nil) :: Purl.namespace()
