@@ -191,10 +191,25 @@ defmodule SBoM.Metadata do
     # Derive source_url using the same rules as from_mix_config
     source_url = Links.source_url(normalized_links)
 
-    %{
+    metadata = %{
       licenses: licenses,
       source_url: source_url,
       links: normalized_links
     }
+
+    # Remove only empty/nil values, keep non-empty ones
+    metadata
+    |> Enum.reject(fn {_key, value} -> value_empty?(value) end)
+    |> Map.new()
+  end
+
+  @spec value_empty?(term()) :: boolean()
+  defp value_empty?(value) do
+    cond do
+      is_nil(value) -> true
+      value == [] -> true
+      is_map(value) and map_size(value) == 0 -> true
+      true -> false
+    end
   end
 end
