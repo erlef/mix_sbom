@@ -9,21 +9,29 @@ defmodule SBoM.Metadata do
   from different sources:
   - Mix project configuration (local metadata)
   - Hex API responses (remote metadata)
-  - Future SCM integrations
 
-  All functions return a standardized metadata map with:
-  - `:licenses` - List of license identifiers
-  - `:source_url` - Source repository URL
-  - `:links` - Map of normalized link keys to URLs
   """
 
   alias SBoM.Fetcher.Links
+
+  @metadata_keys [:licenses, :source_url, :links]
 
   @type metadata() :: %{
           optional(:licenses) => [String.t()],
           optional(:source_url) => String.t() | nil,
           optional(:links) => Links.t()
         }
+
+  @doc """
+  Returns the list of valid keys for a metadata map.
+
+  ## Examples
+
+      iex> SBoM.Metadata.keys()
+      [:licenses, :source_url, :links]
+  """
+  @spec keys() :: list(atom())
+  def keys, do: @metadata_keys
 
   @doc """
   Extracts and normalizes metadata from Mix project configuration.
@@ -150,11 +158,7 @@ defmodule SBoM.Metadata do
       }
 
       iex> SBoM.Metadata.from_hex_payload(%{})
-      %{
-        licenses: [],
-        source_url: nil,
-        links: %{}
-      }
+      %{}
   """
   @spec from_hex_payload(map()) :: metadata()
   def from_hex_payload(payload) when is_map(payload) do

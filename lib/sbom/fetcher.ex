@@ -188,15 +188,7 @@ defmodule SBoM.Fetcher do
 
     # Merge package metadata with dependency (prefer existing values, fill gaps)
     dependency =
-      Map.merge(package_metadata, dependency, fn
-        _key, package_value, existing_value ->
-          # Prefer existing value if present, otherwise use package value
-          if existing_value in [nil, [], %{}] do
-            package_value
-          else
-            existing_value
-          end
-      end)
+      Map.merge(package_metadata, dependency, &merge_property/3)
 
     purl = package_url(dependency, app)
 
