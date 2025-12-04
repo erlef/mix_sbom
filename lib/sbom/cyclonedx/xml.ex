@@ -34,7 +34,8 @@ defmodule SBoM.CycloneDX.XML do
     {root_element, []} =
       string
       |> binary_part(bom_length, input_length - bom_length)
-      |> :unicode.characters_to_list(encoding)
+      |> :unicode.characters_to_binary(encoding)
+      |> :erlang.binary_to_list()
       |> :xmerl_scan.string(validation: :schema)
 
     version = detect_version(root_element)
