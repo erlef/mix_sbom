@@ -272,26 +272,14 @@ defmodule SBoM.SCM.Hex.SCM do
 
   @spec fetch_hex_metadata(atom(), String.t() | nil) :: map()
   defp fetch_hex_metadata(app, version) do
-    result =
+    {:ok, {200, _headers, payload}} =
       if version do
         :hex_api_release.get(:hex_core.default_config(), Atom.to_string(app), version)
       else
         :hex_api_package.get(:hex_core.default_config(), Atom.to_string(app))
       end
 
-    case result do
-      {:ok, {_status, _headers, payload}} ->
-        Metadata.from_hex_payload(payload)
-
-      {:error, _reason} ->
-        %{}
-    end
-  rescue
-    _error ->
-      %{}
-  catch
-    _kind, _reason ->
-      %{}
+    Metadata.from_hex_payload(payload)
   end
 
   @spec hex_namespace(repo :: String.t() | nil) :: Purl.namespace()
