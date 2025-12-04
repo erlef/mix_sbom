@@ -280,21 +280,21 @@ defmodule SBoM.CycloneDX do
           nil
       end
 
+    cpe =
+      name
+      |> to_string()
+      |> SBoM.CPE.hex(component[:version] || "", component[:source_url])
+
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
-      description: component[:description],
-      version:
-        case schema_version do
-          "1.3" -> component[:version] || component[:version_requirement] || "unknown"
-          # TODO: Handle VersionRequirement separately in 1.7+
-          _schema_version -> component[:version] || component[:version_requirement]
-        end,
+      version: component_version(component, schema_version),
       purl: to_string(component.package_url),
       scope: dependency_scope(component),
       hashes: hashes,
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
       bom_ref: generate_bom_ref(component.package_url),
+      cpe: cpe,
       external_references:
         Enum.reject(
           [
@@ -518,4 +518,14 @@ defmodule SBoM.CycloneDX do
   end
 
   defp qualifiers_to_hashes(_qualifiers, _version), do: []
+
+  @spec component_version(SBoM.Fetcher.dependency(), SBoM.CLI.schema_version()) ::
+          String.t() | nil
+  defp component_version(component, schema_version) do
+    case schema_version do
+      "1.3" -> component[:version] || component[:version_requirement] || "unknown"
+      # TODO: Handle VersionRequirement separately in 1.7+
+      _schema_version -> component[:version] || component[:version_requirement]
+    end
+  end
 end
