@@ -35,7 +35,8 @@ defmodule SBoM.Fetcher do
           optional(:licenses) => [String.t()],
           optional(:root) => boolean(),
           optional(:source_url) => String.t(),
-          optional(:links) => SBoM.Fetcher.Links.t()
+          optional(:links) => SBoM.Fetcher.Links.t(),
+          optional(:maintainers) => [String.t()]
         }
 
   @doc """

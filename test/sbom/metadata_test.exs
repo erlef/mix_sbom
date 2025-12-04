@@ -10,7 +10,7 @@ defmodule SBoM.MetadataTest do
 
   describe "keys/0" do
     test "returns the list of metadata keys" do
-      assert Metadata.keys() == [:licenses, :source_url, :links]
+      assert Metadata.keys() == [:licenses, :source_url, :links, :maintainers]
       assert is_list(Metadata.keys())
       assert Enum.all?(Metadata.keys(), &is_atom/1)
     end
@@ -21,7 +21,8 @@ defmodule SBoM.MetadataTest do
       metadata = %{
         licenses: ["MIT"],
         source_url: "https://example.com",
-        links: %{"homepage" => "https://example.com"}
+        links: %{"homepage" => "https://example.com"},
+        maintainers: ["John Doe", "Jane Doe"]
       }
 
       # All keys should be present in the metadata map

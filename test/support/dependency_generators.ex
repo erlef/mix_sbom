@@ -212,6 +212,14 @@ defmodule SBoM.DependencyGenerators do
   end
 
   @doc """
+  Generates maintainers list.
+  """
+  @spec maintainers() :: StreamData.t([String.t()])
+  def maintainers do
+    list_of(string(:alphanumeric, min_length: 3, max_length: 15), max_length: 3)
+  end
+
+  @doc """
   Generates a hex checksum.
   """
   @spec hex_checksum() :: StreamData.t(String.t())
@@ -252,7 +260,8 @@ defmodule SBoM.DependencyGenerators do
           licenses <- licenses(),
           root <- boolean(),
           source_url <- frequency([{3, constant(nil)}, {1, git_url()}]),
-          links <- links()
+          links <- links(),
+          maintainers <- maintainers()
         ) do
       mix_dep = {app, req, [hex: app, repo: repo]}
 
@@ -288,6 +297,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:root, root)
       |> maybe_put(:source_url, source_url)
       |> maybe_put(:links, links)
+      |> maybe_put(:maintainers, maintainers)
     end
   end
 
@@ -312,7 +322,8 @@ defmodule SBoM.DependencyGenerators do
           mix_config <- constant([]),
           licenses <- licenses(),
           root <- boolean(),
-          links <- links()
+          links <- links(),
+          maintainers <- maintainers()
         ) do
       git_opts = [{:git, git_url}, {ref_type, ref_value}]
       mix_dep = {app, req, git_opts}
@@ -337,6 +348,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:licenses, licenses)
       |> maybe_put(:root, root)
       |> maybe_put(:links, links)
+      |> maybe_put(:maintainers, maintainers)
     end
   end
 
@@ -360,7 +372,8 @@ defmodule SBoM.DependencyGenerators do
           licenses <- licenses(),
           root <- boolean(),
           source_url <- frequency([{5, constant(nil)}, {1, git_url()}]),
-          links <- links()
+          links <- links(),
+          maintainers <- maintainers()
         ) do
       mix_dep = {app, req, [path: path]}
 
@@ -382,6 +395,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:root, root)
       |> maybe_put(:source_url, source_url)
       |> maybe_put(:links, links)
+      |> maybe_put(:maintainers, maintainers)
     end
   end
 
@@ -406,7 +420,8 @@ defmodule SBoM.DependencyGenerators do
           mix_config <- constant([]),
           licenses <- licenses(),
           root <- boolean(),
-          links <- links()
+          links <- links(),
+          maintainers <- maintainers()
         ) do
       mix_dep = {app, nil, []}
 
@@ -426,6 +441,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:licenses, licenses)
       |> maybe_put(:root, root)
       |> maybe_put(:links, links)
+      |> maybe_put(:maintainers, maintainers)
     end
   end
 

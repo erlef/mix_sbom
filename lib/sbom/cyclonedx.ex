@@ -270,6 +270,19 @@ defmodule SBoM.CycloneDX do
       purl: purl_string,
       scope: dependency_scope(component),
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
+      authors:
+        if schema_version in ["1.6", "1.7"] do
+          case component[:maintainers] |> List.wrap() do
+            [] -> nil
+            maintainers -> convert_maintainers_to_authors(maintainers, schema_version)
+          end
+        end,
+      author:
+        case {schema_version, List.wrap(component[:maintainers])} do
+          {version, _} when version in ["1.6", "1.7"] -> nil
+          {_, []} -> nil
+          {_, maintainers} -> Enum.join(maintainers, ", ")
+        end,
       bom_ref: generate_bom_ref(purl_string),
       external_references:
         Enum.reject(
@@ -394,6 +407,13 @@ defmodule SBoM.CycloneDX do
       licenses,
       &bom_struct(:LicenseChoice, version, choice: {:license, bom_struct(:License, version, license: {:id, &1})})
     )
+  end
+
+  @spec convert_maintainers_to_authors([String.t()], SBoM.CLI.schema_version()) :: [struct()]
+  defp convert_maintainers_to_authors(maintainers, version) do
+    Enum.map(maintainers, fn maintainer ->
+      bom_struct(:OrganizationalContact, version, name: maintainer)
+    end)
   end
 
   @spec attach_dependencies(components_map(), SBoM.CLI.schema_version()) :: dependency_list()

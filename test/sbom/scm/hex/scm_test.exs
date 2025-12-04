@@ -25,7 +25,8 @@ defmodule SBoM.SCM.Hex.SCMTest do
       dependency = %{
         :licenses => [],
         :source_url => nil,
-        :links => %{}
+        :links => %{},
+        :maintainers => []
       }
 
       result = SCM.enhance_metadata(:jason, dependency)
@@ -35,11 +36,19 @@ defmodule SBoM.SCM.Hex.SCMTest do
       # If fetch failed or returned empty metadata, result will be %{}
       if result != %{} do
         # Result should contain all metadata keys with meaningful values
+        # Note: maintainers may be empty for some packages, that's valid
         Enum.each(Metadata.keys(), fn key ->
           value = Map.get(result, key)
-          assert value
-          assert value != []
-          assert value != %{}
+
+          case key do
+            :maintainers ->
+              assert is_nil(value) or is_list(value)
+
+            _other ->
+              assert value
+              assert value != []
+              assert value != %{}
+          end
         end)
       end
     end
@@ -55,11 +64,19 @@ defmodule SBoM.SCM.Hex.SCMTest do
 
       if result != %{} do
         # Result should contain all metadata keys with meaningful values
+        # Note: maintainers may be empty for some packages, that's valid
         Enum.each(Metadata.keys(), fn key ->
           value = Map.get(result, key)
-          assert value
-          assert value != []
-          assert value != %{}
+
+          case key do
+            :maintainers ->
+              assert is_nil(value) or is_list(value)
+
+            _other ->
+              assert value
+              assert value != []
+              assert value != %{}
+          end
         end)
       end
     end
@@ -76,11 +93,19 @@ defmodule SBoM.SCM.Hex.SCMTest do
 
       if result != %{} do
         # Result should contain all metadata keys with meaningful values
+        # Note: maintainers may be empty for some packages, that's valid
         Enum.each(Metadata.keys(), fn key ->
           value = Map.get(result, key)
-          assert value
-          assert value != []
-          assert value != %{}
+
+          case key do
+            :maintainers ->
+              assert is_nil(value) or is_list(value)
+
+            _other ->
+              assert value
+              assert value != []
+              assert value != %{}
+          end
         end)
       end
     end

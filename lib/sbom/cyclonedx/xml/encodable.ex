@@ -635,3 +635,27 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Dependency,
     {:dependency, :dependencies, :keep}
   ]
 )
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V17.OrganizationalContact,
+  element_name: :author,
+  attributes: [
+    {:bom_ref, :"bom-ref"}
+  ],
+  elements: [
+    {:name, :name, :wrap},
+    {:email, :email, :wrap},
+    {:phone, :phone, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.Cyclonedx.V16.OrganizationalContact,
+  element_name: :author,
+  attributes: [
+    {:bom_ref, :"bom-ref"}
+  ],
+  elements: [
+    {:name, :name, :wrap},
+    {:email, :email, :wrap},
+    {:phone, :phone, :wrap}
+  ]
+)
