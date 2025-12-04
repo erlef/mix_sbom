@@ -214,7 +214,7 @@ defmodule SBoM.CycloneDXTest do
       bom = CycloneDX.bom(components)
 
       Enum.each(bom.components, fn comp ->
-        assert String.starts_with?(comp.bom_ref, "urn:otp:component:")
+        assert String.starts_with?(comp.bom_ref, "otp:component:")
 
         cond do
           String.contains?(comp.purl || "", "pkg:hex/") ->
