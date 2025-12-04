@@ -75,14 +75,38 @@ defmodule SBoM.Fetcher.MixFile do
     # Extract metadata using centralized normalization
     metadata = Metadata.from_mix_config(config)
 
-    {config[:app],
+    umbrella? = Mix.Project.umbrella?()
+
+    umbrella_dependencies =
+      if umbrella? do
+        Enum.map(
+          Mix.Project.apps_paths(),
+          fn {app, _path} -> app end
+        )
+      else
+        []
+      end
+
+    app_name =
+      case config[:app] do
+        nil when umbrella? ->
+          # For umbrella apps, when the `:app` property is not set, fall back
+          # to the current working directory's name for now
+          # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
+          File.cwd!() |> Path.basename() |> String.to_atom()
+
+        name ->
+          name
+      end
+
+    {app_name,
      Map.merge(metadata, %{
        version: config[:version],
        optional: false,
        runtime: true,
        targets: :*,
        only: :*,
-       dependencies: Map.keys(dependencies),
+       dependencies: Map.keys(dependencies) ++ umbrella_dependencies,
        root: true
      })}
   end
