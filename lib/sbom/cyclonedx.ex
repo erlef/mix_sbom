@@ -280,20 +280,26 @@ defmodule SBoM.CycloneDX do
           nil
       end
 
+    github_url =
+      get_in(component, [:links, "GitHub"]) ||
+        get_in(component, [:links, "github"])
+
+    cpe =
+      name
+      |> to_string()
+      |> SBoM.CPE.hex(component[:version] || "", github_url)
+
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
       description: component[:description],
-      version:
-        case schema_version do
-          "1.3" -> component[:version] || component[:version_requirement] || "unknown"
-          # TODO: Handle VersionRequirement separately in 1.7+
-          _schema_version -> component[:version] || component[:version_requirement]
-        end,
+
+      version: component_version(component, schema_version),
       purl: to_string(component.package_url),
       scope: dependency_scope(component),
       hashes: hashes,
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
+      cpe: cpe,
       bom_ref: generate_bom_ref(component.package_url),
       external_references:
         Enum.reject(
@@ -518,4 +524,14 @@ defmodule SBoM.CycloneDX do
   end
 
   defp qualifiers_to_hashes(_qualifiers, _version), do: []
+
+  @spec component_version(SBoM.Fetcher.dependency(), SBoM.CLI.schema_version()) ::
+          String.t() | nil
+  defp component_version(component, schema_version) do
+    case schema_version do
+      "1.3" -> component[:version] || component[:version_requirement] || "unknown"
+      # TODO: Handle VersionRequirement separately in 1.7+
+      _schema_version -> component[:version] || component[:version_requirement]
+    end
+  end
 end
