@@ -30,16 +30,6 @@ defmodule SBoM.MixProject do
       test_ignore_filters: [~r/test\/fixtures/],
       test_coverage: [
         tool: ExCoveralls
-      ],
-      licenses: [
-        # Main License
-        "BSD-3-Clause",
-        # Generated Code
-        "CC0-1.0",
-        # Appropriated Code from protobuf libary in
-        # lib/sbom/cyclonedx/json/encoder.ex
-        "MIT",
-        "Apache-2.0"
       ]
     ]
   end
@@ -139,7 +129,21 @@ defmodule SBoM.MixProject do
   defp package do
     [
       maintainers: ["Erlang Ecosystem Foundation"],
-      links: %{"GitHub" => @source_url}
+      links: %{
+        "GitHub" => @source_url,
+        "Releases" => @source_url <> "/releases",
+        "Issues" => @source_url <> "/issues"
+      },
+      licenses: [
+        # Main License
+        "BSD-3-Clause",
+        # Generated Code
+        "CC0-1.0",
+        # Appropriated Code from protobuf libary in
+        # lib/sbom/cyclonedx/json/encoder.ex
+        "MIT",
+        "Apache-2.0"
+      ]
     ]
   end
 
