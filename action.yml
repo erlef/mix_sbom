@@ -20,7 +20,6 @@ inputs:
     required: true
     description: "CycloneDX Output Format"
     default: "json"
-  # TODO: Report Hex APplication Load Issue
   reuse-beam:
     required: false
     description: "Use local BEAM installation instead of pre-compiled binaries. Requires Elixir/Erlang to be set up beforehand."
