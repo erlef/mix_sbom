@@ -258,6 +258,16 @@ defmodule SBoM.CycloneDX do
 
     asset_reference = asset_reference(component, schema_version)
 
+    hashes =
+      case component[:package_url] do
+        %{qualifiers: qualifiers} when qualifiers != %{} ->
+          case qualifiers_to_hashes(qualifiers, schema_version) do
+            [] -> nil
+            hashes -> hashes
+          end
+        _ -> nil
+      end
+
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
@@ -269,6 +279,7 @@ defmodule SBoM.CycloneDX do
         end,
       purl: purl_string,
       scope: dependency_scope(component),
+      hashes: hashes,
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
       bom_ref: generate_bom_ref(purl_string),
       external_references:
@@ -306,17 +317,7 @@ defmodule SBoM.CycloneDX do
     bom_struct(:ExternalReference, version,
       type: :EXTERNAL_REFERENCE_TYPE_DISTRIBUTION,
       url: download_url,
-      hashes:
-        (
-          %{"checksum" => "sha256:" <> hash} = qualifiers
-
-          :Hash
-          |> bom_struct(version,
-            alg: :HASH_ALG_SHA_256,
-            value: hash
-          )
-          |> List.wrap()
-        )
+      hashes: qualifiers_to_hashes(qualifiers, version)
     )
   end
 
@@ -494,4 +495,16 @@ defmodule SBoM.CycloneDX do
       "17" -> "1.7"
     end
   end
+
+  @spec qualifiers_to_hashes(map(), SBoM.CLI.schema_version()) :: [struct()]
+  defp qualifiers_to_hashes(%{"checksum" => "sha256:" <> hash}, version) do
+    [
+      bom_struct(:Hash, version,
+        alg: :HASH_ALG_SHA_256,
+        value: hash
+      )
+    ]
+  end
+
+  defp qualifiers_to_hashes(_qualifiers, _version), do: []
 end
