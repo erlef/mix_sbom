@@ -221,14 +221,26 @@ defmodule SBoM.CycloneDX do
 
   @spec filter_components(components_map(), [atom()], [atom()]) :: components_map()
   defp filter_components(components, only, targets) do
-    components
-    |> Enum.filter(fn {_name, component} ->
-      component_only = Map.get(component, :only, [:*])
-      component_targets = Map.get(component, :targets, [:*])
+    filtered =
+      components
+      |> Enum.filter(fn {_name, component} ->
+        component_only = Map.get(component, :only, [:*])
+        component_targets = Map.get(component, :targets, [:*])
 
-      env_overlaps?(only, component_only) and env_overlaps?(targets, component_targets)
+        env_overlaps?(only, component_only) and env_overlaps?(targets, component_targets)
+      end)
+      |> Map.new()
+
+    filtered_dependencies = filtered |> Map.keys() |> MapSet.new()
+
+    Map.new(filtered, fn {name, component} ->
+      filtered_deps =
+        component.dependencies
+        |> List.wrap()
+        |> Enum.filter(&MapSet.member?(filtered_dependencies, &1.name))
+
+      {name, Map.put(component, :dependencies, filtered_deps)}
     end)
-    |> Map.new()
   end
 
   @spec attach_components(components_map(), SBoM.CLI.schema_version()) :: [component()]
