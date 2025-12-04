@@ -163,8 +163,8 @@ defmodule SBoM.Fetcher.MixRuntime do
   @spec in_burrito?() :: boolean()
   defp in_burrito?
 
-  case Code.ensure_loaded(Burrito) do
-    {:module, Burrito} ->
+  case Code.ensure_loaded(Burrito.Util) do
+    {:module, Burrito.Util} ->
       defp in_burrito?, do: Burrito.Util.running_standalone?()
 
     _otherwise ->

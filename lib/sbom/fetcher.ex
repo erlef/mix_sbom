@@ -105,11 +105,11 @@ defmodule SBoM.Fetcher do
 
       iex> %{
       ...>   # SBoM.Submission.Manifest.Dependency
-      ...>   "burrito" => %{
-      ...>     package_url: %Purl{type: "hex", name: "burrito"},
+      ...>   "purl" => %{
+      ...>     package_url: %Purl{type: "hex", name: "purl"},
       ...>     optional: false,
       ...>     runtime: true,
-      ...>     targets: [:standalone],
+      ...>     targets: :*,
       ...>     only: :*,
       ...>     dependencies: _dependencies
       ...>   }

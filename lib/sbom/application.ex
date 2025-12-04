@@ -20,8 +20,8 @@ defmodule SBoM.Application do
   end
 
   @spec run_cli() :: :ok | no_return()
-  case Code.ensure_loaded(Burrito) do
-    {:module, Burrito} ->
+  case Code.ensure_loaded(Burrito.Util) do
+    {:module, Burrito.Util} ->
       defp run_cli do
         alias Burrito.Util
         alias SBoM.CLI

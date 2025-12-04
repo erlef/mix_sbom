@@ -22,7 +22,7 @@ defmodule SBoM.Fetcher.MixFileTest do
                    targets: :*,
                    only: :*,
                    licenses: ["MIT"],
-                   dependencies: [:logger, :elixir, :public_key, :credo, :mime, :os_mon, :expo, :heroicons],
+                   dependencies: [:logger, :elixir, :public_key, :credo, :os_mon, :expo, :mime, :heroicons],
                    root: true,
                    source_url: "https://github.com/example/app"
                  },

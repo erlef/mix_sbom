@@ -22,7 +22,7 @@ defmodule SBoM.Fetcher.MixLock do
 
   ## Examples
 
-      iex> %{burrito: %{scm: Hex.SCM, mix_lock: [:hex, :burrito | _]}} =
+      iex> %{purl: %{scm: Hex.SCM, mix_lock: [:hex, :purl | _]}} =
       ...>   SBoM.Fetcher.MixLock.fetch()
 
   Note: This test assumes an Elixir project that is currently loaded with a

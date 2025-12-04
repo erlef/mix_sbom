@@ -72,14 +72,13 @@ defmodule SBoM.Util do
   def optimus_help_to_mix_docs(optimus, subcommand) do
     optimus
     |> Optimus.Help.help(subcommand, 10_000)
-    |> Enum.map(fn
+    |> Enum.map_intersperse("\n", fn
       "USAGE:" -> "## Usage"
       "FLAGS:" -> "## Flags"
       "OPTIONS:" -> "## Options"
       "    -" <> rest -> " * -#{rest}"
       other -> other
     end)
-    |> Enum.intersperse("\n")
     |> IO.iodata_to_binary()
     |> String.replace(~r/\(default: (.+)\)/, "(default: `\\1`)")
     |> String.replace(~r/ --([a-z]+)/, " `-\\1`")

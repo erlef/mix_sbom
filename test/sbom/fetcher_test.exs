@@ -52,7 +52,7 @@ defmodule SBoM.FetcherTest do
 
         # Complex combinations
         assert %{
-                 optional: true,
+                 optional: false,
                  only: [:dev, :test],
                  targets: [:host, :rpi]
                } = deps["complex_dep"]
