@@ -272,16 +272,16 @@ defmodule SBoM.CycloneDX do
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
       authors:
         if schema_version in ["1.6", "1.7"] do
-          case component[:maintainers] |> List.wrap() do
+          case List.wrap(component[:maintainers]) do
             [] -> nil
             maintainers -> convert_maintainers_to_authors(maintainers, schema_version)
           end
         end,
       author:
         case {schema_version, List.wrap(component[:maintainers])} do
-          {version, _} when version in ["1.6", "1.7"] -> nil
-          {_, []} -> nil
-          {_, maintainers} -> Enum.join(maintainers, ", ")
+          {version, _maintainers} when version in ["1.6", "1.7"] -> nil
+          {_version, []} -> nil
+          {_version, maintainers} -> Enum.join(maintainers, ", ")
         end,
       bom_ref: generate_bom_ref(purl_string),
       external_references:
