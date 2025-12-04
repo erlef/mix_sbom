@@ -145,6 +145,10 @@ defmodule SBoM.Fetcher do
   @spec merge_property(key :: atom(), left :: value, right :: value) :: value when value: term()
   defp merge_property(key, left, right)
   defp merge_property(_key, value, value), do: value
+  defp merge_property(_key, nil, right), do: right
+  defp merge_property(_key, left, nil), do: left
+  defp merge_property(_key, [], right), do: right
+  defp merge_property(_key, left, []), do: left
   defp merge_property(:dependencies, left, right), do: Enum.uniq(left ++ right)
   defp merge_property(:runtime, left, right), do: left or right
   defp merge_property(:optional, left, right), do: left and right
@@ -165,7 +169,7 @@ defmodule SBoM.Fetcher do
       dependencies
       |> Task.async_stream(
         fn {app, dependency} ->
-        {app, transform(app, drop_empty(dependency))}
+          {app, transform(app, drop_empty(dependency))}
         end,
         ordered: false
       )
