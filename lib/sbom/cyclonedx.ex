@@ -414,7 +414,7 @@ defmodule SBoM.CycloneDX do
   defp attach_dependencies(components, version) do
     for {_name, component_data} <- components do
       dependency_refs =
-        component_data.dependencies
+        component_data[:dependencies]
         |> List.wrap()
         |> Enum.map(fn dep_purl ->
           bom_struct(:Dependency, version, ref: generate_bom_ref(dep_purl))
