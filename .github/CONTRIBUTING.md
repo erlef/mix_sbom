@@ -140,8 +140,7 @@ $ mix docs
 ## How-To Release
 
 * Update `@version` in `mix.exs`
-* Update `env.TAG` in `action.yml` / `steps` / `Download SBoM Tool`
-* Update `env.TAG` in `action.yml` / `steps` / `Verify SBoM Tool Provenance`
+* Update `env.TAG` in `action.yml` / `steps` / `Install SBoM Tool`
 * `git commit -m "Release v[VERSION]"`
 * `git tag -s v[VERSION] -m v[VERSION]`
 * If stable release:
