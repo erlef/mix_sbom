@@ -5,7 +5,7 @@
 defmodule SBoM.MixProject do
   use Mix.Project
 
-  @version "0.8.0-beta.1"
+  @version "0.8.0-beta.2"
   @source_url "https://github.com/erlef/mix_sbom"
 
   def project do
