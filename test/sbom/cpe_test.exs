@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.CPETest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias SBoM.CPE
 

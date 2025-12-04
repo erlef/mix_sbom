@@ -145,8 +145,16 @@ defmodule SBoM.CycloneDXTest do
   describe "pretty JSON encoding (OTP-dependent)" do
     @tag :tmp_dir
     test "behaves correctly on this OTP", %{tmp_dir: tmp_dir} do
-      components = Fetcher.fetch()
-      bom = CycloneDX.bom(components)
+      [raw_dependencies] = Enum.take(DependencyGenerators.dependency_map(), 1)
+
+      atom_dependencies =
+        Map.new(raw_dependencies, fn {app_string, dep} ->
+          {String.to_existing_atom(app_string), dep}
+        end)
+
+      dependencies = Fetcher.transform_all(atom_dependencies)
+
+      bom = CycloneDX.bom(dependencies)
 
       pretty = CycloneDX.encode(bom, :json, true)
 
@@ -163,8 +171,16 @@ defmodule SBoM.CycloneDXTest do
       {:module, :xmerl_xml_indent} ->
         @tag :tmp_dir
         test "prints XML", %{tmp_dir: tmp_dir} do
-          components = Fetcher.fetch()
-          bom = CycloneDX.bom(components)
+          [raw_dependencies] = Enum.take(DependencyGenerators.dependency_map(), 1)
+
+          atom_dependencies =
+            Map.new(raw_dependencies, fn {app_string, dep} ->
+              {String.to_existing_atom(app_string), dep}
+            end)
+
+          dependencies = Fetcher.transform_all(atom_dependencies)
+
+          bom = CycloneDX.bom(dependencies)
 
           pretty = CycloneDX.encode(bom, :xml, true)
 
