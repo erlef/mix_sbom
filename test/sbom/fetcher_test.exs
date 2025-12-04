@@ -59,4 +59,24 @@ defmodule SBoM.FetcherTest do
       end)
     end
   end
+
+  @tag :tmp_dir
+  @tag fixture_app: "umbrella"
+  test "does umbrella correctly", %{app_path: app_path, app_name: app_name} do
+    Util.in_project(app_path, fn _mix_module ->
+      app_name_string = Atom.to_string(app_name)
+
+      assert %{
+               ^app_name_string => %{
+                 dependencies: [
+                   %Purl{name: "elixir", type: "otp"},
+                   %Purl{name: "credo", type: "hex"},
+                   %Purl{name: "child_app_name_to_replace", type: "otp"}
+                 ],
+                 version: "0.0.0-dev"
+               },
+               "child_app_name_to_replace" => %{}
+             } = Fetcher.fetch()
+    end)
+  end
 end

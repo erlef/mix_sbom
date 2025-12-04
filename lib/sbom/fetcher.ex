@@ -249,7 +249,7 @@ defmodule SBoM.Fetcher do
   defp package_url(dependency, app) do
     fallback =
       Purl.new!(%Purl{
-        type: "generic",
+        type: "otp",
         name: Atom.to_string(app),
         version: dependency[:version]
       })
