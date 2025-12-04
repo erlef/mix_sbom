@@ -270,14 +270,10 @@ defmodule SBoM.CycloneDX do
           nil
       end
 
-    github_url =
-      get_in(component, [:links, "GitHub"]) ||
-        get_in(component, [:links, "github"])
-
     cpe =
       name
       |> to_string()
-      |> SBoM.CPE.hex(component[:version] || "", github_url)
+      |> SBoM.CPE.hex(component[:version] || "", component[:source_url])
 
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
