@@ -273,6 +273,7 @@ defmodule SBoM.CycloneDX do
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
+      description: component[:description],
       version:
         case schema_version do
           "1.3" -> component[:version] || component[:version_requirement] || "unknown"
