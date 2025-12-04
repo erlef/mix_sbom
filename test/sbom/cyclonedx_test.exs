@@ -191,4 +191,32 @@ defmodule SBoM.CycloneDXTest do
         end
     end
   end
+
+  describe "bom_ref generation" do
+    test "generates readable bom_ref for components" do
+      components = Fetcher.fetch()
+      bom = CycloneDX.bom(components)
+
+      Enum.each(bom.components, fn comp ->
+        assert String.starts_with?(comp.bom_ref, "urn:otp:component:")
+
+        cond do
+          String.contains?(comp.purl || "", "pkg:hex/") ->
+            assert String.contains?(comp.bom_ref, ":hex:")
+
+          String.contains?(comp.purl || "", "pkg:otp/") ->
+            assert String.contains?(comp.bom_ref, ":otp:")
+
+          String.contains?(comp.purl || "", "pkg:github/") ->
+            assert String.contains?(comp.bom_ref, ":github:")
+
+          String.contains?(comp.purl || "", "pkg:generic/") ->
+            assert String.contains?(comp.bom_ref, ":generic:")
+
+          true ->
+            :ok
+        end
+      end)
+    end
+  end
 end
