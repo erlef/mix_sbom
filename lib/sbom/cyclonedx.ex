@@ -430,7 +430,7 @@ defmodule SBoM.CycloneDX do
   @spec generate_bom_ref(Purl.t()) :: String.t()
   defp generate_bom_ref(purl) do
     hash = purl |> to_string() |> :erlang.phash2()
-    "urn:otp:component:#{purl.name}:#{hash}"
+    "urn:otp:component:#{purl.name}:#{purl.type}:#{hash}"
   end
 
   @spec tool(SBoM.CLI.schema_version()) :: tool() | component()
