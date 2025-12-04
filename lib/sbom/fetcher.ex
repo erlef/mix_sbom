@@ -35,7 +35,8 @@ defmodule SBoM.Fetcher do
           optional(:licenses) => [String.t()],
           optional(:root) => boolean(),
           optional(:source_url) => String.t(),
-          optional(:links) => SBoM.Fetcher.Links.t()
+          optional(:links) => SBoM.Fetcher.Links.t(),
+          optional(:description) => String.t()
         }
 
   @doc """
@@ -139,11 +140,15 @@ defmodule SBoM.Fetcher do
   end
 
   @spec merge(app_name(), left :: dependency(), right :: dependency()) :: dependency()
-  defp merge(_app, left, right), do: Map.merge(left, right, &merge_property/3)
+  def merge(_app, left, right), do: Map.merge(left, right, &merge_property/3)
 
   @spec merge_property(key :: atom(), left :: value, right :: value) :: value when value: term()
   defp merge_property(key, left, right)
   defp merge_property(_key, value, value), do: value
+  defp merge_property(_key, nil, right), do: right
+  defp merge_property(_key, left, nil), do: left
+  defp merge_property(_key, [], right), do: right
+  defp merge_property(_key, left, []), do: left
   defp merge_property(:dependencies, left, right), do: Enum.uniq(left ++ right)
   defp merge_property(:runtime, left, right), do: left or right
   defp merge_property(:optional, left, right), do: left and right
@@ -153,6 +158,7 @@ defmodule SBoM.Fetcher do
   defp merge_property(:only, :*, _right), do: :*
   defp merge_property(:only, _left, :*), do: :*
   defp merge_property(:only, left, right), do: Enum.uniq(left ++ right)
+  defp merge_property(:links, left, right), do: Map.merge(left, right)
   defp merge_property(_key, _left, right), do: right
 
   @doc false
@@ -161,9 +167,14 @@ defmodule SBoM.Fetcher do
         }
   def transform_all(dependencies) do
     dependencies =
-      Map.new(dependencies, fn {app, dependency} ->
-        {app, transform(app, drop_empty(dependency))}
-      end)
+      dependencies
+      |> Task.async_stream(
+        fn {app, dependency} ->
+          {app, transform(app, drop_empty(dependency))}
+        end,
+        ordered: false
+      )
+      |> Map.new(fn {:ok, result} -> result end)
 
     Map.new(dependencies, fn {app, dependency} ->
       dependency =

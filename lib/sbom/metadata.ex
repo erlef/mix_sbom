@@ -2,24 +2,24 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Metadata do
-  @moduledoc """
-  Centralizes package-level metadata normalization for SBOM generation.
+  @moduledoc false
 
-  This module provides unified functions to extract and normalize metadata
-  from different sources:
-  - Mix project configuration (local metadata)
-  - Hex API responses (remote metadata)
-
-  """
+  # Centralizes package-level metadata normalization for SBOM generation.
+  #
+  # This module provides unified functions to extract and normalize metadata
+  # from different sources:
+  # - Mix project configuration (local metadata)
+  # - Hex API responses (remote metadata)
 
   alias SBoM.Fetcher.Links
 
-  @metadata_keys [:licenses, :source_url, :links]
+  @metadata_keys [:licenses, :source_url, :links, :description]
 
   @type metadata() :: %{
           optional(:licenses) => [String.t()],
           optional(:source_url) => String.t() | nil,
-          optional(:links) => Links.t()
+          optional(:links) => Links.t(),
+          optional(:description) => String.t() | nil
         }
 
   @doc """
@@ -28,7 +28,7 @@ defmodule SBoM.Metadata do
   ## Examples
 
       iex> SBoM.Metadata.keys()
-      [:licenses, :source_url, :links]
+      [:licenses, :source_url, :links, :description]
   """
   @spec keys() :: list(atom())
   def keys, do: @metadata_keys
@@ -44,20 +44,23 @@ defmodule SBoM.Metadata do
       iex> config = [
       ...>   licenses: ["Apache-2.0"],
       ...>   source_url: "https://github.com/example/repo",
-      ...>   links: %{"github" => "https://github.com/example/repo"}
+      ...>   links: %{"github" => "https://github.com/example/repo"},
+      ...>   description: "A description of the example package"
       ...> ]
       ...>
       ...> SBoM.Metadata.from_mix_config(config)
       %{
         licenses: ["Apache-2.0"],
         source_url: "https://github.com/example/repo",
-        links: %{"github" => "https://github.com/example/repo"}
+        links: %{"github" => "https://github.com/example/repo"},
+        description: "A description of the example package"
       }
 
       iex> config = [
       ...>   package: [
       ...>     licenses: ["MIT"],
-      ...>     links: %{"homepage" => "https://example.com"}
+      ...>     links: %{"homepage" => "https://example.com"},
+      ...>     description: "A description of the example package"
       ...>   ]
       ...> ]
       ...>
@@ -65,13 +68,16 @@ defmodule SBoM.Metadata do
       %{
         licenses: ["MIT"],
         source_url: nil,
-        links: %{"homepage" => "https://example.com"}
+        links: %{"homepage" => "https://example.com"},
+        description: "A description of the example package"
       }
   """
   @spec from_mix_config(Keyword.t()) :: metadata()
   def from_mix_config(config) when is_list(config) do
     links = config[:links] || config[:package][:links] || %{}
     normalized_links = Links.normalize_link_keys(links)
+
+    description = config[:description] || config[:package][:description]
 
     licenses = config[:licenses] || config[:package][:licenses] || []
     licenses = List.wrap(licenses)
@@ -81,7 +87,8 @@ defmodule SBoM.Metadata do
     %{
       licenses: licenses,
       source_url: source_url,
-      links: normalized_links
+      links: normalized_links,
+      description: description
     }
   end
 
@@ -164,6 +171,7 @@ defmodule SBoM.Metadata do
   def from_hex_payload(payload) when is_map(payload) do
     meta = payload["meta"] || %{}
     links = meta["links"] || %{}
+    description = meta["description"]
 
     # Normalize links first (keys may be strings with mixed case from Hex API)
     normalized_links = Links.normalize_link_keys(links)
@@ -194,7 +202,8 @@ defmodule SBoM.Metadata do
     metadata = %{
       licenses: licenses,
       source_url: source_url,
-      links: normalized_links
+      links: normalized_links,
+      description: description
     }
 
     # Remove only empty/nil values, keep non-empty ones

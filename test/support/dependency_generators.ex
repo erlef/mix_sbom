@@ -193,6 +193,17 @@ defmodule SBoM.DependencyGenerators do
   end
 
   @doc """
+  Generates description strings.
+  """
+  @spec description() :: StreamData.t(String.t() | nil)
+  def description do
+    frequency([
+      {3, constant(nil)},
+      {7, string(:printable, min_length: 10, max_length: 100)}
+    ])
+  end
+
+  @doc """
   Generates links map for SBoM.Fetcher.Links.t().
   """
   @spec links() :: StreamData.t(%{String.t() => String.t()})
@@ -237,6 +248,7 @@ defmodule SBoM.DependencyGenerators do
   def hex_dependency do
     gen all(
           app <- app_name(),
+          description <- description(),
           version <- version_string(),
           req <- requirement_string(),
           repo <- member_of(["hexpm", "hexpm:myorg", "private"]),
@@ -288,6 +300,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:root, root)
       |> maybe_put(:source_url, source_url)
       |> maybe_put(:links, links)
+      |> maybe_put(:description, description)
     end
   end
 
@@ -298,6 +311,7 @@ defmodule SBoM.DependencyGenerators do
   def git_dependency do
     gen all(
           app <- app_name(),
+          description <- description(),
           git_url <- git_url(),
           version <- version_string(),
           req <- requirement_string(),
@@ -337,6 +351,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:licenses, licenses)
       |> maybe_put(:root, root)
       |> maybe_put(:links, links)
+      |> maybe_put(:description, description)
     end
   end
 
@@ -348,6 +363,7 @@ defmodule SBoM.DependencyGenerators do
   def path_dependency do
     gen all(
           app <- app_name(),
+          description <- description(),
           path <- file_path(),
           version <- version_string(),
           req <- requirement_string(),
@@ -382,6 +398,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:root, root)
       |> maybe_put(:source_url, source_url)
       |> maybe_put(:links, links)
+      |> maybe_put(:description, description)
     end
   end
 
@@ -393,6 +410,7 @@ defmodule SBoM.DependencyGenerators do
   def system_dependency do
     gen all(
           app <- system_app_name(),
+          description <- description(),
           version <- frequency([{7, constant(nil)}, {3, version_string()}]),
           # System deps are never optional
           optional <- constant(false),
@@ -426,6 +444,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:licenses, licenses)
       |> maybe_put(:root, root)
       |> maybe_put(:links, links)
+      |> maybe_put(:description, description)
     end
   end
 

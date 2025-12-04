@@ -7,4 +7,4 @@ for module <- Application.spec(:sbom, :modules) do
   Code.ensure_compiled!(module)
 end
 
-ExUnit.start(exclude: :property)
+ExUnit.start(exclude: :property, capture_log: true, capture_io: true)
