@@ -1,15 +1,15 @@
 defmodule SBoM.CPE do
-  @moduledoc """
-  CPE (Common Platform Enumeration) generation for components.
+  @moduledoc false
 
-  CPE is a structured naming scheme for software. Format:
-  `cpe:2.3:a:vendor:product:version:*:*:*:*:*:*:*`
-
-  This module generates CPE identifiers for Hex packages:
-  - Uses predefined EEF CNA vendor assignments for known packages
-  - Falls back to GitHub organization from project links
-  - Returns nil if vendor cannot be determined
-  """
+  # CPE (Common Platform Enumeration) generation for components.
+  #
+  # CPE is a structured naming scheme for software. Format:
+  # `cpe:2.3:a:vendor:product:version:*:*:*:*:*:*:*`
+  #
+  # This module generates CPE identifiers for Hex packages:
+  # - Uses predefined EEF CNA vendor assignments for known packages
+  # - Falls back to GitHub organization from project links
+  # - Returns nil if vendor cannot be determined
 
   @cpe_version "2.3"
   @cpe_postfix ":*:*:*:*:*:*:*"
