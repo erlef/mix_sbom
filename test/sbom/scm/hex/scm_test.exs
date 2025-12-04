@@ -4,7 +4,6 @@
 defmodule SBoM.SCM.Hex.SCMTest do
   use SBoM.FixtureCase, async: false
 
-  alias SBoM.Metadata
   alias SBoM.SCM.Hex.SCM
 
   doctest SCM
@@ -12,9 +11,10 @@ defmodule SBoM.SCM.Hex.SCMTest do
   describe "enhance_metadata/2" do
     test "returns empty map when all metadata keys are present" do
       dependency = %{
-        :licenses => ["MIT"],
-        :source_url => "https://example.com",
-        :links => %{"homepage" => "https://example.com"}
+        licenses: ["MIT"],
+        source_url: "https://example.com",
+        links: %{"homepage" => "https://example.com"},
+        description: "An example package."
       }
 
       result = SCM.enhance_metadata(:test_app, dependency)
@@ -23,66 +23,56 @@ defmodule SBoM.SCM.Hex.SCMTest do
 
     test "attempts to fetch when metadata keys have empty list or empty map values" do
       dependency = %{
-        :licenses => [],
-        :source_url => nil,
-        :links => %{}
+        licenses: [],
+        source_url: nil,
+        links: %{}
       }
 
-      result = SCM.enhance_metadata(:jason, dependency)
-      assert is_map(result)
-
-      # If fetch succeeded and returned metadata, all keys should have meaningful values
-      # If fetch failed or returned empty metadata, result will be %{}
-      if result != %{} do
-        # Result should contain all metadata keys with meaningful values
-        Enum.each(Metadata.keys(), fn key ->
-          value = Map.get(result, key)
-          assert value
-          assert value != []
-          assert value != %{}
-        end)
-      end
+      assert %{
+               description: "A blazing fast JSON parser and generator in pure Elixir.",
+               licenses: ["Apache-2.0"],
+               links: %{
+                 "docs" => "https://hexdocs.pm/jason/",
+                 "github" => "https://github.com/michalmuskala/jason",
+                 "homepage" => "https://hex.pm/packages/jason"
+               },
+               source_url: "https://github.com/michalmuskala/jason"
+             } = SCM.enhance_metadata(:jason, dependency)
     end
 
     test "attempts to fetch when metadata keys are missing" do
-      # Missing all metadata keys
-      dependency =
-        %{:version => "1.0.0"}
+      dependency = %{version: "1.4.4"}
 
-      result = SCM.enhance_metadata(:jason, dependency)
-
-      assert is_map(result)
-
-      if result != %{} do
-        # Result should contain all metadata keys with meaningful values
-        Enum.each(Metadata.keys(), fn key ->
-          value = Map.get(result, key)
-          assert value
-          assert value != []
-          assert value != %{}
-        end)
-      end
+      assert %{
+               description: "A blazing fast JSON parser and generator in pure Elixir.",
+               licenses: ["Apache-2.0"],
+               links: %{
+                 "docs" => "https://hexdocs.pm/jason/1.4.4/",
+                 "github" => "https://github.com/michalmuskala/jason",
+                 "homepage" => "https://hex.pm/packages/jason/1.4.4"
+               },
+               source_url: "https://github.com/michalmuskala/jason"
+             } =
+               SCM.enhance_metadata(:jason, dependency)
     end
 
     test "attempts to fetch when some metadata keys are missing" do
       dependency = %{
-        :licenses => ["MIT"],
-        :version => "1.0.0"
+        licenses: ["MIT"],
+        version: "1.4.4"
       }
 
-      result = SCM.enhance_metadata(:jason, dependency)
-
-      assert is_map(result)
-
-      if result != %{} do
-        # Result should contain all metadata keys with meaningful values
-        Enum.each(Metadata.keys(), fn key ->
-          value = Map.get(result, key)
-          assert value
-          assert value != []
-          assert value != %{}
-        end)
-      end
+      %{
+        description: "A blazing fast JSON parser and generator in pure Elixir.",
+        licenses: ["Apache-2.0"],
+        links: %{
+          "docs" => "https://hexdocs.pm/jason/1.4.4/",
+          "github" => "https://github.com/michalmuskala/jason",
+          "homepage" => "https://hex.pm/packages/jason/1.4.4"
+        },
+        source_url: "https://github.com/michalmuskala/jason"
+      } =
+        SCM.enhance_metadata(:jason, dependency)
     end
   end
 end

@@ -234,13 +234,7 @@ defmodule SBoM.SCM.Hex.SCM do
       end)
 
     if needs_fetch do
-      metadata = fetch_hex_metadata(app, dependency[:version])
-      # Return empty map if all metadata values are empty/nil
-      if metadata_empty?(metadata) do
-        %{}
-      else
-        metadata
-      end
+      fetch_hex_metadata(app, dependency[:version])
     else
       %{}
     end
@@ -253,33 +247,32 @@ defmodule SBoM.SCM.Hex.SCM do
   end
 
   @spec value_empty?(term()) :: boolean()
-  defp value_empty?(value) do
-    case value do
-      nil -> true
-      [] -> true
-      %{} -> true
-      _value -> false
-    end
-  end
+  defp value_empty?(value)
+  defp value_empty?(nil), do: true
+  defp value_empty?([]), do: true
+  defp value_empty?(%{} = map) when map_size(map) == 0, do: true
+  defp value_empty?(_value), do: false
 
-  @spec metadata_empty?(map()) :: boolean()
-  defp metadata_empty?(metadata) do
-    Enum.all?(Metadata.keys(), fn key ->
-      value = Map.get(metadata, key)
-      value_empty?(value)
-    end)
-  end
-
-  @spec fetch_hex_metadata(atom(), String.t() | nil) :: map()
+  @spec fetch_hex_metadata(Application.app(), String.t() | nil) :: map()
   defp fetch_hex_metadata(app, version) do
-    {:ok, {200, _headers, payload}} =
+    {:ok, {200, _headers, package_payload}} =
+      :hex_api_package.get(:hex_core.default_config(), Atom.to_string(app))
+
+    release_payload =
       if version do
-        :hex_api_release.get(:hex_core.default_config(), Atom.to_string(app), version)
+        {:ok, {200, _headers, release_payload}} =
+          :hex_api_release.get(:hex_core.default_config(), Atom.to_string(app), version)
+
+        release_payload
       else
-        :hex_api_package.get(:hex_core.default_config(), Atom.to_string(app))
+        %{}
       end
 
-    Metadata.from_hex_payload(payload)
+    SBoM.Fetcher.merge(
+      app,
+      Metadata.from_hex_payload(package_payload),
+      Metadata.from_hex_payload(release_payload)
+    )
   end
 
   @spec hex_namespace(repo :: String.t() | nil) :: Purl.namespace()

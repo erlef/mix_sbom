@@ -140,7 +140,7 @@ defmodule SBoM.Fetcher do
   end
 
   @spec merge(app_name(), left :: dependency(), right :: dependency()) :: dependency()
-  defp merge(_app, left, right), do: Map.merge(left, right, &merge_property/3)
+  def merge(_app, left, right), do: Map.merge(left, right, &merge_property/3)
 
   @spec merge_property(key :: atom(), left :: value, right :: value) :: value when value: term()
   defp merge_property(key, left, right)
@@ -158,6 +158,7 @@ defmodule SBoM.Fetcher do
   defp merge_property(:only, :*, _right), do: :*
   defp merge_property(:only, _left, :*), do: :*
   defp merge_property(:only, left, right), do: Enum.uniq(left ++ right)
+  defp merge_property(:links, left, right), do: Map.merge(left, right)
   defp merge_property(_key, _left, right), do: right
 
   @doc false
