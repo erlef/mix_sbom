@@ -4,11 +4,21 @@
 defmodule SBoM.SCM.Hex.SCMTest do
   use SBoM.FixtureCase, async: false
 
-  import ExUnit.CaptureIO
-
   alias SBoM.SCM.Hex.SCM
 
   doctest SCM
+
+  setup do
+    Mix.Shell.Process.flush()
+
+    shell = Mix.shell(Mix.Shell.Process)
+
+    on_exit(fn ->
+      Mix.shell(shell)
+    end)
+
+    :ok
+  end
 
   describe "enhance_metadata/2" do
     test "returns empty map when all metadata keys are present" do
@@ -83,19 +93,14 @@ defmodule SBoM.SCM.Hex.SCMTest do
 
   @spec assert_response(load :: (-> response), assert :: (response -> any() | no_return())) :: :ok when response: any()
   defp assert_response(load, assert) do
-    parent = self()
+    response = load.()
 
-    out =
-      capture_io(:stderr, fn ->
-        response = load.()
-        send(parent, {:response, response})
-      end)
-
-    if out =~ "Hex API rate limit exceeded" do
-      :ok
-    else
-      assert_received {:response, response}
-      assert.(response)
+    receive do
+      {:mix_shell, :error, ["Hex API rate limit exceeded"]} ->
+        :ok
+    after
+      0 ->
+        assert.(response)
     end
   end
 end
