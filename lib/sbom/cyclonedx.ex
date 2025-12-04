@@ -248,8 +248,6 @@ defmodule SBoM.CycloneDX do
           SBoM.CLI.schema_version()
         ) :: struct()
   defp convert_component(name, component, schema_version) do
-    purl_string = to_string(component.package_url)
-
     source_url_reference =
       case component[:source_url] do
         nil -> nil
@@ -280,11 +278,11 @@ defmodule SBoM.CycloneDX do
           # TODO: Handle VersionRequirement separately in 1.7+
           _schema_version -> component[:version] || component[:version_requirement]
         end,
-      purl: purl_string,
+      purl: to_string(component.package_url),
       scope: dependency_scope(component),
       hashes: hashes,
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
-      bom_ref: generate_bom_ref(purl_string),
+      bom_ref: generate_bom_ref(component.package_url),
       external_references:
         Enum.reject(
           [
@@ -403,26 +401,24 @@ defmodule SBoM.CycloneDX do
   @spec attach_dependencies(components_map(), SBoM.CLI.schema_version()) :: dependency_list()
   defp attach_dependencies(components, version) do
     for {_name, component_data} <- components do
-      purl_string = to_string(component_data.package_url)
-
       dependency_refs =
         component_data.dependencies
         |> List.wrap()
         |> Enum.map(fn dep_purl ->
-          bom_struct(:Dependency, version, ref: generate_bom_ref(to_string(dep_purl)))
+          bom_struct(:Dependency, version, ref: generate_bom_ref(dep_purl))
         end)
 
       bom_struct(:Dependency, version,
-        ref: generate_bom_ref(purl_string),
+        ref: generate_bom_ref(component_data.package_url),
         dependencies: dependency_refs
       )
     end
   end
 
-  @spec generate_bom_ref(String.t()) :: String.t()
-  defp generate_bom_ref(purl) when is_binary(purl) do
-    hash = :erlang.phash2(purl)
-    "urn:otp:component:#{hash}"
+  @spec generate_bom_ref(Purl.t()) :: String.t()
+  defp generate_bom_ref(purl) do
+    hash = purl |> to_string() |> :erlang.phash2()
+    "urn:otp:component:#{purl.name}:#{hash}"
   end
 
   @spec tool(SBoM.CLI.schema_version()) :: tool() | component()
