@@ -16,9 +16,19 @@ inputs:
     description: "OTP version to install"
     required: false
     default: ""
+  enable-burrito:
+    description: "Enable Burrito for native builds"
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
+    - name: "Set Mix Environment"
+      run: |
+        echo "MIX_ENV=${{ inputs.mix-env }}" >> $GITHUB_ENV
+        echo "MIX_ENABLE_BURRITO=${{ inputs.enable-burrito }}" >> $GITHUB_ENV
+      shell: bash
+
     - name: "Setup BEAM"
       uses: erlef/setup-beam@5304e04ea2b355f03681464e683d92e3b2f18451 # v1.18.2
       with:
@@ -33,8 +43,8 @@ runs:
         path: |-
           deps
           _build
-        key: "${{ format('{0}-{1}-{2}-{3}-{4}', inputs.mix-env, hashFiles('.tool-versions'), inputs.otp-version, inputs.elixir-version, hashFiles('mix.exs')) }}"
-        restore-keys: "${{ format('{0}-{1}-{2}-{3}-', inputs.mix-env, hashFiles('.tool-versions'), inputs.otp-version, inputs.elixir-version) }}"
+        key: "${{ format('{0}-{1}-{2}-{3}-{4}-{5}', inputs.mix-env, hashFiles('.tool-versions'), inputs.otp-version, inputs.elixir-version, inputs.enable-burrito, hashFiles('mix.exs')) }}"
+        restore-keys: "${{ format('{0}-{1}-{2}-{3}-{4}-', inputs.mix-env, hashFiles('.tool-versions'), inputs.otp-version, inputs.elixir-version, inputs.enable-burrito) }}"
 
     - name: "Install Dependencies"
       run: mix deps.get --check-locked

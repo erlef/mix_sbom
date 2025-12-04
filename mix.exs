@@ -30,7 +30,8 @@ defmodule SBoM.MixProject do
       test_ignore_filters: [~r/test\/fixtures/],
       test_coverage: [
         tool: ExCoveralls
-      ]
+      ],
+      lockfile: if(enable_burrito?(), do: "mix.lock.burrito", else: "mix.lock")
     ]
   end
 
@@ -45,10 +46,6 @@ defmodule SBoM.MixProject do
 
   def cli do
     [
-      default_target: :local,
-      preferred_targets: [
-        release: :standalone
-      ],
       preferred_envs: [
         test_property: :test,
         coveralls: :test,
@@ -71,7 +68,7 @@ defmodule SBoM.MixProject do
   defp releases do
     [
       mix_sbom: [
-        steps: [:assemble, &Burrito.wrap/1],
+        steps: [:assemble, &check_burrito_presence/1, &Burrito.wrap/1],
         burrito: [
           targets: [
             Linux_X64: [os: :linux, cpu: :x86_64],
@@ -99,21 +96,24 @@ defmodule SBoM.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     # styler:sort
-    [
-      {:burrito, "~> 1.0", targets: [:standalone]},
-      {:credo, "~> 1.0", only: [:dev], runtime: false},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
-      {:doctest_formatter, "~> 0.4.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
-      {:excoveralls, "~> 0.5", only: [:test], runtime: false},
-      {:hex_core, "~> 0.12.0"},
-      {:jason, "~> 1.4", optional: true},
-      {:optimus, "~> 0.5.1"},
-      {:protobuf, "~> 0.15.0"},
-      {:purl, "~> 0.3.0"},
-      {:stream_data, "~> 1.2", only: [:test]},
-      {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
-    ]
+    Enum.reject(
+      [
+        if(enable_burrito?(), do: {:burrito, "~> 1.0"}),
+        {:credo, "~> 1.0", only: [:dev], runtime: false},
+        {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+        {:doctest_formatter, "~> 0.4.0", only: [:dev, :test], runtime: false},
+        {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+        {:excoveralls, "~> 0.5", only: [:test], runtime: false},
+        {:hex_core, "~> 0.12.0"},
+        {:jason, "~> 1.4", optional: true},
+        {:optimus, "~> 0.5.1"},
+        {:protobuf, "~> 0.15.0"},
+        {:purl, "~> 0.3.0"},
+        {:stream_data, "~> 1.2", only: [:test]},
+        {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
+      ],
+      &is_nil/1
+    )
   end
 
   defp archives do
@@ -153,4 +153,17 @@ defmodule SBoM.MixProject do
       source_ref: "v#{@version}"
     ]
   end
+
+  defp check_burrito_presence(release) do
+    if not enable_burrito?() do
+      Mix.raise("""
+      Burrito packaging is not enabled.
+      To enable it, set the environment variable MIX_ENABLE_BURRITO to "1".
+      """)
+    end
+
+    release
+  end
+
+  defp enable_burrito?, do: System.get_env("MIX_ENABLE_BURRITO") in ["1", "true", "TRUE", "y", "Y", "yes", "YES"]
 end

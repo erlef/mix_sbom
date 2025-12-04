@@ -25,12 +25,12 @@ defmodule SBoM.Fetcher.MixFile do
   ## Examples
 
       iex> %{
-      ...>   burrito: %{
+      ...>   purl: %{
       ...>     scm: Hex.SCM,
       ...>     mix_dep: _dep,
       ...>     optional: false,
       ...>     runtime: true,
-      ...>     targets: [:standalone],
+      ...>     targets: :*,
       ...>     only: :*
       ...>   }
       ...> } =

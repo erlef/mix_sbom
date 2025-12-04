@@ -204,7 +204,7 @@ defmodule SBoM.CycloneDX.XML.Decoder do
     |> to_charlist()
     |> :xmerl_xpath.string(xml_element)
     |> case do
-      elements when is_list(elements) and length(elements) > 0 -> elements
+      [_first | _rest] = elements -> elements
       [] -> nil
       _other -> nil
     end
@@ -230,7 +230,7 @@ defmodule SBoM.CycloneDX.XML.Decoder do
     |> to_charlist()
     |> :xmerl_xpath.string(xml_element)
     |> case do
-      text_nodes when is_list(text_nodes) and length(text_nodes) > 0 ->
+      [_first | _rest] = text_nodes ->
         text_nodes
         |> Enum.map(fn
           xml_text(value: value) when is_list(value) -> to_string(value)
