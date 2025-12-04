@@ -265,7 +265,9 @@ defmodule SBoM.CycloneDX do
             [] -> nil
             hashes -> hashes
           end
-        _ -> nil
+
+        _other ->
+          nil
       end
 
     bom_struct(:Component, schema_version,
