@@ -255,15 +255,16 @@ defmodule SBoM.SCM.Hex.SCM do
 
   @spec fetch_hex_metadata(Application.app(), String.t() | nil) :: map()
   defp fetch_hex_metadata(app, version) do
-    {:ok, {200, _headers, package_payload}} =
-      :hex_api_package.get(:hex_core.default_config(), Atom.to_string(app))
+    package_payload =
+      :hex_core.default_config()
+      |> :hex_api_package.get(Atom.to_string(app))
+      |> hex_response()
 
     release_payload =
       if version do
-        {:ok, {200, _headers, release_payload}} =
-          :hex_api_release.get(:hex_core.default_config(), Atom.to_string(app), version)
-
-        release_payload
+        :hex_core.default_config()
+        |> :hex_api_release.get(Atom.to_string(app), version)
+        |> hex_response()
       else
         %{}
       end
@@ -291,4 +292,26 @@ defmodule SBoM.SCM.Hex.SCM do
       {:ok, url}
     end
   end
+
+  @spec hex_response({:ok, response} | {:error, term()}) :: payload | %{}
+        when response: {200..599, map(), payload}, payload: map()
+  defp hex_response(response)
+  defp hex_response({:ok, {200, _headers, payload}}), do: payload
+
+  defp hex_response({:ok, {429, _headers, _payload}}) do
+    Mix.shell().error("Hex API rate limit exceeded")
+    %{}
+  end
+
+  defp hex_response({:ok, {_status, _headers, _payload} = response}),
+    do:
+      raise("""
+      Unexpected Hex API response: #{inspect(response)}
+      """)
+
+  defp hex_response({:error, reason}),
+    do:
+      raise("""
+      Error fetching from Hex API: #{inspect(reason)}
+      """)
 end

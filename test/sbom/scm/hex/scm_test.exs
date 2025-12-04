@@ -4,6 +4,8 @@
 defmodule SBoM.SCM.Hex.SCMTest do
   use SBoM.FixtureCase, async: false
 
+  import ExUnit.CaptureIO
+
   alias SBoM.SCM.Hex.SCM
 
   doctest SCM
@@ -17,8 +19,7 @@ defmodule SBoM.SCM.Hex.SCMTest do
         description: "An example package."
       }
 
-      result = SCM.enhance_metadata(:test_app, dependency)
-      assert result == %{}
+      assert SCM.enhance_metadata(:jason, dependency) == %{}
     end
 
     test "attempts to fetch when metadata keys have empty list or empty map values" do
@@ -28,32 +29,35 @@ defmodule SBoM.SCM.Hex.SCMTest do
         links: %{}
       }
 
-      assert %{
-               description: "A blazing fast JSON parser and generator in pure Elixir.",
-               licenses: ["Apache-2.0"],
-               links: %{
-                 "docs" => "https://hexdocs.pm/jason/",
-                 "github" => "https://github.com/michalmuskala/jason",
-                 "homepage" => "https://hex.pm/packages/jason"
-               },
-               source_url: "https://github.com/michalmuskala/jason"
-             } = SCM.enhance_metadata(:jason, dependency)
+      assert_response(fn -> SCM.enhance_metadata(:jason, dependency) end, fn response ->
+        assert %{
+                 description: "A blazing fast JSON parser and generator in pure Elixir.",
+                 licenses: ["Apache-2.0"],
+                 links: %{
+                   "docs" => "https://hexdocs.pm/jason/",
+                   "github" => "https://github.com/michalmuskala/jason",
+                   "homepage" => "https://hex.pm/packages/jason"
+                 },
+                 source_url: "https://github.com/michalmuskala/jason"
+               } = response
+      end)
     end
 
     test "attempts to fetch when metadata keys are missing" do
       dependency = %{version: "1.4.4"}
 
-      assert %{
-               description: "A blazing fast JSON parser and generator in pure Elixir.",
-               licenses: ["Apache-2.0"],
-               links: %{
-                 "docs" => "https://hexdocs.pm/jason/1.4.4/",
-                 "github" => "https://github.com/michalmuskala/jason",
-                 "homepage" => "https://hex.pm/packages/jason/1.4.4"
-               },
-               source_url: "https://github.com/michalmuskala/jason"
-             } =
-               SCM.enhance_metadata(:jason, dependency)
+      assert_response(fn -> SCM.enhance_metadata(:jason, dependency) end, fn response ->
+        assert %{
+                 description: "A blazing fast JSON parser and generator in pure Elixir.",
+                 licenses: ["Apache-2.0"],
+                 links: %{
+                   "docs" => "https://hexdocs.pm/jason/1.4.4/",
+                   "github" => "https://github.com/michalmuskala/jason",
+                   "homepage" => "https://hex.pm/packages/jason/1.4.4"
+                 },
+                 source_url: "https://github.com/michalmuskala/jason"
+               } = response
+      end)
     end
 
     test "attempts to fetch when some metadata keys are missing" do
@@ -62,17 +66,36 @@ defmodule SBoM.SCM.Hex.SCMTest do
         version: "1.4.4"
       }
 
-      %{
-        description: "A blazing fast JSON parser and generator in pure Elixir.",
-        licenses: ["Apache-2.0"],
-        links: %{
-          "docs" => "https://hexdocs.pm/jason/1.4.4/",
-          "github" => "https://github.com/michalmuskala/jason",
-          "homepage" => "https://hex.pm/packages/jason/1.4.4"
-        },
-        source_url: "https://github.com/michalmuskala/jason"
-      } =
-        SCM.enhance_metadata(:jason, dependency)
+      assert_response(fn -> SCM.enhance_metadata(:jason, dependency) end, fn response ->
+        assert %{
+                 description: "A blazing fast JSON parser and generator in pure Elixir.",
+                 licenses: ["Apache-2.0"],
+                 links: %{
+                   "docs" => "https://hexdocs.pm/jason/1.4.4/",
+                   "github" => "https://github.com/michalmuskala/jason",
+                   "homepage" => "https://hex.pm/packages/jason/1.4.4"
+                 },
+                 source_url: "https://github.com/michalmuskala/jason"
+               } = response
+      end)
+    end
+  end
+
+  @spec assert_response(load :: (-> response), assert :: (response -> any() | no_return())) :: :ok when response: any()
+  defp assert_response(load, assert) do
+    parent = self()
+
+    out =
+      capture_io(:stderr, fn ->
+        response = load.()
+        send(parent, {:response, response})
+      end)
+
+    if out =~ "Hex API rate limit exceeded" do
+      :ok
+    else
+      assert_received {:response, response}
+      assert.(response)
     end
   end
 end

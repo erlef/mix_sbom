@@ -23,11 +23,11 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
   end
 
   @tag :tmp_dir
-  @tag fixture_app: "sample1"
+  @tag fixture_app: "app_installed"
   test "mix task", %{app_path: app_path} do
-    capture_io(:stderr, fn ->
-      capture_io(:stdio, fn ->
-        Util.in_project(app_path, fn _mix_module ->
+    Util.in_project(app_path, fn _mix_module ->
+      capture_io(:stderr, fn ->
+        capture_io(:stdio, fn ->
           Mix.Task.rerun("deps.clean", ["--all"])
 
           bom_path = Path.join(app_path, "bom.cdx")
