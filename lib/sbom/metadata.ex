@@ -2,15 +2,14 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.Metadata do
-  @moduledoc """
-  Centralizes package-level metadata normalization for SBOM generation.
+  @moduledoc false
 
-  This module provides unified functions to extract and normalize metadata
-  from different sources:
-  - Mix project configuration (local metadata)
-  - Hex API responses (remote metadata)
-
-  """
+  # Centralizes package-level metadata normalization for SBOM generation.
+  #
+  # This module provides unified functions to extract and normalize metadata
+  # from different sources:
+  # - Mix project configuration (local metadata)
+  # - Hex API responses (remote metadata)
 
   alias SBoM.Fetcher.Links
 
