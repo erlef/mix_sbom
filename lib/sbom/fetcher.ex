@@ -162,9 +162,14 @@ defmodule SBoM.Fetcher do
         }
   def transform_all(dependencies) do
     dependencies =
-      Map.new(dependencies, fn {app, dependency} ->
+      dependencies
+      |> Task.async_stream(
+        fn {app, dependency} ->
         {app, transform(app, drop_empty(dependency))}
-      end)
+        end,
+        ordered: false
+      )
+      |> Map.new(fn {:ok, result} -> result end)
 
     Map.new(dependencies, fn {app, dependency} ->
       dependency =
