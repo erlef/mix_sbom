@@ -71,6 +71,7 @@ defmodule SBoM.Fetcher do
   @static_deps %{
     elixir: %{
       scm: SBoM.SCM.System,
+      dependencies: [:stdlib],
       mix_dep: {:elixir, nil, []},
       optional: false,
       runtime: true,
@@ -79,6 +80,7 @@ defmodule SBoM.Fetcher do
     },
     stdlib: %{
       scm: SBoM.SCM.System,
+      dependencies: [:kernel],
       mix_dep: {:stdlib, nil, []},
       optional: false,
       runtime: true,
