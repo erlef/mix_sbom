@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.EvidenceFieldType do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.EvidenceFieldType do
+  @moduledoc """
+  buf:lint:ignore ENUM_VALUE_PREFIX -- Enum value names should be prefixed with "EVIDENCE_FIELD_TYPE_"
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

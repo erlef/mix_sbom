@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V16.EnergyMeasureType.EnergyMeasureUnitType do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V16.EnergyMeasureType.EnergyMeasureUnitType do
+  @moduledoc "CycloneDX EnergyMeasureType.EnergyMeasureUnitType model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:ENERGY_MEASURE_UNIT_TYPE_UNSPECIFIED, 0)

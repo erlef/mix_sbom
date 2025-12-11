@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V17.Aggregate do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V17.Aggregate do
+  @moduledoc "CycloneDX Aggregate model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:AGGREGATE_NOT_SPECIFIED, 0)

@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.CryptoProperties.CertificateState do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.CryptoProperties.CertificateState do
+  @moduledoc """
+  Certificate State
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
@@ -8,7 +10,7 @@ defmodule SBoM.Cyclonedx.V17.CryptoProperties.CertificateState do
   field(:reason, 1, proto3_optional: true, type: :string)
 
   field(:predefined_state, 2,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.CertificateState.PredefinedState,
+    type: SBoM.CycloneDX.V17.CryptoProperties.CertificateState.PredefinedState,
     json_name: "predefinedState",
     enum: true,
     oneof: 0

@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V17.EnergyProviderType.EnergySourceType do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V17.EnergyProviderType.EnergySourceType do
+  @moduledoc "CycloneDX EnergyProviderType.EnergySourceType model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:ENERGY_SOURCE_TYPE_UNSPECIFIED, 0)

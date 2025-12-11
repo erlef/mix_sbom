@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.Source do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.Source do
+  @moduledoc """
+  The source of the issue where it is documented.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

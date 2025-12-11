@@ -2,74 +2,82 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 defmodule SBoM.CycloneDX do
-  @moduledoc false
+  @moduledoc "SBoM CycloneDX encoding and decoding."
 
   alias SBoM.CycloneDX.JSON
   alias SBoM.CycloneDX.Protobuf
   alias SBoM.CycloneDX.XML
+  alias SBoM.Fetcher
 
   @type t() ::
-          SBoM.Cyclonedx.V13.Bom.t()
-          | SBoM.Cyclonedx.V14.Bom.t()
-          | SBoM.Cyclonedx.V15.Bom.t()
-          | SBoM.Cyclonedx.V16.Bom.t()
-          | SBoM.Cyclonedx.V17.Bom.t()
-  @type components_map() :: %{SBoM.Fetcher.app_name() => SBoM.Fetcher.dependency()}
-  @type component() ::
-          SBoM.Cyclonedx.V13.Component.t()
-          | SBoM.Cyclonedx.V14.Component.t()
-          | SBoM.Cyclonedx.V15.Component.t()
-          | SBoM.Cyclonedx.V16.Component.t()
-          | SBoM.Cyclonedx.V17.Component.t()
+          SBoM.CycloneDX.V13.Bom.t()
+          | SBoM.CycloneDX.V14.Bom.t()
+          | SBoM.CycloneDX.V15.Bom.t()
+          | SBoM.CycloneDX.V16.Bom.t()
+          | SBoM.CycloneDX.V17.Bom.t()
+
+  @type format() :: :protobuf | :json | :xml
+  @type schema_version() :: String.t()
+
+  @typep components_map() :: %{Fetcher.app_name() => Fetcher.dependency()}
+  @typep component() ::
+           SBoM.CycloneDX.V13.Component.t()
+           | SBoM.CycloneDX.V14.Component.t()
+           | SBoM.CycloneDX.V15.Component.t()
+           | SBoM.CycloneDX.V16.Component.t()
+           | SBoM.CycloneDX.V17.Component.t()
   @type classification() ::
-          SBoM.Cyclonedx.V13.Classification.t()
-          | SBoM.Cyclonedx.V14.Classification.t()
-          | SBoM.Cyclonedx.V15.Classification.t()
-          | SBoM.Cyclonedx.V16.Classification.t()
-          | SBoM.Cyclonedx.V17.Classification.t()
-  @type dependency_list() :: [
-          SBoM.Cyclonedx.V13.Dependency.t()
-          | SBoM.Cyclonedx.V14.Dependency.t()
-          | SBoM.Cyclonedx.V15.Dependency.t()
-          | SBoM.Cyclonedx.V16.Dependency.t()
-          | SBoM.Cyclonedx.V17.Dependency.t()
-        ]
-  @type license_list() :: [
-          SBoM.Cyclonedx.V13.LicenseChoice.t()
-          | SBoM.Cyclonedx.V14.LicenseChoice.t()
-          | SBoM.Cyclonedx.V15.LicenseChoice.t()
-          | SBoM.Cyclonedx.V16.LicenseChoice.t()
-          | SBoM.Cyclonedx.V17.LicenseChoice.t()
-        ]
-  @type scope() ::
-          SBoM.Cyclonedx.V13.Scope.t()
-          | SBoM.Cyclonedx.V14.Scope.t()
-          | SBoM.Cyclonedx.V15.Scope.t()
-          | SBoM.Cyclonedx.V16.Scope.t()
-          | SBoM.Cyclonedx.V17.Scope.t()
-  @type metadata() ::
-          SBoM.Cyclonedx.V13.Metadata.t()
-          | SBoM.Cyclonedx.V14.Metadata.t()
-          | SBoM.Cyclonedx.V15.Metadata.t()
-          | SBoM.Cyclonedx.V16.Metadata.t()
-          | SBoM.Cyclonedx.V17.Metadata.t()
-  @type tool() ::
-          SBoM.Cyclonedx.V13.Tool.t()
-          | SBoM.Cyclonedx.V14.Tool.t()
-          | SBoM.Cyclonedx.V15.Tool.t()
-          | SBoM.Cyclonedx.V16.Tool.t()
-          | SBoM.Cyclonedx.V17.Tool.t()
-  @type external_reference() ::
-          SBoM.Cyclonedx.V13.ExternalReference.t()
-          | SBoM.Cyclonedx.V14.ExternalReference.t()
-          | SBoM.Cyclonedx.V15.ExternalReference.t()
-          | SBoM.Cyclonedx.V16.ExternalReference.t()
-          | SBoM.Cyclonedx.V17.ExternalReference.t()
-  @type uuid() :: <<_::288>>
+          SBoM.CycloneDX.V13.Classification.t()
+          | SBoM.CycloneDX.V14.Classification.t()
+          | SBoM.CycloneDX.V15.Classification.t()
+          | SBoM.CycloneDX.V16.Classification.t()
+          | SBoM.CycloneDX.V17.Classification.t()
+  @typep dependency_list() :: [
+           SBoM.CycloneDX.V13.Dependency.t()
+           | SBoM.CycloneDX.V14.Dependency.t()
+           | SBoM.CycloneDX.V15.Dependency.t()
+           | SBoM.CycloneDX.V16.Dependency.t()
+           | SBoM.CycloneDX.V17.Dependency.t()
+         ]
+  @typep license_list() :: [
+           SBoM.CycloneDX.V13.LicenseChoice.t()
+           | SBoM.CycloneDX.V14.LicenseChoice.t()
+           | SBoM.CycloneDX.V15.LicenseChoice.t()
+           | SBoM.CycloneDX.V16.LicenseChoice.t()
+           | SBoM.CycloneDX.V17.LicenseChoice.t()
+         ]
+  @typep scope() ::
+           SBoM.CycloneDX.V13.Scope.t()
+           | SBoM.CycloneDX.V14.Scope.t()
+           | SBoM.CycloneDX.V15.Scope.t()
+           | SBoM.CycloneDX.V16.Scope.t()
+           | SBoM.CycloneDX.V17.Scope.t()
+  @typep metadata() ::
+           SBoM.CycloneDX.V13.Metadata.t()
+           | SBoM.CycloneDX.V14.Metadata.t()
+           | SBoM.CycloneDX.V15.Metadata.t()
+           | SBoM.CycloneDX.V16.Metadata.t()
+           | SBoM.CycloneDX.V17.Metadata.t()
+  @typep tool() ::
+           SBoM.CycloneDX.V13.Tool.t()
+           | SBoM.CycloneDX.V14.Tool.t()
+           | SBoM.CycloneDX.V15.Tool.t()
+           | SBoM.CycloneDX.V16.Tool.t()
+           | SBoM.CycloneDX.V17.Tool.t()
+  @typep external_reference() ::
+           SBoM.CycloneDX.V13.ExternalReference.t()
+           | SBoM.CycloneDX.V14.ExternalReference.t()
+           | SBoM.CycloneDX.V15.ExternalReference.t()
+           | SBoM.CycloneDX.V16.ExternalReference.t()
+           | SBoM.CycloneDX.V17.ExternalReference.t()
+  @typep uuid() :: <<_::288>>
 
   @version Mix.Project.config()[:version]
 
-  @spec empty(SBoM.CLI.schema_version()) :: t()
+  @doc """
+  Create an empty BOM structure for the given schema version.
+  """
+  @spec empty(schema_version()) :: t()
   def empty(version \\ "1.7") do
     bom_struct(:Bom, version,
       spec_version: version,
@@ -88,8 +96,15 @@ defmodule SBoM.CycloneDX do
           classification: classification()
         ]
 
-  @spec bom(components_map(), bom_opts()) :: t()
-  def bom(components, opts \\ []) do
+  @doc """
+  Generate a BOM for the current Mix project and its dependencies.
+  """
+  @spec bom(bom_opts()) :: t()
+  def bom(opts \\ []), do: bom_for_components(Fetcher.fetch(), opts)
+
+  @doc false
+  @spec bom_for_components(components_map(), bom_opts()) :: t()
+  def bom_for_components(components, opts \\ []) do
     version = Keyword.get(opts, :version, "1.7")
     starting_bom = Keyword.get(opts, :starting_bom, empty(version))
     serial = Keyword.get(opts, :serial, urn_uuid())
@@ -110,17 +125,14 @@ defmodule SBoM.CycloneDX do
     |> Map.put(:dependencies, attach_dependencies(filtered_components, version))
   end
 
-  @spec encode(t(), SBoM.CLI.format(), SBoM.CLI.pretty()) :: iodata()
+  @doc "Encode a BOM"
+  @spec encode(t(), format(), boolean()) :: iodata()
   def encode(bom, type, pretty \\ false)
   def encode(bom, :protobuf, _pretty), do: Protobuf.encode(bom)
   def encode(bom, :json, pretty), do: JSON.encode(bom, pretty)
   def encode(bom, :xml, pretty), do: XML.encode(bom, pretty)
 
-  @doc """
-  Decode a BOM from JSON format.
-
-  Returns the parsed BOM struct based on the version found in the JSON.
-  """
+  @doc "Decode a BOM"
   @spec decode(String.t(), :json) :: t()
   def decode(data, format)
   def decode(data, :protobuf), do: Protobuf.decode(data)
@@ -159,7 +171,7 @@ defmodule SBoM.CycloneDX do
     Map.put(metadata, :timestamp, nil)
   end
 
-  @spec attach_metadata(metadata(), SBoM.CLI.schema_version(), components_map(), classification()) ::
+  @spec attach_metadata(metadata(), schema_version(), components_map(), classification()) ::
           metadata()
   defp attach_metadata(metadata, version, components, classification)
 
@@ -195,9 +207,9 @@ defmodule SBoM.CycloneDX do
   @spec timestamp_now() :: Google.Protobuf.Timestamp.t()
   defp timestamp_now, do: DateTime.utc_now() |> DateTime.truncate(:second) |> Google.Protobuf.from_datetime()
 
-  @spec root_component(components_map(), SBoM.CLI.schema_version(), classification()) ::
-          {SBoM.Fetcher.app_name(), SBoM.Fetcher.dependency()} | nil
-  def root_component(components, version, classification) do
+  @spec root_component(components_map(), schema_version(), classification()) ::
+          {Fetcher.app_name(), Fetcher.dependency()} | nil
+  defp root_component(components, version, classification) do
     components
     |> Enum.find(&match?({_name, %{root: true}}, &1))
     |> case do
@@ -243,7 +255,7 @@ defmodule SBoM.CycloneDX do
     end)
   end
 
-  @spec attach_components(components_map(), SBoM.CLI.schema_version()) :: [component()]
+  @spec attach_components(components_map(), schema_version()) :: [component()]
   defp attach_components(components, version) do
     Enum.flat_map(components, fn
       {_name, %{root: true}} ->
@@ -255,9 +267,9 @@ defmodule SBoM.CycloneDX do
   end
 
   @spec convert_component(
-          SBoM.Fetcher.app_name(),
-          SBoM.Fetcher.dependency(),
-          SBoM.CLI.schema_version()
+          Fetcher.app_name(),
+          Fetcher.dependency(),
+          schema_version()
         ) :: struct()
   defp convert_component(name, component, schema_version) do
     source_url_reference =
@@ -308,7 +320,7 @@ defmodule SBoM.CycloneDX do
 
   @spec source_url_reference(
           source_url :: String.t(),
-          SBoM.CLI.schema_version()
+          schema_version()
         ) :: external_reference()
   defp source_url_reference(source_url, version) do
     bom_struct(:ExternalReference, version,
@@ -318,8 +330,8 @@ defmodule SBoM.CycloneDX do
   end
 
   @spec asset_reference(
-          component :: SBoM.Fetcher.dependency(),
-          SBoM.CLI.schema_version()
+          component :: Fetcher.dependency(),
+          schema_version()
         ) :: external_reference() | nil
   defp asset_reference(component, version)
 
@@ -338,7 +350,7 @@ defmodule SBoM.CycloneDX do
 
   @spec links_references(
           links :: %{optional(String.t()) => String.t()},
-          SBoM.CLI.schema_version()
+          schema_version()
         ) :: [external_reference()]
   defp links_references(links, version) do
     alias SBoM.Fetcher.Links
@@ -380,7 +392,7 @@ defmodule SBoM.CycloneDX do
     end)
   end
 
-  @spec dependency_scope(SBoM.Fetcher.dependency()) :: scope()
+  @spec dependency_scope(Fetcher.dependency()) :: scope()
   defp dependency_scope(dependency) do
     optional? = Map.get(dependency, :optional, false)
 
@@ -399,7 +411,7 @@ defmodule SBoM.CycloneDX do
     end
   end
 
-  @spec convert_licenses([String.t()], SBoM.CLI.schema_version()) :: license_list()
+  @spec convert_licenses([String.t()], schema_version()) :: license_list()
   defp convert_licenses(licenses, version) do
     Enum.map(
       licenses,
@@ -407,7 +419,7 @@ defmodule SBoM.CycloneDX do
     )
   end
 
-  @spec attach_dependencies(components_map(), SBoM.CLI.schema_version()) :: dependency_list()
+  @spec attach_dependencies(components_map(), schema_version()) :: dependency_list()
   defp attach_dependencies(components, version) do
     for {_name, component_data} <- components do
       dependency_refs =
@@ -430,7 +442,7 @@ defmodule SBoM.CycloneDX do
     "otp:component:#{purl.name}:#{purl.type}:#{hash}"
   end
 
-  @spec tool(SBoM.CLI.schema_version()) :: tool() | component()
+  @spec tool(schema_version()) :: tool() | component()
   defp tool(version)
 
   defp tool(version) when version in ["1.3", "1.4"] do
@@ -469,18 +481,20 @@ defmodule SBoM.CycloneDX do
     )
   end
 
-  @spec bom_struct(module(), SBoM.CLI.schema_version(), Keyword.t()) :: struct()
+  @doc false
+  @spec bom_struct(module(), schema_version(), Keyword.t()) :: struct()
   defp bom_struct(module, version, attrs \\ [])
 
-  @spec bom_struct_module(module(), SBoM.CLI.schema_version()) :: module()
+  @doc false
+  @spec bom_struct_module(module(), schema_version()) :: module()
   def bom_struct_module(module, version)
 
   for {schema_version, prefix} <- %{
-        "1.7" => SBoM.Cyclonedx.V17,
-        "1.6" => SBoM.Cyclonedx.V16,
-        "1.5" => SBoM.Cyclonedx.V15,
-        "1.4" => SBoM.Cyclonedx.V14,
-        "1.3" => SBoM.Cyclonedx.V13
+        "1.7" => SBoM.CycloneDX.V17,
+        "1.6" => SBoM.CycloneDX.V16,
+        "1.5" => SBoM.CycloneDX.V15,
+        "1.4" => SBoM.CycloneDX.V14,
+        "1.3" => SBoM.CycloneDX.V13
       } do
     # Safe: Module.concat is called at compile time with well-known module names from a fixed map
     # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
@@ -491,9 +505,10 @@ defmodule SBoM.CycloneDX do
     def bom_struct_module(module, unquote(schema_version)), do: Module.concat([unquote(prefix), module])
   end
 
-  @spec bom_struct_version(module()) :: SBoM.CLI.schema_version()
+  @doc false
+  @spec bom_struct_version(module()) :: schema_version()
   def bom_struct_version(module) do
-    ["SBoM", "Cyclonedx", "V" <> version | _rest] = Module.split(module)
+    ["SBoM", "CycloneDX", "V" <> version | _rest] = Module.split(module)
 
     case version do
       "13" -> "1.3"
@@ -504,7 +519,7 @@ defmodule SBoM.CycloneDX do
     end
   end
 
-  @spec qualifiers_to_hashes(map(), SBoM.CLI.schema_version()) :: [struct()]
+  @spec qualifiers_to_hashes(map(), schema_version()) :: [struct()]
   defp qualifiers_to_hashes(%{"checksum" => "sha256:" <> hash}, version) do
     [
       bom_struct(:Hash, version,
@@ -516,7 +531,7 @@ defmodule SBoM.CycloneDX do
 
   defp qualifiers_to_hashes(_qualifiers, _version), do: []
 
-  @spec component_version(SBoM.Fetcher.dependency(), SBoM.CLI.schema_version()) ::
+  @spec component_version(Fetcher.dependency(), schema_version()) ::
           String.t() | nil
   defp component_version(component, schema_version) do
     case schema_version do

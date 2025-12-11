@@ -1,38 +1,37 @@
-defmodule SBoM.Cyclonedx.V15.Component do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V15.Component do
+  @moduledoc "CycloneDX Component model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  field(:type, 1, type: SBoM.Cyclonedx.V15.Classification, enum: true)
+  field(:type, 1, type: SBoM.CycloneDX.V15.Classification, enum: true)
   field(:mime_type, 2, proto3_optional: true, type: :string, json_name: "mimeType")
   field(:bom_ref, 3, proto3_optional: true, type: :string, json_name: "bomRef")
-  field(:supplier, 4, proto3_optional: true, type: SBoM.Cyclonedx.V15.OrganizationalEntity)
+  field(:supplier, 4, proto3_optional: true, type: SBoM.CycloneDX.V15.OrganizationalEntity)
   field(:author, 5, proto3_optional: true, type: :string)
   field(:publisher, 6, proto3_optional: true, type: :string)
   field(:group, 7, proto3_optional: true, type: :string)
   field(:name, 8, type: :string)
   field(:version, 9, type: :string)
   field(:description, 10, proto3_optional: true, type: :string)
-  field(:scope, 11, proto3_optional: true, type: SBoM.Cyclonedx.V15.Scope, enum: true)
-  field(:hashes, 12, repeated: true, type: SBoM.Cyclonedx.V15.Hash)
-  field(:licenses, 13, repeated: true, type: SBoM.Cyclonedx.V15.LicenseChoice)
+  field(:scope, 11, proto3_optional: true, type: SBoM.CycloneDX.V15.Scope, enum: true)
+  field(:hashes, 12, repeated: true, type: SBoM.CycloneDX.V15.Hash)
+  field(:licenses, 13, repeated: true, type: SBoM.CycloneDX.V15.LicenseChoice)
   field(:copyright, 14, proto3_optional: true, type: :string)
   field(:cpe, 15, proto3_optional: true, type: :string)
   field(:purl, 16, proto3_optional: true, type: :string)
-  field(:swid, 17, proto3_optional: true, type: SBoM.Cyclonedx.V15.Swid)
+  field(:swid, 17, proto3_optional: true, type: SBoM.CycloneDX.V15.Swid)
   field(:modified, 18, proto3_optional: true, type: :bool)
-  field(:pedigree, 19, proto3_optional: true, type: SBoM.Cyclonedx.V15.Pedigree)
+  field(:pedigree, 19, proto3_optional: true, type: SBoM.CycloneDX.V15.Pedigree)
 
   field(:external_references, 20,
     repeated: true,
-    type: SBoM.Cyclonedx.V15.ExternalReference,
+    type: SBoM.CycloneDX.V15.ExternalReference,
     json_name: "externalReferences"
   )
 
-  field(:components, 21, repeated: true, type: SBoM.Cyclonedx.V15.Component)
-  field(:properties, 22, repeated: true, type: SBoM.Cyclonedx.V15.Property)
-  field(:evidence, 23, repeated: true, type: SBoM.Cyclonedx.V15.Evidence)
-  field(:releaseNotes, 24, proto3_optional: true, type: SBoM.Cyclonedx.V15.ReleaseNotes)
-  field(:modelCard, 25, proto3_optional: true, type: SBoM.Cyclonedx.V15.ModelCard)
-  field(:data, 26, proto3_optional: true, type: SBoM.Cyclonedx.V15.ComponentData)
+  field(:components, 21, repeated: true, type: SBoM.CycloneDX.V15.Component)
+  field(:properties, 22, repeated: true, type: SBoM.CycloneDX.V15.Property)
+  field(:evidence, 23, repeated: true, type: SBoM.CycloneDX.V15.Evidence)
+  field(:releaseNotes, 24, proto3_optional: true, type: SBoM.CycloneDX.V15.ReleaseNotes)
+  field(:modelCard, 25, proto3_optional: true, type: SBoM.CycloneDX.V15.ModelCard)
+  field(:data, 26, proto3_optional: true, type: SBoM.CycloneDX.V15.ComponentData)
 end

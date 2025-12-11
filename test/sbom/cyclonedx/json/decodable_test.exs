@@ -6,11 +6,11 @@ defmodule SBoM.CycloneDX.JSON.DecodableTest do
 
   alias SBoM.CycloneDX.JSON.Decodable
   alias SBoM.CycloneDX.JSON.Encodable
-  alias SBoM.Cyclonedx.V17.Bom
-  alias SBoM.Cyclonedx.V17.Component
-  alias SBoM.Cyclonedx.V17.Dependency
-  alias SBoM.Cyclonedx.V17.ExternalReference
-  alias SBoM.Cyclonedx.V17.Hash
+  alias SBoM.CycloneDX.V17.Bom
+  alias SBoM.CycloneDX.V17.Component
+  alias SBoM.CycloneDX.V17.Dependency
+  alias SBoM.CycloneDX.V17.ExternalReference
+  alias SBoM.CycloneDX.V17.Hash
 
   describe "round-trip compatibility" do
     test "Component encoding and decoding" do

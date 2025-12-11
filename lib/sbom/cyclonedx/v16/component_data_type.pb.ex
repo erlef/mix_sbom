@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V16.ComponentDataType do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V16.ComponentDataType do
+  @moduledoc "CycloneDX ComponentDataType model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:COMPONENT_DATA_TYPE_SOURCE_CODE, 0)

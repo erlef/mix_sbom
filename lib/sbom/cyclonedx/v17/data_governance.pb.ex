@@ -1,9 +1,11 @@
-defmodule SBoM.Cyclonedx.V17.DataGovernance do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.DataGovernance do
+  @moduledoc """
+  Data governance captures information regarding data ownership, stewardship, and custodianship, providing insights into the individuals or entities responsible for managing, overseeing, and safeguarding the data throughout its lifecycle.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  alias SBoM.Cyclonedx.V17.DataGovernance.DataGovernanceResponsibleParty
+  alias SBoM.CycloneDX.V17.DataGovernance.DataGovernanceResponsibleParty
 
   field(:custodians, 1,
     repeated: true,

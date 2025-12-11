@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V15.ImpactAnalysisJustification do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V15.ImpactAnalysisJustification do
+  @moduledoc "CycloneDX ImpactAnalysisJustification model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:IMPACT_ANALYSIS_JUSTIFICATION_NULL, 0)

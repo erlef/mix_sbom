@@ -1,9 +1,8 @@
-defmodule SBoM.Cyclonedx.V15.DataGovernance do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V15.DataGovernance do
+  @moduledoc "CycloneDX DataGovernance model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  alias SBoM.Cyclonedx.V15.DataGovernance.DataGovernanceResponsibleParty
+  alias SBoM.CycloneDX.V15.DataGovernance.DataGovernanceResponsibleParty
 
   field(:custodians, 1,
     repeated: true,

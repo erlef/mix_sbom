@@ -1,28 +1,30 @@
-defmodule SBoM.Cyclonedx.V16.CryptoProperties do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.CryptoProperties do
+  @moduledoc """
+  "Cryptographic Properties
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  field(:assetType, 1, type: SBoM.Cyclonedx.V16.CryptoProperties.CryptoAssetType, enum: true)
+  field(:assetType, 1, type: SBoM.CycloneDX.V16.CryptoProperties.CryptoAssetType, enum: true)
 
   field(:algorithmProperties, 2,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties
   )
 
   field(:certificateProperties, 3,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.CertificateProperties
+    type: SBoM.CycloneDX.V16.CryptoProperties.CertificateProperties
   )
 
   field(:relatedCryptoMaterialProperties, 4,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.RelatedCryptoMaterialProperties
+    type: SBoM.CycloneDX.V16.CryptoProperties.RelatedCryptoMaterialProperties
   )
 
   field(:protocolProperties, 5,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.ProtocolProperties
+    type: SBoM.CycloneDX.V16.CryptoProperties.ProtocolProperties
   )
 
   field(:oid, 6, proto3_optional: true, type: :string)

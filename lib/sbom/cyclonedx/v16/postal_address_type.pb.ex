@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.PostalAddressType do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.PostalAddressType do
+  @moduledoc """
+  An address used to identify a contactable location.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

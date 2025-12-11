@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.AttachedText do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.AttachedText do
+  @moduledoc """
+  Specifies attributes of the text
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

@@ -90,11 +90,11 @@ end
 
 defimpl Decodable,
   for: [
-    SBoM.Cyclonedx.V17.ExternalReference,
-    SBoM.Cyclonedx.V16.ExternalReference,
-    SBoM.Cyclonedx.V15.ExternalReference,
-    SBoM.Cyclonedx.V14.ExternalReference,
-    SBoM.Cyclonedx.V13.ExternalReference
+    SBoM.CycloneDX.V17.ExternalReference,
+    SBoM.CycloneDX.V16.ExternalReference,
+    SBoM.CycloneDX.V15.ExternalReference,
+    SBoM.CycloneDX.V14.ExternalReference,
+    SBoM.CycloneDX.V13.ExternalReference
   ] do
   version = CycloneDX.bom_struct_version(@for)
   hash_module = CycloneDX.bom_struct_module(:Hash, version)
@@ -122,11 +122,11 @@ end
 
 defimpl Decodable,
   for: [
-    SBoM.Cyclonedx.V17.Hash,
-    SBoM.Cyclonedx.V16.Hash,
-    SBoM.Cyclonedx.V15.Hash,
-    SBoM.Cyclonedx.V14.Hash,
-    SBoM.Cyclonedx.V13.Hash
+    SBoM.CycloneDX.V17.Hash,
+    SBoM.CycloneDX.V16.Hash,
+    SBoM.CycloneDX.V15.Hash,
+    SBoM.CycloneDX.V14.Hash,
+    SBoM.CycloneDX.V13.Hash
   ] do
   @xpath_mappings [
     {:alg, :string, "@alg"},
@@ -148,11 +148,11 @@ end
 
 defimpl Decodable,
   for: [
-    SBoM.Cyclonedx.V17.Component,
-    SBoM.Cyclonedx.V16.Component,
-    SBoM.Cyclonedx.V15.Component,
-    SBoM.Cyclonedx.V14.Component,
-    SBoM.Cyclonedx.V13.Component
+    SBoM.CycloneDX.V17.Component,
+    SBoM.CycloneDX.V16.Component,
+    SBoM.CycloneDX.V15.Component,
+    SBoM.CycloneDX.V14.Component,
+    SBoM.CycloneDX.V13.Component
   ] do
   version = CycloneDX.bom_struct_version(@for)
   organizational_entity_module = CycloneDX.bom_struct_module(:OrganizationalEntity, version)
@@ -213,11 +213,11 @@ end
 
 defimpl Decodable,
   for: [
-    SBoM.Cyclonedx.V17.LicenseChoice,
-    SBoM.Cyclonedx.V16.LicenseChoice,
-    SBoM.Cyclonedx.V15.LicenseChoice,
-    SBoM.Cyclonedx.V14.LicenseChoice,
-    SBoM.Cyclonedx.V13.LicenseChoice
+    SBoM.CycloneDX.V17.LicenseChoice,
+    SBoM.CycloneDX.V16.LicenseChoice,
+    SBoM.CycloneDX.V15.LicenseChoice,
+    SBoM.CycloneDX.V14.LicenseChoice,
+    SBoM.CycloneDX.V13.LicenseChoice
   ] do
   import Decoder, only: [xml_element: 1]
 

@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V17.ModelCard.ModelCardConsiderations.FairnessAssessments do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V17.ModelCard.ModelCardConsiderations.FairnessAssessments do
+  @moduledoc "CycloneDX ModelCard.ModelCardConsiderations.FairnessAssessments model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:groupAtRisk, 1, proto3_optional: true, type: :string)

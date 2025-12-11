@@ -289,11 +289,11 @@ end
 
 defimpl SBoM.CycloneDX.JSON.Decodable,
   for: [
-    SBoM.Cyclonedx.V17.Component,
-    SBoM.Cyclonedx.V16.Component,
-    SBoM.Cyclonedx.V15.Component,
-    SBoM.Cyclonedx.V14.Component,
-    SBoM.Cyclonedx.V13.Component
+    SBoM.CycloneDX.V17.Component,
+    SBoM.CycloneDX.V16.Component,
+    SBoM.CycloneDX.V15.Component,
+    SBoM.CycloneDX.V14.Component,
+    SBoM.CycloneDX.V13.Component
   ] do
   alias SBoM.CycloneDX.Common.EnumHelpers
   alias SBoM.CycloneDX.JSON.Decoder
@@ -340,11 +340,11 @@ end
 
 defimpl SBoM.CycloneDX.JSON.Decodable,
   for: [
-    SBoM.Cyclonedx.V17.Hash,
-    SBoM.Cyclonedx.V16.Hash,
-    SBoM.Cyclonedx.V15.Hash,
-    SBoM.Cyclonedx.V14.Hash,
-    SBoM.Cyclonedx.V13.Hash
+    SBoM.CycloneDX.V17.Hash,
+    SBoM.CycloneDX.V16.Hash,
+    SBoM.CycloneDX.V15.Hash,
+    SBoM.CycloneDX.V14.Hash,
+    SBoM.CycloneDX.V13.Hash
   ] do
   alias SBoM.CycloneDX.Common.EnumHelpers
   alias SBoM.CycloneDX.JSON.Decoder
@@ -380,11 +380,11 @@ end
 
 defimpl SBoM.CycloneDX.JSON.Decodable,
   for: [
-    SBoM.Cyclonedx.V17.ExternalReference,
-    SBoM.Cyclonedx.V16.ExternalReference,
-    SBoM.Cyclonedx.V15.ExternalReference,
-    SBoM.Cyclonedx.V14.ExternalReference,
-    SBoM.Cyclonedx.V13.ExternalReference
+    SBoM.CycloneDX.V17.ExternalReference,
+    SBoM.CycloneDX.V16.ExternalReference,
+    SBoM.CycloneDX.V15.ExternalReference,
+    SBoM.CycloneDX.V14.ExternalReference,
+    SBoM.CycloneDX.V13.ExternalReference
   ] do
   alias SBoM.CycloneDX.Common.EnumHelpers
   alias SBoM.CycloneDX.JSON.Decoder
@@ -409,11 +409,11 @@ end
 
 defimpl SBoM.CycloneDX.JSON.Decodable,
   for: [
-    SBoM.Cyclonedx.V17.Dependency,
-    SBoM.Cyclonedx.V16.Dependency,
-    SBoM.Cyclonedx.V15.Dependency,
-    SBoM.Cyclonedx.V14.Dependency,
-    SBoM.Cyclonedx.V13.Dependency
+    SBoM.CycloneDX.V17.Dependency,
+    SBoM.CycloneDX.V16.Dependency,
+    SBoM.CycloneDX.V15.Dependency,
+    SBoM.CycloneDX.V14.Dependency,
+    SBoM.CycloneDX.V13.Dependency
   ] do
   alias SBoM.CycloneDX.JSON.Decoder
 

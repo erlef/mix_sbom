@@ -9,14 +9,10 @@ defmodule SBoM.CLI do
   # This module is used by both the Mix task and escript implementations.
 
   alias SBoM.CycloneDX
-  alias SBoM.Fetcher
 
   @version Mix.Project.config()[:version]
 
   @type cli_mode() :: :mix | :escript | :burrito
-  @type format() :: :xml | :json | :protobuf
-  @type schema_version() :: String.t()
-  @type pretty() :: boolean()
 
   @schema_versions ~w[1.7 1.6 1.5 1.4 1.3]
 
@@ -87,13 +83,13 @@ defmodule SBoM.CLI do
 
   @spec generate_bom_content_in_app(Optimus.ParseResult.t()) :: :ok
   defp generate_bom_content_in_app(parse_result) do
-    Fetcher.fetch()
-    |> CycloneDX.bom(
+    [
       version: parse_result.options.schema,
       only: parse_result.options.only,
       targets: parse_result.options.targets,
       classification: parse_result.options.classification
-    )
+    ]
+    |> CycloneDX.bom()
     |> CycloneDX.encode(parse_result.options.format, parse_result.flags.pretty)
     |> write_file(parse_result.options.output, parse_result.flags.force)
   end
@@ -134,7 +130,7 @@ defmodule SBoM.CLI do
     end
   end
 
-  @spec safe_decode(String.t(), format()) :: {:ok, CycloneDX.t()} | {:error, any()}
+  @spec safe_decode(String.t(), CycloneDX.format()) :: {:ok, CycloneDX.t()} | {:error, any()}
   defp safe_decode(content, format) do
     {:ok, CycloneDX.decode(content, format)}
   rescue
@@ -361,7 +357,7 @@ defmodule SBoM.CLI do
     end)
   end
 
-  @spec format_from_path(Path.t()) :: format()
+  @spec format_from_path(Path.t()) :: CycloneDX.format()
   defp format_from_path(path) do
     case Path.extname(path) do
       ".json" -> :json
@@ -371,13 +367,13 @@ defmodule SBoM.CLI do
     end
   end
 
-  @spec parse_schema(String.t()) :: {:ok, schema_version()} | {:error, String.t()}
+  @spec parse_schema(String.t()) :: {:ok, CycloneDX.schema_version()} | {:error, String.t()}
   defp parse_schema(schema)
   defp parse_schema(schema) when schema in @schema_versions, do: {:ok, schema}
 
   defp parse_schema(_other), do: {:error, "available versions are #{Enum.join(@schema_versions, ", ")}"}
 
-  @spec parse_format(String.t()) :: {:ok, format()} | {:error, String.t()}
+  @spec parse_format(String.t()) :: {:ok, CycloneDX.format()} | {:error, String.t()}
   defp parse_format(format)
   defp parse_format("xml"), do: {:ok, :xml}
   defp parse_format("json"), do: {:ok, :json}

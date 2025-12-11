@@ -4,7 +4,7 @@
 defmodule SBoM.CycloneDX.Protobuf do
   @moduledoc false
 
-  alias SBoM.Cyclonedx.V17.Bom
+  alias SBoM.CycloneDX.V17.Bom
 
   @spec encode(SBoM.CycloneDX.t()) :: iodata()
   def encode(%module{} = bom), do: module.encode(bom)

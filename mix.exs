@@ -150,7 +150,14 @@ defmodule SBoM.MixProject do
   defp docs do
     [
       main: "SBoM",
-      source_ref: "v#{@version}"
+      source_ref: "v#{@version}",
+      nest_modules_by_prefix: [
+        SBoM.CycloneDX.V13,
+        SBoM.CycloneDX.V14,
+        SBoM.CycloneDX.V15,
+        SBoM.CycloneDX.V16,
+        SBoM.CycloneDX.V17
+      ]
     ]
   end
 

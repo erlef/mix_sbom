@@ -1,9 +1,11 @@
-defmodule SBoM.Cyclonedx.V17.Condition do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.Condition do
+  @moduledoc """
+  A condition that was used to determine a trigger should be activated.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:description, 1, proto3_optional: true, type: :string)
   field(:expression, 2, proto3_optional: true, type: :string)
-  field(:properties, 3, repeated: true, type: SBoM.Cyclonedx.V17.Property)
+  field(:properties, 3, repeated: true, type: SBoM.CycloneDX.V17.Property)
 end

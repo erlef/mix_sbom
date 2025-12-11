@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V17.ReleaseNotes do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V17.ReleaseNotes do
+  @moduledoc "CycloneDX ReleaseNotes model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:type, 1, type: :string)
@@ -11,7 +10,7 @@ defmodule SBoM.Cyclonedx.V17.ReleaseNotes do
   field(:timestamp, 6, proto3_optional: true, type: Google.Protobuf.Timestamp)
   field(:aliases, 7, repeated: true, type: :string)
   field(:tags, 8, repeated: true, type: :string)
-  field(:resolves, 9, repeated: true, type: SBoM.Cyclonedx.V17.Issue)
-  field(:notes, 10, repeated: true, type: SBoM.Cyclonedx.V17.Note)
-  field(:properties, 11, repeated: true, type: SBoM.Cyclonedx.V17.Property)
+  field(:resolves, 9, repeated: true, type: SBoM.CycloneDX.V17.Issue)
+  field(:notes, 10, repeated: true, type: SBoM.CycloneDX.V17.Note)
+  field(:properties, 11, repeated: true, type: SBoM.CycloneDX.V17.Property)
 end

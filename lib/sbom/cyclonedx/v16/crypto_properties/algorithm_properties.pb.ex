@@ -1,11 +1,13 @@
-defmodule SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties do
+  @moduledoc """
+  Algorithm Propertie
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:primitive, 1,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoPrimitive,
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoPrimitive,
     enum: true
   )
 
@@ -14,13 +16,13 @@ defmodule SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties do
 
   field(:executionEnvironment, 4,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoExecutionEnvironment,
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoExecutionEnvironment,
     enum: true
   )
 
   field(:implementationPlatform, 5,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoImplementationPlatform,
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoImplementationPlatform,
     enum: true
   )
 
@@ -28,19 +30,19 @@ defmodule SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties do
 
   field(:mode, 7,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmMode,
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmMode,
     enum: true
   )
 
   field(:padding, 8,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmPadding,
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmPadding,
     enum: true
   )
 
   field(:cryptoFunctions, 9,
     repeated: true,
-    type: SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmFunction,
+    type: SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmFunction,
     enum: true
   )
 

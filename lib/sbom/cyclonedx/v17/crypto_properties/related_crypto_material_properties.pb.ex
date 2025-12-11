@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptoMaterialProperties do
+  @moduledoc """
+  Related Cryptographic Material Properties
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
@@ -7,7 +9,7 @@ defmodule SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties do
 
   field(:type, 1,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedType,
+    type: SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedType,
     enum: true
   )
 
@@ -15,7 +17,7 @@ defmodule SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties do
 
   field(:state, 3,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedState,
+    type: SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedState,
     enum: true
   )
 
@@ -30,13 +32,13 @@ defmodule SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties do
 
   field(:securedBy, 12,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedSecuredBy
+    type: SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedSecuredBy
   )
 
-  field(:fingerprint, 13, proto3_optional: true, type: SBoM.Cyclonedx.V17.Hash)
+  field(:fingerprint, 13, proto3_optional: true, type: SBoM.CycloneDX.V17.Hash)
 
   field(:relatedCryptographicAssets, 14,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptographicAssets
+    type: SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptographicAssets
   )
 end

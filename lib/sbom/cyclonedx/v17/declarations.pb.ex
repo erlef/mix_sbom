@@ -1,12 +1,14 @@
-defmodule SBoM.Cyclonedx.V17.Declarations do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.Declarations do
+  @moduledoc """
+  The list of declarations which describe the conformance to standards. Each declaration may include attestations, claims, and evidence.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  field(:assessors, 1, repeated: true, type: SBoM.Cyclonedx.V17.Declarations.Assessor)
-  field(:attestations, 2, repeated: true, type: SBoM.Cyclonedx.V17.Declarations.Attestation)
-  field(:claims, 3, repeated: true, type: SBoM.Cyclonedx.V17.Declarations.Claim)
-  field(:evidence, 4, repeated: true, type: SBoM.Cyclonedx.V17.Declarations.Evidence)
-  field(:targets, 5, proto3_optional: true, type: SBoM.Cyclonedx.V17.Declarations.Targets)
-  field(:affirmation, 6, proto3_optional: true, type: SBoM.Cyclonedx.V17.Declarations.Affirmation)
+  field(:assessors, 1, repeated: true, type: SBoM.CycloneDX.V17.Declarations.Assessor)
+  field(:attestations, 2, repeated: true, type: SBoM.CycloneDX.V17.Declarations.Attestation)
+  field(:claims, 3, repeated: true, type: SBoM.CycloneDX.V17.Declarations.Claim)
+  field(:evidence, 4, repeated: true, type: SBoM.CycloneDX.V17.Declarations.Evidence)
+  field(:targets, 5, proto3_optional: true, type: SBoM.CycloneDX.V17.Declarations.Targets)
+  field(:affirmation, 6, proto3_optional: true, type: SBoM.CycloneDX.V17.Declarations.Affirmation)
 end

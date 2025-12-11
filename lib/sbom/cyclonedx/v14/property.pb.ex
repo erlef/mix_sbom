@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V14.Property do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V14.Property do
+  @moduledoc """
+  Specifies a property
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

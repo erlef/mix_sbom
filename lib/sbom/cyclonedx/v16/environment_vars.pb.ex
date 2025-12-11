@@ -1,10 +1,9 @@
-defmodule SBoM.Cyclonedx.V16.EnvironmentVars do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V16.EnvironmentVars do
+  @moduledoc "CycloneDX EnvironmentVars model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   oneof(:choice, 0)
 
-  field(:property, 1, type: SBoM.Cyclonedx.V16.Property, oneof: 0)
+  field(:property, 1, type: SBoM.CycloneDX.V16.Property, oneof: 0)
   field(:value, 2, type: :string, oneof: 0)
 end
