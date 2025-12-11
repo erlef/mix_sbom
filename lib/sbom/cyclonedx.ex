@@ -384,11 +384,8 @@ defmodule SBoM.CycloneDX do
   defp dependency_scope(dependency) do
     optional? = Map.get(dependency, :optional, false)
 
-    prod? =
-      case Map.get(dependency, :only, []) do
-        :* -> true
-        only -> :prod in List.wrap(only)
-      end
+    only = Map.get(dependency, :only, [:*])
+    prod? = :prod in List.wrap(only) or :* in List.wrap(only)
 
     cond do
       optional? ->
