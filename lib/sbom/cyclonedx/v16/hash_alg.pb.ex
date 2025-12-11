@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V16.HashAlg do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V16.HashAlg do
+  @moduledoc "CycloneDX HashAlg model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:HASH_ALG_NULL, 0)

@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V15.Trigger.TriggerType do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V15.Trigger.TriggerType do
+  @moduledoc "CycloneDX Trigger.TriggerType model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:TRIGGER_TYPE_MANUAL, 0)

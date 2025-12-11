@@ -1,8 +1,7 @@
-defmodule SBoM.Cyclonedx.V14.Diff do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V14.Diff do
+  @moduledoc "CycloneDX Diff model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  field(:text, 1, proto3_optional: true, type: SBoM.Cyclonedx.V14.AttachedText)
+  field(:text, 1, proto3_optional: true, type: SBoM.CycloneDX.V14.AttachedText)
   field(:url, 2, proto3_optional: true, type: :string)
 end

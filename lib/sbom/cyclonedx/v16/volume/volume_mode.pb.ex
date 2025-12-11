@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V16.Volume.VolumeMode do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V16.Volume.VolumeMode do
+  @moduledoc "CycloneDX Volume.VolumeMode model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:VOLUME_MODE_FILESYSTEM, 0)

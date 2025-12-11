@@ -1,10 +1,9 @@
-defmodule SBoM.Cyclonedx.V14.ExternalReference do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V14.ExternalReference do
+  @moduledoc "CycloneDX ExternalReference model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
-  field(:type, 1, type: SBoM.Cyclonedx.V14.ExternalReferenceType, enum: true)
+  field(:type, 1, type: SBoM.CycloneDX.V14.ExternalReferenceType, enum: true)
   field(:url, 2, type: :string)
   field(:comment, 3, proto3_optional: true, type: :string)
-  field(:hashes, 4, repeated: true, type: SBoM.Cyclonedx.V14.Hash)
+  field(:hashes, 4, repeated: true, type: SBoM.CycloneDX.V14.Hash)
 end

@@ -53,11 +53,11 @@ end
 
 defimpl SBoM.CycloneDX.XML.Encodable,
   for: [
-    SBoM.Cyclonedx.V17.ExternalReference,
-    SBoM.Cyclonedx.V16.ExternalReference,
-    SBoM.Cyclonedx.V15.ExternalReference,
-    SBoM.Cyclonedx.V14.ExternalReference,
-    SBoM.Cyclonedx.V13.ExternalReference
+    SBoM.CycloneDX.V17.ExternalReference,
+    SBoM.CycloneDX.V16.ExternalReference,
+    SBoM.CycloneDX.V15.ExternalReference,
+    SBoM.CycloneDX.V14.ExternalReference,
+    SBoM.CycloneDX.V13.ExternalReference
   ] do
   alias SBoM.CycloneDX.Common.EnumHelpers
   alias SBoM.CycloneDX.XML.Encoder
@@ -87,11 +87,11 @@ end
 
 defimpl SBoM.CycloneDX.XML.Encodable,
   for: [
-    SBoM.Cyclonedx.V17.Hash,
-    SBoM.Cyclonedx.V16.Hash,
-    SBoM.Cyclonedx.V15.Hash,
-    SBoM.Cyclonedx.V14.Hash,
-    SBoM.Cyclonedx.V13.Hash
+    SBoM.CycloneDX.V17.Hash,
+    SBoM.CycloneDX.V16.Hash,
+    SBoM.CycloneDX.V15.Hash,
+    SBoM.CycloneDX.V14.Hash,
+    SBoM.CycloneDX.V13.Hash
   ] do
   alias SBoM.CycloneDX.Common.EnumHelpers
 
@@ -104,11 +104,11 @@ end
 
 defimpl SBoM.CycloneDX.XML.Encodable,
   for: [
-    SBoM.Cyclonedx.V17.Component,
-    SBoM.Cyclonedx.V16.Component,
-    SBoM.Cyclonedx.V15.Component,
-    SBoM.Cyclonedx.V14.Component,
-    SBoM.Cyclonedx.V13.Component
+    SBoM.CycloneDX.V17.Component,
+    SBoM.CycloneDX.V16.Component,
+    SBoM.CycloneDX.V15.Component,
+    SBoM.CycloneDX.V14.Component,
+    SBoM.CycloneDX.V13.Component
   ] do
   alias SBoM.CycloneDX.Common.EnumHelpers
   alias SBoM.CycloneDX.XML.Encoder
@@ -182,7 +182,7 @@ defimpl SBoM.CycloneDX.XML.Encodable, for: Google.Protobuf.Timestamp do
   end
 end
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Bom,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Bom,
   element_name: :bom,
   attributes: [
     {:version, :version},
@@ -208,7 +208,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Bom,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Bom,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Bom,
   element_name: :bom,
   attributes: [
     {:version, :version},
@@ -233,7 +233,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Bom,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Bom,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Bom,
   element_name: :bom,
   attributes: [
     {:version, :version},
@@ -256,7 +256,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Bom,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Bom,
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Bom,
   element_name: :bom,
   attributes: [
     {:version, :version},
@@ -276,7 +276,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Bom,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Bom,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.Bom,
   element_name: :bom,
   attributes: [
     {:version, :version},
@@ -295,7 +295,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Bom,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Metadata,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Metadata,
   elements: [
     {:timestamp, :timestamp, :wrap},
     {:lifecycles, :lifecycles, :wrap},
@@ -311,7 +311,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Metadata,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Metadata,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Metadata,
   elements: [
     {:timestamp, :timestamp, :wrap},
     {:lifecycles, :lifecycles, :wrap},
@@ -326,7 +326,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Metadata,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Metadata,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Metadata,
   elements: [
     {:timestamp, :timestamp, :wrap},
     {:lifecycles, :lifecycles, :wrap},
@@ -340,7 +340,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Metadata,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Metadata,
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Metadata,
   elements: [
     {:timestamp, :timestamp, :wrap},
     {:tools, :tools, :wrap},
@@ -353,7 +353,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Metadata,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Metadata,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.Metadata,
   elements: [
     {:timestamp, :timestamp, :wrap},
     {:tools, :tools, :wrap},
@@ -366,7 +366,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Metadata,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Tool,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Tool,
   element_name: :tool,
   elements: [
     {:vendor, :vendor, :wrap},
@@ -377,7 +377,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Tool,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Tool,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Tool,
   element_name: :tool,
   elements: [
     {:vendor, :vendor, :wrap},
@@ -388,7 +388,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Tool,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Tool,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Tool,
   element_name: :tool,
   elements: [
     {:vendor, :vendor, :wrap},
@@ -399,7 +399,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Tool,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Tool,
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Tool,
   element_name: :tool,
   elements: [
     {:vendor, :vendor, :wrap},
@@ -410,7 +410,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Tool,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Tool,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.Tool,
   element_name: :tool,
   elements: [
     {:vendor, :vendor, :wrap},
@@ -420,7 +420,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Tool,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.OrganizationalEntity,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.OrganizationalEntity,
   elements: [
     {:name, :name, :wrap},
     {:url, :url, :wrap},
@@ -428,7 +428,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V17.OrganizationalEntity,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.OrganizationalEntity,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.OrganizationalEntity,
   elements: [
     {:name, :name, :wrap},
     {:url, :url, :wrap},
@@ -436,7 +436,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.OrganizationalEntity,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.OrganizationalEntity,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.OrganizationalEntity,
   elements: [
     {:name, :name, :wrap},
     {:url, :url, :wrap},
@@ -444,7 +444,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.OrganizationalEntity,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.OrganizationalEntity,
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.OrganizationalEntity,
   elements: [
     {:name, :name, :wrap},
     {:url, :url, :wrap},
@@ -452,7 +452,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.OrganizationalEntity,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.OrganizationalEntity,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.OrganizationalEntity,
   elements: [
     {:name, :name, :wrap},
     {:url, :url, :wrap},
@@ -460,7 +460,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.OrganizationalEntity,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.LicenseChoice,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.LicenseChoice,
   element_name: :license,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -471,7 +471,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V17.LicenseChoice,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.LicenseChoice,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.LicenseChoice,
   element_name: :licenses,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -482,7 +482,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.LicenseChoice,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.LicenseChoice,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.LicenseChoice,
   element_name: :licenses,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -493,7 +493,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.LicenseChoice,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.LicenseChoice,
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.LicenseChoice,
   element_name: :licenses,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -504,7 +504,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.LicenseChoice,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.LicenseChoice,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.LicenseChoice,
   element_name: :licenses,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -515,22 +515,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.LicenseChoice,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.License,
-  element_name: :license,
-  attributes: [
-    {:"bom-ref", :bom_ref}
-  ],
-  elements: [
-    {:id, {:license, :id}, :wrap},
-    {:name, {:license, :name}, :wrap},
-    {:text, :text, :unwrap},
-    {:url, :url, :wrap},
-    {:licensing, :licensing, :unwrap},
-    {:properties, :properties, :unwrap}
-  ]
-)
-
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.License,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.License,
   element_name: :license,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -545,7 +530,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.License,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.License,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.License,
   element_name: :license,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -560,7 +545,22 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.License,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.License,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.License,
+  element_name: :license,
+  attributes: [
+    {:"bom-ref", :bom_ref}
+  ],
+  elements: [
+    {:id, {:license, :id}, :wrap},
+    {:name, {:license, :name}, :wrap},
+    {:text, :text, :unwrap},
+    {:url, :url, :wrap},
+    {:licensing, :licensing, :unwrap},
+    {:properties, :properties, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.License,
   element_name: :license,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -573,7 +573,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.License,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.License,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.License,
   element_name: :license,
   attributes: [
     {:"bom-ref", :bom_ref}
@@ -586,7 +586,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V13.License,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Dependency,
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Dependency,
   element_name: :dependency,
   attributes: [
     {:ref, :ref}
@@ -596,7 +596,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V17.Dependency,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Dependency,
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Dependency,
   element_name: :dependency,
   attributes: [
     {:ref, :ref}
@@ -606,7 +606,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V16.Dependency,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Dependency,
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Dependency,
   element_name: :dependency,
   attributes: [
     {:ref, :ref}
@@ -616,7 +616,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V15.Dependency,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Dependency,
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Dependency,
   element_name: :dependency,
   attributes: [
     {:ref, :ref}
@@ -626,7 +626,7 @@ Protocol.derive(Encodable, SBoM.Cyclonedx.V14.Dependency,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.Cyclonedx.V13.Dependency,
+Protocol.derive(Encodable, SBoM.CycloneDX.V13.Dependency,
   element_name: :dependency,
   attributes: [
     {:ref, :ref}

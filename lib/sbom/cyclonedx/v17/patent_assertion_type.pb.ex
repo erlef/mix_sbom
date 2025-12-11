@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.PatentAssertionType do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.PatentAssertionType do
+  @moduledoc """
+  The type of assertion being made about the patent or patent family. Examples include ownership, licensing, and standards inclusion.
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

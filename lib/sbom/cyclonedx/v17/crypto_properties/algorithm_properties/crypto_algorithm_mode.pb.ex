@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.CryptoProperties.AlgorithmProperties.CryptoAlgorithmMode do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.CryptoProperties.AlgorithmProperties.CryptoAlgorithmMode do
+  @moduledoc """
+  Mode
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

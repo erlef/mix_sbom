@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.CryptoProperties.ProtocolProperties.Ikev2TransformTypes do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.CryptoProperties.ProtocolProperties.Ikev2TransformTypes do
+  @moduledoc """
+  IKEv2 Transform Types
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

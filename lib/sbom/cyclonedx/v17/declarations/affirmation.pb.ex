@@ -1,12 +1,11 @@
-defmodule SBoM.Cyclonedx.V17.Declarations.Affirmation do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V17.Declarations.Affirmation do
+  @moduledoc "CycloneDX Declarations.Affirmation model."
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:statement, 1, proto3_optional: true, type: :string)
 
   field(:signatories, 2,
     repeated: true,
-    type: SBoM.Cyclonedx.V17.Declarations.Affirmation.Signatory
+    type: SBoM.CycloneDX.V17.Declarations.Affirmation.Signatory
   )
 end

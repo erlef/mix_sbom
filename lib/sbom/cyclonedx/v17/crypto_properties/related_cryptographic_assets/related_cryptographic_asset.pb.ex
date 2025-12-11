@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptographicAssets.RelatedCryptographicAsset do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptographicAssets.RelatedCryptographicAsset do
+  @moduledoc """
+  Related Cryptographic Asset
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

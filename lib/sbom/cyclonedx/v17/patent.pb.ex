@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.Patent do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.Patent do
+  @moduledoc """
+  A patent is a legal instrument, granted by an authority, that confers certain rights over an invention for a specified period, contingent on public disclosure and adherence to relevant legal requirements. The summary information in this object is aligned with [WIPO ST.96](https://www.wipo.int/standards/en/st96/) principles where applicable.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
@@ -18,7 +20,7 @@ defmodule SBoM.Cyclonedx.V17.Patent do
 
   field(:priority_application, 5,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.PriorityApplication,
+    type: SBoM.CycloneDX.V17.PriorityApplication,
     json_name: "priorityApplication"
   )
 
@@ -50,20 +52,20 @@ defmodule SBoM.Cyclonedx.V17.Patent do
   )
 
   field(:patent_legal_status, 12,
-    type: SBoM.Cyclonedx.V17.PatentLegalStatus,
+    type: SBoM.CycloneDX.V17.PatentLegalStatus,
     json_name: "patentLegalStatus",
     enum: true
   )
 
   field(:patent_assignee, 13,
     repeated: true,
-    type: SBoM.Cyclonedx.V17.OrganizationalEntityOrContact,
+    type: SBoM.CycloneDX.V17.OrganizationalEntityOrContact,
     json_name: "patentAssignee"
   )
 
   field(:external_references, 14,
     repeated: true,
-    type: SBoM.Cyclonedx.V17.ExternalReference,
+    type: SBoM.CycloneDX.V17.ExternalReference,
     json_name: "externalReferences"
   )
 end

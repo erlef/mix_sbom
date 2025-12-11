@@ -5,32 +5,32 @@ defmodule SBoM.CycloneDX.Common.EnumHelpers do
   @moduledoc false
 
   @type hash_alg() ::
-          SBoM.Cyclonedx.V13.HashAlg.t()
-          | SBoM.Cyclonedx.V14.HashAlg.t()
-          | SBoM.Cyclonedx.V15.HashAlg.t()
-          | SBoM.Cyclonedx.V16.HashAlg.t()
-          | SBoM.Cyclonedx.V17.HashAlg.t()
+          SBoM.CycloneDX.V13.HashAlg.t()
+          | SBoM.CycloneDX.V14.HashAlg.t()
+          | SBoM.CycloneDX.V15.HashAlg.t()
+          | SBoM.CycloneDX.V16.HashAlg.t()
+          | SBoM.CycloneDX.V17.HashAlg.t()
 
   @type external_reference_type() ::
-          SBoM.Cyclonedx.V13.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V14.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V15.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V16.ExternalReferenceType.t()
-          | SBoM.Cyclonedx.V17.ExternalReferenceType.t()
+          SBoM.CycloneDX.V13.ExternalReferenceType.t()
+          | SBoM.CycloneDX.V14.ExternalReferenceType.t()
+          | SBoM.CycloneDX.V15.ExternalReferenceType.t()
+          | SBoM.CycloneDX.V16.ExternalReferenceType.t()
+          | SBoM.CycloneDX.V17.ExternalReferenceType.t()
 
   @type classification() ::
-          SBoM.Cyclonedx.V13.Classification.t()
-          | SBoM.Cyclonedx.V14.Classification.t()
-          | SBoM.Cyclonedx.V15.Classification.t()
-          | SBoM.Cyclonedx.V16.Classification.t()
-          | SBoM.Cyclonedx.V17.Classification.t()
+          SBoM.CycloneDX.V13.Classification.t()
+          | SBoM.CycloneDX.V14.Classification.t()
+          | SBoM.CycloneDX.V15.Classification.t()
+          | SBoM.CycloneDX.V16.Classification.t()
+          | SBoM.CycloneDX.V17.Classification.t()
 
   @type scope() ::
-          SBoM.Cyclonedx.V13.Scope.t()
-          | SBoM.Cyclonedx.V14.Scope.t()
-          | SBoM.Cyclonedx.V15.Scope.t()
-          | SBoM.Cyclonedx.V16.Scope.t()
-          | SBoM.Cyclonedx.V17.Scope.t()
+          SBoM.CycloneDX.V13.Scope.t()
+          | SBoM.CycloneDX.V14.Scope.t()
+          | SBoM.CycloneDX.V15.Scope.t()
+          | SBoM.CycloneDX.V16.Scope.t()
+          | SBoM.CycloneDX.V17.Scope.t()
 
   @hash_alg_mappings %{
     HASH_ALG_NULL: "",

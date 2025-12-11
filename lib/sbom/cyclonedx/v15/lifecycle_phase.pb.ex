@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V15.LifecyclePhase do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V15.LifecyclePhase do
+  @moduledoc "CycloneDX LifecyclePhase model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:LIFECYCLE_PHASE_DESIGN, 0)

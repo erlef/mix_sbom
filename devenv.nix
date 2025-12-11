@@ -50,16 +50,24 @@ in
           protoc \
             --elixir_out=one_file_per_module=true:./lib \
             --elixir_opt=package_prefix=SBoM \
+            --elixir_opt=include_docs=true \
             "$PROTO"
         done
-        mv lib/s_bo_m/* lib/sbom/
+        mv lib/s_bo_m/cyclonedx/* lib/sbom/cyclonedx/;
         rm -rf lib/s_bo_m;
+        find lib/sbom/cyclonedx -path '*/v[0-9]*' -name '*.pb.ex' \
+          -exec sed -i 's/SBoM\.Cyclonedx/SBoM.CycloneDX/g' {} +;
+        find lib/sbom/cyclonedx -path '*/v[0-9]*' -name '*.pb.ex' \
+          -exec sed -i -zE \
+            's/(defmodule SBoM\.CycloneDX\.V[0-9]+\.([A-Za-z0-9.]+) do\n)(  [^@])/\1  @moduledoc "CycloneDX \2 model."\n\3/g' \
+            {} +;
         mix format
       '';
       packages = with pkgs; [
         pkgs-unstable.beam28Packages.erlang
         pkgs-unstable.beam28Packages.elixir_1_19
         protobuf
+        gnused
       ];
     };
   };

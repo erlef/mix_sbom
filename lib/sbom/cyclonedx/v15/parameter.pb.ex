@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V15.Parameter do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V15.Parameter do
+  @moduledoc """
+  A representation of a functional parameter.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

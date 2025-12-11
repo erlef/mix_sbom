@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.Declarations.Attestation.AttestationMap do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.Declarations.Attestation.AttestationMap do
+  @moduledoc """
+  Map
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
@@ -9,11 +11,11 @@ defmodule SBoM.Cyclonedx.V17.Declarations.Attestation.AttestationMap do
 
   field(:conformance, 4,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.Declarations.Attestation.AttestationMap.AttestationConformance
+    type: SBoM.CycloneDX.V17.Declarations.Attestation.AttestationMap.AttestationConformance
   )
 
   field(:confidence, 5,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.Declarations.Attestation.AttestationMap.AttestationConfidence
+    type: SBoM.CycloneDX.V17.Declarations.Attestation.AttestationMap.AttestationConfidence
   )
 end

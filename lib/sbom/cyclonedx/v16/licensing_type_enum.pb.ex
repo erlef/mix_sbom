@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.LicensingTypeEnum do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.LicensingTypeEnum do
+  @moduledoc """
+  buf:lint:ignore ENUM_VALUE_PREFIX -- Enum value names should be prefixed with "LICENSING_TYPE_ENUM_"
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

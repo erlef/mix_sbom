@@ -1,10 +1,12 @@
-defmodule SBoM.Cyclonedx.V17.CryptoProperties.CertificateExtensions.CommonExtension do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.CryptoProperties.CertificateExtensions.CommonExtension do
+  @moduledoc """
+  Common extension with predefined name
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:name, 1,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.CertificateExtensions.CommonExtensionName,
+    type: SBoM.CycloneDX.V17.CryptoProperties.CertificateExtensions.CommonExtensionName,
     enum: true
   )
 

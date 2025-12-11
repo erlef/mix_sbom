@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmPadding do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties.CryptoAlgorithmPadding do
+  @moduledoc """
+  Padding
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

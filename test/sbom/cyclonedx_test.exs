@@ -28,7 +28,7 @@ defmodule SBoM.CycloneDXTest do
 
       dependencies = Fetcher.transform_all(atom_dependencies)
 
-      bom = CycloneDX.bom(dependencies, version: schema)
+      bom = CycloneDX.bom_for_components(dependencies, version: schema)
 
       encoded_bom = CycloneDX.encode(bom, format)
 
@@ -51,11 +51,11 @@ defmodule SBoM.CycloneDXTest do
     components = Fetcher.fetch()
 
     # Default classification
-    bom_default = CycloneDX.bom(components)
+    bom_default = CycloneDX.bom_for_components(components)
     assert bom_default.metadata.component.type == :CLASSIFICATION_APPLICATION
 
     # Custom classification
-    bom_framework = CycloneDX.bom(components, classification: :CLASSIFICATION_FRAMEWORK)
+    bom_framework = CycloneDX.bom_for_components(components, classification: :CLASSIFICATION_FRAMEWORK)
     assert bom_framework.metadata.component.type == :CLASSIFICATION_FRAMEWORK
 
     # Dependencies remain LIBRARY
@@ -77,7 +77,7 @@ defmodule SBoM.CycloneDXTest do
       dependencies = Fetcher.transform_all(atom_dependencies)
 
       # Generate original BOM
-      original_bom = CycloneDX.bom(dependencies, version: schema)
+      original_bom = CycloneDX.bom_for_components(dependencies, version: schema)
 
       # Encode to XML
       xml_string = CycloneDX.encode(original_bom, :xml)
@@ -103,7 +103,7 @@ defmodule SBoM.CycloneDXTest do
       dependencies = Fetcher.transform_all(atom_dependencies)
 
       # Generate original BOM
-      original_bom = CycloneDX.bom(dependencies, version: schema)
+      original_bom = CycloneDX.bom_for_components(dependencies, version: schema)
 
       # Encode to JSON
       json_string = CycloneDX.encode(original_bom, :json)
@@ -129,7 +129,7 @@ defmodule SBoM.CycloneDXTest do
       dependencies = Fetcher.transform_all(atom_dependencies)
 
       # Generate original BOM
-      original_bom = CycloneDX.bom(dependencies, version: schema)
+      original_bom = CycloneDX.bom_for_components(dependencies, version: schema)
 
       # Encode to Protobuf
       protobuf_binary = CycloneDX.encode(original_bom, :protobuf)
@@ -154,7 +154,7 @@ defmodule SBoM.CycloneDXTest do
 
       dependencies = Fetcher.transform_all(atom_dependencies)
 
-      bom = CycloneDX.bom(dependencies)
+      bom = CycloneDX.bom_for_components(dependencies)
 
       pretty = CycloneDX.encode(bom, :json, true)
 
@@ -180,7 +180,7 @@ defmodule SBoM.CycloneDXTest do
 
           dependencies = Fetcher.transform_all(atom_dependencies)
 
-          bom = CycloneDX.bom(dependencies)
+          bom = CycloneDX.bom_for_components(dependencies)
 
           pretty = CycloneDX.encode(bom, :xml, true)
 
@@ -196,7 +196,7 @@ defmodule SBoM.CycloneDXTest do
         @tag :tmp_dir
         test "errors when not available" do
           components = Fetcher.fetch()
-          bom = CycloneDX.bom(components)
+          bom = CycloneDX.bom_for_components(components)
 
           # Pretty not available: we expect your helpful RuntimeError
           assert_raise RuntimeError,
@@ -211,7 +211,7 @@ defmodule SBoM.CycloneDXTest do
   describe "bom_ref generation" do
     test "generates readable bom_ref for components" do
       components = Fetcher.fetch()
-      bom = CycloneDX.bom(components)
+      bom = CycloneDX.bom_for_components(components)
 
       Enum.each(bom.components, fn comp ->
         assert String.starts_with?(comp.bom_ref, "otp:component:")

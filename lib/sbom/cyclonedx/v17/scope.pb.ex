@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V17.Scope do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V17.Scope do
+  @moduledoc "CycloneDX Scope model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:SCOPE_UNSPECIFIED, 0)

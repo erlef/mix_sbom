@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.ModelCard.ModelCardConsiderations.EnergyConsumption.ActivityType do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.ModelCard.ModelCardConsiderations.EnergyConsumption.ActivityType do
+  @moduledoc """
+  An activity that is part of a machine learning model development or operational lifecycle.
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

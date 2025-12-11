@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.Severity do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.Severity do
+  @moduledoc """
+  Textual representation of the severity of the vulnerability adopted by the analysis method. If the analysis method uses values other than what is provided, the user is expected to translate appropriately.
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

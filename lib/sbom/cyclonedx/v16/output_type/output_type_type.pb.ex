@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V16.OutputType.OutputTypeType do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V16.OutputType.OutputTypeType do
+  @moduledoc """
+  buf:lint:ignore ENUM_VALUE_PREFIX -- Enum value names should be prefixed with "OUTPUT_TYPE_TYPE_"
+  """
 
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 

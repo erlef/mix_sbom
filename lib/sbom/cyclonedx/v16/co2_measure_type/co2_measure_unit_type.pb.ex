@@ -1,6 +1,5 @@
-defmodule SBoM.Cyclonedx.V16.CO2MeasureType.CO2MeasureUnitType do
-  @moduledoc false
-
+defmodule SBoM.CycloneDX.V16.CO2MeasureType.CO2MeasureUnitType do
+  @moduledoc "CycloneDX CO2MeasureType.CO2MeasureUnitType model."
   use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
   field(:CO2_MEASURE_UNIT_TYPE_UNSPECIFIED, 0)

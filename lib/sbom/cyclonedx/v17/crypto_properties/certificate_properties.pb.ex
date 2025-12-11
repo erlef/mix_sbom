@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.CryptoProperties.CertificateProperties do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.CryptoProperties.CertificateProperties do
+  @moduledoc """
+  Certificate Properties
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
@@ -15,11 +17,11 @@ defmodule SBoM.Cyclonedx.V17.CryptoProperties.CertificateProperties do
   field(:certificateFormat, 7, proto3_optional: true, type: :string)
   field(:certificateExtension, 8, proto3_optional: true, type: :string, deprecated: true)
   field(:certificateFileExtension, 10, proto3_optional: true, type: :string)
-  field(:fingerprint, 11, proto3_optional: true, type: SBoM.Cyclonedx.V17.Hash)
+  field(:fingerprint, 11, proto3_optional: true, type: SBoM.CycloneDX.V17.Hash)
 
   field(:certificateState, 12,
     repeated: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.CertificateState
+    type: SBoM.CycloneDX.V17.CryptoProperties.CertificateState
   )
 
   field(:creationDate, 13, proto3_optional: true, type: Timestamp)
@@ -30,11 +32,11 @@ defmodule SBoM.Cyclonedx.V17.CryptoProperties.CertificateProperties do
 
   field(:certificateExtensions, 18,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.CertificateExtensions
+    type: SBoM.CycloneDX.V17.CryptoProperties.CertificateExtensions
   )
 
   field(:relatedCryptographicAssets, 19,
     proto3_optional: true,
-    type: SBoM.Cyclonedx.V17.CryptoProperties.RelatedCryptographicAssets
+    type: SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptographicAssets
   )
 end

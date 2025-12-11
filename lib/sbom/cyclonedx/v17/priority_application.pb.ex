@@ -1,5 +1,7 @@
-defmodule SBoM.Cyclonedx.V17.PriorityApplication do
-  @moduledoc false
+defmodule SBoM.CycloneDX.V17.PriorityApplication do
+  @moduledoc """
+  The priorityApplication contains the essential data necessary to identify and reference an earlier patent filing for priority rights. In line with WIPO ST.96 guidelines, it includes the jurisdiction (office code), application number, and filing date-the three key elements that uniquely specify the priority application in a global patent context.
+  """
 
   use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
 
