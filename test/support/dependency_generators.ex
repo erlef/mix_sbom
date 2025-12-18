@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+# SPDX-FileCopyrightText: 2025 Stritzinger GmbH
 
 # credo:disable-for-this-file Credo.Check.Refactor.ABCSize
 defmodule SBoM.DependencyGenerators do

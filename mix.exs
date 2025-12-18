@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2019 Bram Verburg
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+# SPDX-FileCopyrightText: 2025 Stritzinger GmbH
 
 defmodule SBoM.MixProject do
   use Mix.Project
