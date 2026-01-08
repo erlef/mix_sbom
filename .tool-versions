@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
-erlang 28.1.1
+erlang 28.3
 elixir 1.19.4
 zig 0.15.2
