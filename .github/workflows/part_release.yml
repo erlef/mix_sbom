@@ -31,7 +31,7 @@ jobs:
         uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
         with:
           egress-policy: audit
-            
+
       - name: "Download Docs Artifact"
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
@@ -45,7 +45,7 @@ jobs:
       - name: "Download Source SBoM Artifact"
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          name: source_sbom
+          name: sbom
           path: .
 
       - name: Create release
@@ -60,4 +60,4 @@ jobs:
           --generate-notes
           ${{ !inputs.stable && '--prerelease' || '' }}
           "$RELEASE_NAME"
-          docs.tar.gz* mix_sbom* source_sbom*
+          docs.tar.gz* mix_sbom_* sbom.*
