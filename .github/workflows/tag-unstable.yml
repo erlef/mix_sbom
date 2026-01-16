@@ -42,10 +42,22 @@ jobs:
 
     uses: ./.github/workflows/part_docs.yml
 
+  attest_sbom:
+    name: "Attest SBOM"
+
+    needs: ["build", "licensing", "docs"]
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_attest_sbom.yml
+
   release:
     name: Create Release
 
-    needs: ["build", "licensing", "docs"]
+    needs: ["build", "licensing", "docs", "attest_sbom"]
 
     permissions:
       contents: write
