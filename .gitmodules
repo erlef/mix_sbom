@@ -1,6 +1,0 @@
-# SPDX-License-Identifier: BSD-3-Clause
-# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
-
-[submodule "schemas/cyclonedx"]
-	path = schemas/cyclonedx
-	url = https://github.com/CycloneDX/specification.git

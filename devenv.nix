@@ -42,11 +42,23 @@ in
       exec = ''
         set -euo pipefail
 
+        # CycloneDX specification commit (1.7)
+        CYCLONEDX_SHA="4b3f59453366e27c8073fd24e98bf21ef8892c8e"
+        PROTO_DIR="schemas/cyclonedx"
+
+        # Download proto files from GitHub
+        rm -rf "$PROTO_DIR"
+        mkdir -p "$PROTO_DIR"
+        for VERSION in 1.3 1.4 1.5 1.6 1.7; do
+          curl -fsSL "https://raw.githubusercontent.com/CycloneDX/specification/''${CYCLONEDX_SHA}/schema/bom-''${VERSION}.proto" \
+            -o "$PROTO_DIR/bom-''${VERSION}.proto"
+        done
+
         PATH="$HOME/.mix/escripts:$PATH"
         mix local.hex --force --if-missing
         mix escript.install hex protobuf 0.15.0 --force
         rm -rf lib/sbom/cyclonedx/v*;
-        for PROTO in schemas/cyclonedx/schema/bom-1.*.proto; do
+        for PROTO in "$PROTO_DIR"/bom-1.*.proto; do
           protoc \
             --elixir_out=one_file_per_module=true:./lib \
             --elixir_opt=package_prefix=SBoM \
@@ -61,6 +73,10 @@ in
           -exec sed -i -zE \
             's/(defmodule SBoM\.CycloneDX\.V[0-9]+\.([A-Za-z0-9.]+) do\n)(  [^@])/\1  @moduledoc "CycloneDX \2 model."\n\3/g' \
             {} +;
+
+        # Clean up downloaded protos
+        rm -rf "$PROTO_DIR"
+
         mix format
       '';
       packages = with pkgs; [
@@ -68,6 +84,7 @@ in
         pkgs-unstable.beam28Packages.elixir_1_19
         protobuf
         gnused
+        curl
       ];
     };
   };
