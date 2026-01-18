@@ -9,7 +9,27 @@ defmodule SBoM.FetcherTest do
 
   doctest Fetcher
 
-  describe inspect(&Fetcher.fetch/0) do
+  describe "system dependencies option" do
+    test "includes system dependencies by default" do
+      deps = Fetcher.fetch()
+
+      assert Map.has_key?(deps, "elixir")
+      assert Map.has_key?(deps, "kernel")
+      assert Map.has_key?(deps, "stdlib")
+    end
+
+    test "excludes system dependencies when option is false" do
+      deps = Fetcher.fetch(system_dependencies: false)
+
+      refute Map.has_key?(deps, "elixir")
+      refute Map.has_key?(deps, "kernel")
+      refute Map.has_key?(deps, "stdlib")
+      refute Map.has_key?(deps, "logger")
+      refute Map.has_key?(deps, "mix")
+    end
+  end
+
+  describe inspect(&Fetcher.fetch/1) do
     @tag :tmp_dir
     @tag fixture_app: "filterable"
     test "correctly sets only and targets for dependencies", %{app_path: app_path} do
