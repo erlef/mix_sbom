@@ -439,3 +439,63 @@ defimpl SBoM.CycloneDX.JSON.Decodable,
     end
   end
 end
+
+defimpl SBoM.CycloneDX.JSON.Decodable,
+  for: [SBoM.CycloneDX.V17.License, SBoM.CycloneDX.V16.License] do
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.JSON.Decoder
+
+  @impl Decodable
+  def from_json_data(%{} = struct, data) when is_map(data) do
+    data = transform_acknowledgement_field(data)
+    Decoder.decode_struct(struct, data)
+  end
+
+  @spec transform_acknowledgement_field(map()) :: map()
+  defp transform_acknowledgement_field(data) do
+    case Map.get(data, "acknowledgement") do
+      nil ->
+        data
+
+      ack_string ->
+        case EnumHelpers.string_to_license_acknowledgement(ack_string) do
+          nil -> Map.delete(data, "acknowledgement")
+          enum_value -> Map.put(data, "acknowledgement", Atom.to_string(enum_value))
+        end
+    end
+  end
+end
+
+defimpl SBoM.CycloneDX.JSON.Decodable,
+  for: [
+    SBoM.CycloneDX.V17.LicenseChoice,
+    SBoM.CycloneDX.V16.LicenseChoice
+  ] do
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.JSON.Decoder
+
+  @impl Decodable
+  def from_json_data(%{} = struct, data) when is_map(data) do
+    data =
+      case data do
+        %{"expression" => _expression} -> transform_acknowledgement_field(data)
+        _other -> data
+      end
+
+    Decoder.decode_struct(struct, data)
+  end
+
+  @spec transform_acknowledgement_field(map()) :: map()
+  defp transform_acknowledgement_field(data) do
+    case Map.get(data, "acknowledgement") do
+      nil ->
+        data
+
+      ack_string ->
+        case EnumHelpers.string_to_license_acknowledgement(ack_string) do
+          nil -> data
+          enum_value -> Map.put(data, "acknowledgement", Atom.to_string(enum_value))
+        end
+    end
+  end
+end

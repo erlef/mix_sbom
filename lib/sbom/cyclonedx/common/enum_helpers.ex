@@ -32,6 +32,10 @@ defmodule SBoM.CycloneDX.Common.EnumHelpers do
           | SBoM.CycloneDX.V16.Scope.t()
           | SBoM.CycloneDX.V17.Scope.t()
 
+  @type license_acknowledgement() ::
+          SBoM.CycloneDX.V16.LicenseAcknowledgementEnumeration.t()
+          | SBoM.CycloneDX.V17.LicenseAcknowledgementEnumeration.t()
+
   @hash_alg_mappings %{
     HASH_ALG_NULL: "",
     HASH_ALG_MD_5: "MD5",
@@ -124,6 +128,12 @@ defmodule SBoM.CycloneDX.Common.EnumHelpers do
     SCOPE_EXCLUDED: "excluded"
   }
 
+  @license_acknowledgement_mappings %{
+    LICENSE_ACKNOWLEDGEMENT_ENUMERATION_UNSPECIFIED: nil,
+    LICENSE_ACKNOWLEDGEMENT_ENUMERATION_DECLARED: "declared",
+    LICENSE_ACKNOWLEDGEMENT_ENUMERATION_CONCLUDED: "concluded"
+  }
+
   @spec hash_alg_to_string(hash_alg()) :: String.t()
   for {enum_value, string_value} <- @hash_alg_mappings do
     def hash_alg_to_string(unquote(enum_value)), do: unquote(string_value)
@@ -181,4 +191,18 @@ defmodule SBoM.CycloneDX.Common.EnumHelpers do
   end
 
   def string_to_scope(_unknown_string), do: nil
+
+  @spec license_acknowledgement_to_string(license_acknowledgement() | nil) :: String.t() | nil
+  for {enum_value, string_value} <- @license_acknowledgement_mappings do
+    def license_acknowledgement_to_string(unquote(enum_value)), do: unquote(string_value)
+  end
+
+  def license_acknowledgement_to_string(nil), do: nil
+
+  @spec string_to_license_acknowledgement(String.t()) :: license_acknowledgement() | nil
+  for {enum_value, string_value} <- @license_acknowledgement_mappings, not is_nil(string_value) do
+    def string_to_license_acknowledgement(unquote(string_value)), do: unquote(enum_value)
+  end
+
+  def string_to_license_acknowledgement(_unknown_string), do: nil
 end
