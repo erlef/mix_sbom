@@ -86,7 +86,7 @@ defmodule SBoM.SCM.Hex.SCM do
         version: "1.4.0",
         qualifiers: %{
           "checksum" => "sha256:checksum",
-          "download_url" => "https://repo.hex.pm/tarballs/jason-1.4.0.tar.gz"
+          "download_url" => "https://repo.hex.pm/tarballs/jason-1.4.0.tar"
         }
       }
   """
@@ -131,7 +131,7 @@ defmodule SBoM.SCM.Hex.SCM do
           Map.put(
             qualifiers,
             "download_url",
-            "#{repository_url}/tarballs/#{package_name}-#{version}.tar.gz"
+            "#{repository_url}/tarballs/#{package_name}-#{version}.tar"
           )
       end
 
