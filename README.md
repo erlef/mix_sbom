@@ -118,6 +118,8 @@ output; the task should normally be run in the default (dev) environment*
   for all available types.
 - `-f, --force`: Overwrite existing output file
 - `-r, --recurse`: Recurse into umbrella applications
+- `-x, --exclude-system-dependencies`: Exclude system dependencies (Erlang/OTP,
+  Elixir, Hex) from the SBoM
 
 For more information:
 
@@ -156,6 +158,8 @@ an SBoM for your project.
   (defaults to "json")
 - `reuse-beam`: Use local BEAM installation instead of pre-compiled binaries
   (defaults to "false")
+- `include-system-dependencies`: Include system dependencies (Erlang/OTP,
+  Elixir, Hex) in the SBoM (defaults to "true")
 
 ### Outputs
 

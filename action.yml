@@ -24,6 +24,10 @@ inputs:
     required: false
     description: "Use local BEAM installation instead of pre-compiled binaries. Requires Elixir/Erlang to be set up beforehand."
     default: "false"
+  include-system-dependencies:
+    required: false
+    description: "Include system dependencies (Erlang/OTP, Elixir, Hex) in the SBoM."
+    default: "true"
 outputs:
   sbom-path:
     description: "Path to the generated SBoM"
@@ -81,6 +85,7 @@ runs:
           --schema="$SCHEMA" \
           --format="$FORMAT" \
           --output="$OUTPUT_TEMP" \
+          ${{ inputs.include-system-dependencies == 'true' && '' || '--exclude-system-dependencies' }} \
           "$PROJECT_PATH"
 
         echo "output=$OUTPUT_TEMP" >> "$GITHUB_OUTPUT"
