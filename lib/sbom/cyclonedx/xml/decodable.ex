@@ -214,7 +214,54 @@ end
 defimpl Decodable,
   for: [
     SBoM.CycloneDX.V17.LicenseChoice,
-    SBoM.CycloneDX.V16.LicenseChoice,
+    SBoM.CycloneDX.V16.LicenseChoice
+  ] do
+  import Decoder, only: [xml_element: 1]
+
+  version = CycloneDX.bom_struct_version(@for)
+  license_module = CycloneDX.bom_struct_module(:License, version)
+
+  @license_xpath_mappings [
+    {:bom_ref, :string, "@bom-ref"}
+  ]
+
+  @expression_xpath_mappings [
+    {:bom_ref, :string, "@bom-ref"},
+    {:acknowledgement, :string, "@acknowledgement"}
+  ]
+
+  @impl Decodable
+  def from_xml_element(struct, xml_element(name: :license) = xml_element) do
+    choice =
+      unquote(license_module)
+      |> struct()
+      |> Decodable.from_xml_element(xml_element)
+
+    struct = %{struct | choice: {:license, choice}}
+
+    Decoder.decode_with_xpaths(struct, xml_element, @license_xpath_mappings)
+  end
+
+  def from_xml_element(struct, xml_element(name: :expression) = xml_element) do
+    expression = Decoder.extract_text(xml_element, "text()")
+
+    struct = %{struct | choice: {:expression, expression}}
+
+    struct
+    |> Decoder.decode_with_xpaths(xml_element, @expression_xpath_mappings)
+    |> transform_acknowledgement_field()
+  end
+
+  @spec transform_acknowledgement_field(@for.t()) :: @for.t()
+  defp transform_acknowledgement_field(%{acknowledgement: ack} = struct) when is_binary(ack) do
+    %{struct | acknowledgement: EnumHelpers.string_to_license_acknowledgement(ack)}
+  end
+
+  defp transform_acknowledgement_field(struct), do: struct
+end
+
+defimpl Decodable,
+  for: [
     SBoM.CycloneDX.V15.LicenseChoice,
     SBoM.CycloneDX.V14.LicenseChoice,
     SBoM.CycloneDX.V13.LicenseChoice
@@ -238,6 +285,12 @@ defimpl Decodable,
     struct = %{struct | choice: {:license, choice}}
 
     Decoder.decode_with_xpaths(struct, xml_element, @xpath_mappings)
+  end
+
+  def from_xml_element(struct, xml_element(name: :expression) = xml_element) do
+    expression = Decoder.extract_text(xml_element, "text()")
+
+    %{struct | choice: {:expression, expression}}
   end
 end
 
@@ -446,7 +499,31 @@ for version <- schema_versions do
   ])
 end
 
-for version <- schema_versions do
+defimpl Decodable,
+  for: [SBoM.CycloneDX.V17.License, SBoM.CycloneDX.V16.License] do
+  @xpath_mappings [
+    {:bom_ref, :string, "@bom-ref"},
+    {:acknowledgement, :string, "@acknowledgement"},
+    {{:license, :id}, :string, "child::id/text()"},
+    {{:license, :name}, :string, "child::name/text()"}
+  ]
+
+  @impl Decodable
+  def from_xml_element(struct, xml_element) do
+    struct
+    |> Decoder.decode_with_xpaths(xml_element, @xpath_mappings)
+    |> transform_acknowledgement_field()
+  end
+
+  @spec transform_acknowledgement_field(@for.t()) :: @for.t()
+  defp transform_acknowledgement_field(%{acknowledgement: ack} = struct) when is_binary(ack) do
+    %{struct | acknowledgement: EnumHelpers.string_to_license_acknowledgement(ack)}
+  end
+
+  defp transform_acknowledgement_field(struct), do: struct
+end
+
+for version <- ["1.5", "1.4", "1.3"] do
   license_module = CycloneDX.bom_struct_module(:License, version)
 
   Protocol.derive(Decodable, license_module, [

@@ -185,3 +185,43 @@ defimpl SBoM.CycloneDX.JSON.Encodable,
     Map.put(encoded, "bomFormat", "CycloneDX")
   end
 end
+
+defimpl SBoM.CycloneDX.JSON.Encodable,
+  for: [SBoM.CycloneDX.V17.License, SBoM.CycloneDX.V16.License] do
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.JSON.Encoder
+
+  @impl Encodable
+  def to_encodable(license) do
+    license
+    |> Encoder.encodable()
+    |> Map.update("acknowledgement", nil, &EnumHelpers.license_acknowledgement_to_string/1)
+  end
+end
+
+defimpl SBoM.CycloneDX.JSON.Encodable,
+  for: [
+    SBoM.CycloneDX.V17.LicenseChoice,
+    SBoM.CycloneDX.V16.LicenseChoice
+  ] do
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.JSON.Encoder
+
+  @impl Encodable
+  def to_encodable(license_choice) do
+    encoded = Encoder.encodable(license_choice)
+
+    case encoded do
+      %{"expression" => _expression} ->
+        Map.update(
+          encoded,
+          "acknowledgement",
+          nil,
+          &EnumHelpers.license_acknowledgement_to_string/1
+        )
+
+      _other ->
+        Map.delete(encoded, "acknowledgement")
+    end
+  end
+end

@@ -16,5 +16,8 @@ defmodule Mix.Tasks.Sbom.Cyclonedx do
 
   @doc false
   @impl Mix.Task
-  def run(args), do: CLI.run(["cyclonedx" | args], :mix)
+  def run(args) do
+    {:ok, _apps} = Application.ensure_all_started(:sbom)
+    CLI.run(["cyclonedx" | args], :mix)
+  end
 end

@@ -461,27 +461,43 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V13.OrganizationalEntity,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.CycloneDX.V17.LicenseChoice,
-  element_name: :license,
-  attributes: [
-    {:"bom-ref", :bom_ref}
-  ],
-  elements: [
-    {:license, {:choice, :license}, :unwrap},
-    {:expression, {:choice, :expression}, :wrap}
-  ]
-)
+defimpl SBoM.CycloneDX.XML.Encodable,
+  for: [
+    SBoM.CycloneDX.V17.LicenseChoice,
+    SBoM.CycloneDX.V16.LicenseChoice
+  ] do
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.XML.Encoder
 
-Protocol.derive(Encodable, SBoM.CycloneDX.V16.LicenseChoice,
-  element_name: :licenses,
-  attributes: [
-    {:"bom-ref", :bom_ref}
-  ],
-  elements: [
-    {:license, {:choice, :license}, :unwrap},
-    {:expression, {:choice, :expression}, :wrap}
-  ]
-)
+  @impl Encodable
+  def to_xml_element(license_choice) do
+    case license_choice.choice do
+      {:license, license} ->
+        {elem_name, license_attrs, content} = Encodable.to_xml_element(license)
+        choice_attrs = Encoder.encode_fields_as_attrs([{:"bom-ref", :bom_ref}], license_choice)
+        {:license_choice, [], [{elem_name, choice_attrs ++ license_attrs, content}]}
+
+      {:expression, expression} ->
+        license_choice =
+          Map.update!(
+            license_choice,
+            :acknowledgement,
+            &EnumHelpers.license_acknowledgement_to_string/1
+          )
+
+        choice_attrs =
+          Encoder.encode_fields_as_attrs(
+            [{:"bom-ref", :bom_ref}, {:acknowledgement, :acknowledgement}],
+            license_choice
+          )
+
+        {:license_choice, [], [{:expression, choice_attrs, [[expression]]}]}
+
+      nil ->
+        nil
+    end
+  end
+end
 
 Protocol.derive(Encodable, SBoM.CycloneDX.V15.LicenseChoice,
   element_name: :licenses,
@@ -516,35 +532,38 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V13.LicenseChoice,
   ]
 )
 
-Protocol.derive(Encodable, SBoM.CycloneDX.V17.License,
-  element_name: :license,
-  attributes: [
-    {:"bom-ref", :bom_ref}
-  ],
-  elements: [
-    {:id, {:license, :id}, :wrap},
-    {:name, {:license, :name}, :wrap},
-    {:text, :text, :unwrap},
-    {:url, :url, :wrap},
-    {:licensing, :licensing, :unwrap},
-    {:properties, :properties, :unwrap}
-  ]
-)
+defimpl SBoM.CycloneDX.XML.Encodable,
+  for: [SBoM.CycloneDX.V17.License, SBoM.CycloneDX.V16.License] do
+  alias SBoM.CycloneDX.Common.EnumHelpers
+  alias SBoM.CycloneDX.XML.Encoder
 
-Protocol.derive(Encodable, SBoM.CycloneDX.V16.License,
-  element_name: :license,
-  attributes: [
-    {:"bom-ref", :bom_ref}
-  ],
-  elements: [
-    {:id, {:license, :id}, :wrap},
-    {:name, {:license, :name}, :wrap},
-    {:text, :text, :unwrap},
-    {:url, :url, :wrap},
-    {:licensing, :licensing, :unwrap},
-    {:properties, :properties, :unwrap}
-  ]
-)
+  @impl Encodable
+  def to_xml_element(license) do
+    license =
+      Map.update!(license, :acknowledgement, &EnumHelpers.license_acknowledgement_to_string/1)
+
+    attrs =
+      Encoder.encode_fields_as_attrs(
+        [{:"bom-ref", :bom_ref}, {:acknowledgement, :acknowledgement}],
+        license
+      )
+
+    content =
+      Encoder.encode_fields_as_elements(
+        [
+          {:id, {:license, :id}, :wrap},
+          {:name, {:license, :name}, :wrap},
+          {:text, :text, :unwrap},
+          {:url, :url, :wrap},
+          {:licensing, :licensing, :unwrap},
+          {:properties, :properties, :unwrap}
+        ],
+        license
+      )
+
+    {:license, attrs, content}
+  end
+end
 
 Protocol.derive(Encodable, SBoM.CycloneDX.V15.License,
   element_name: :license,

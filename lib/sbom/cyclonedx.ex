@@ -351,6 +351,13 @@ defmodule SBoM.CycloneDX do
     )
   end
 
+  defp asset_reference(%{package_url: %Purl{type: "otp", qualifiers: %{"download_url" => download_url}}}, version) do
+    bom_struct(:ExternalReference, version,
+      type: :EXTERNAL_REFERENCE_TYPE_DISTRIBUTION,
+      url: download_url
+    )
+  end
+
   defp asset_reference(_component, _version), do: nil
 
   @spec links_references(
@@ -417,12 +424,39 @@ defmodule SBoM.CycloneDX do
   end
 
   @spec convert_licenses([String.t()], schema_version()) :: license_list()
-  defp convert_licenses(licenses, version) do
-    Enum.map(
-      licenses,
-      &bom_struct(:LicenseChoice, version, choice: {:license, bom_struct(:License, version, license: {:id, &1})})
-    )
+  defp convert_licenses(licenses, version)
+
+  defp convert_licenses([], _version), do: []
+
+  defp convert_licenses([license], version) do
+    [
+      bom_struct(:LicenseChoice, version,
+        choice:
+          {:license,
+           bom_struct(:License, version,
+             license: {:id, license},
+             acknowledgement: license_acknowledgement(version)
+           )}
+      )
+    ]
   end
+
+  defp convert_licenses(licenses, version) do
+    expression = Enum.join(licenses, " AND ")
+
+    [
+      bom_struct(:LicenseChoice, version,
+        choice: {:expression, expression},
+        acknowledgement: license_acknowledgement(version)
+      )
+    ]
+  end
+
+  @spec license_acknowledgement(schema_version()) ::
+          :LICENSE_ACKNOWLEDGEMENT_ENUMERATION_DECLARED | nil
+  defp license_acknowledgement(version) when version in ["1.6", "1.7"], do: :LICENSE_ACKNOWLEDGEMENT_ENUMERATION_DECLARED
+
+  defp license_acknowledgement(_version), do: nil
 
   @spec attach_dependencies(components_map(), schema_version()) :: dependency_list()
   defp attach_dependencies(components, version) do
