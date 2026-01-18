@@ -94,14 +94,18 @@ defmodule SBoM.CycloneDX do
           version: String.t(),
           only: [atom()],
           targets: [atom()],
-          classification: classification()
+          classification: classification(),
+          system_dependencies: boolean()
         ]
 
   @doc """
   Generate a BOM for the current Mix project and its dependencies.
   """
   @spec bom(bom_opts()) :: t()
-  def bom(opts \\ []), do: bom_for_components(Fetcher.fetch(), opts)
+  def bom(opts \\ []) do
+    system_dependencies = Keyword.get(opts, :system_dependencies, true)
+    bom_for_components(Fetcher.fetch(system_dependencies: system_dependencies), opts)
+  end
 
   @doc false
   @spec bom_for_components(components_map(), bom_opts()) :: t()

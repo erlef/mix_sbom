@@ -88,7 +88,8 @@ defmodule SBoM.CLI do
       version: parse_result.options.schema,
       only: parse_result.options.only,
       targets: parse_result.options.targets,
-      classification: parse_result.options.classification
+      classification: parse_result.options.classification,
+      system_dependencies: not parse_result.flags.exclude_system_dependencies
     ]
     |> CycloneDX.bom()
     |> CycloneDX.encode(parse_result.options.format, parse_result.flags.pretty)
@@ -238,6 +239,11 @@ defmodule SBoM.CLI do
               short: "-p",
               long: "--pretty",
               help: "Pretty print the SBoM"
+            ],
+            exclude_system_dependencies: [
+              short: "-x",
+              long: "--exclude-system-dependencies",
+              help: "Exclude system dependencies (Erlang/OTP, Elixir, Hex) from the SBoM"
             ]
           ]
         ]

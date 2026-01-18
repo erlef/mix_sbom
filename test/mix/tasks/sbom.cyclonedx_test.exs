@@ -254,4 +254,58 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       end)
     end
   end
+
+  describe "system dependencies filtering" do
+    @tag :tmp_dir
+    @tag fixture_app: "app_installed"
+    test "includes system dependencies by default", %{app_path: app_path} do
+      capture_io(:stderr, fn ->
+        capture_io(:stdio, fn ->
+          Util.in_project(app_path, fn _mix_module ->
+            Mix.Task.rerun("deps.clean", ["--all"])
+            Mix.Task.rerun("deps.get")
+            Mix.Shell.Process.flush()
+
+            bom_path = Path.join(app_path, "bom.cdx.json")
+            Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", bom_path])
+
+            bom_content = File.read!(bom_path)
+
+            # Assert contains system deps
+            assert String.contains?(bom_content, "\"elixir\"")
+            assert String.contains?(bom_content, "\"stdlib\"")
+            assert String.contains?(bom_content, "\"kernel\"")
+          end)
+        end)
+      end)
+    end
+
+    @tag :tmp_dir
+    @tag fixture_app: "app_installed"
+    test "excludes system dependencies with --exclude-system-dependencies", %{app_path: app_path} do
+      capture_io(:stderr, fn ->
+        capture_io(:stdio, fn ->
+          Util.in_project(app_path, fn _mix_module ->
+            Mix.Task.rerun("deps.clean", ["--all"])
+            Mix.Task.rerun("deps.get")
+            Mix.Shell.Process.flush()
+
+            bom_path = Path.join(app_path, "bom.cdx.json")
+            Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", bom_path, "--exclude-system-dependencies"])
+
+            bom_content = File.read!(bom_path)
+
+            # Assert does NOT contain system deps
+            refute String.contains?(bom_content, ~s("name":"elixir"))
+            refute String.contains?(bom_content, ~s("name":"stdlib"))
+            refute String.contains?(bom_content, ~s("name":"kernel"))
+            refute String.contains?(bom_content, ~s("name":"logger"))
+
+            # Assert still contains regular hex deps (decimal is in app_installed fixture)
+            assert String.contains?(bom_content, "decimal")
+          end)
+        end)
+      end)
+    end
+  end
 end

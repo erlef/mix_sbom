@@ -40,6 +40,14 @@ defmodule SBoM.Fetcher do
           optional(:description) => String.t()
         }
 
+  @typedoc """
+  Options for `fetch/1`.
+
+    * `:system_dependencies` - When `true` (default), includes system dependencies
+      (Erlang/OTP, Elixir, Hex). When `false`, excludes them from the result.
+  """
+  @type fetch_opts() :: [system_dependencies: boolean()]
+
   @doc """
   Fetches dependencies from a specific source.
 
@@ -120,8 +128,10 @@ defmodule SBoM.Fetcher do
 
   Note: This test assumes an Elixir project that is currently loaded.
   """
-  @spec fetch() :: %{String.t() => dependency()} | nil
-  def fetch do
+  @spec fetch(fetch_opts()) :: %{String.t() => dependency()} | nil
+  def fetch(opts \\ []) do
+    include_system = Keyword.get(opts, :system_dependencies, true)
+
     @manifest_fetchers
     |> Enum.map(& &1.fetch())
     |> Enum.reduce(nil, fn
@@ -136,10 +146,24 @@ defmodule SBoM.Fetcher do
         nil
 
       %{} = deps ->
-        deps = Map.merge(deps, @static_deps, &merge/3)
+        deps =
+          if include_system do
+            Map.merge(deps, @static_deps, &merge/3)
+          else
+            filter_system_dependencies(deps)
+          end
 
         transform_all(deps)
     end
+  end
+
+  @spec filter_system_dependencies(%{app_name() => dependency()}) :: %{app_name() => dependency()}
+  defp filter_system_dependencies(deps) do
+    import SBoM.SCM.System, only: [is_system_app: 1]
+
+    deps
+    |> Enum.reject(fn {app, _dep} -> is_system_app(app) end)
+    |> Map.new()
   end
 
   @spec merge(app_name(), left :: dependency(), right :: dependency()) :: dependency()
