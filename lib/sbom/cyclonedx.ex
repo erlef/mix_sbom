@@ -351,6 +351,13 @@ defmodule SBoM.CycloneDX do
     )
   end
 
+  defp asset_reference(%{package_url: %Purl{type: "otp", qualifiers: %{"download_url" => download_url}}}, version) do
+    bom_struct(:ExternalReference, version,
+      type: :EXTERNAL_REFERENCE_TYPE_DISTRIBUTION,
+      url: download_url
+    )
+  end
+
   defp asset_reference(_component, _version), do: nil
 
   @spec links_references(

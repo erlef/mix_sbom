@@ -155,4 +155,46 @@ defmodule SBoM.SCM.SBoM.SCM.System do
       version: version
     })
   end
+
+  @impl SBoM.SCM
+  def enhance_metadata(app, _dependency)
+
+  def enhance_metadata(app, _dependency) when is_elixir_app(app) do
+    %{
+      licenses:
+        case app do
+          :elixir -> ["Apache-2.0", "LicenseRef-scancode-unicode"]
+          _app -> ["Apache-2.0"]
+        end,
+      source_url: "git+https://github.com/elixir-lang/elixir.git#lib/#{app}",
+      links: %{
+        "github" => "https://github.com/elixir-lang/elixir",
+        "website" => "https://elixir-lang.org"
+      }
+    }
+  end
+
+  def enhance_metadata(app, _dependency) when is_erlang_app(app) do
+    %{
+      licenses: ["Apache-2.0"],
+      source_url: "git+https://github.com/erlang/otp.git#lib/#{app}",
+      links: %{
+        "github" => "https://github.com/erlang/otp",
+        "website" => "https://www.erlang.org"
+      }
+    }
+  end
+
+  def enhance_metadata(app, _dependency) when is_hex_app(app) do
+    %{
+      licenses: ["Apache-2.0"],
+      source_url: "git+https://github.com/hexpm/hex",
+      links: %{
+        "github" => "https://github.com/hexpm/hex",
+        "website" => "https://hex.pm"
+      }
+    }
+  end
+
+  def enhance_metadata(_app, _dependency), do: %{}
 end
