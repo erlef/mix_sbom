@@ -69,7 +69,7 @@ runs:
       shell: "bash"
       working-directory: "${{ runner.temp }}"
       env:
-        TAG: "v0.8.0"
+        TAG: "v0.9.0"
         GITHUB_TOKEN: ${{ github.token }}
         REPO: "erlef/mix_sbom"
         REUSE_BEAM: "${{ inputs.reuse-beam }}"
