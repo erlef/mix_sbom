@@ -58,6 +58,6 @@ jobs:
           --repo "$REPO"
           --title "$RELEASE_NAME"
           --generate-notes
-          ${{ inputs.stable && '' || '--prerelease' }}
+          ${{ !inputs.stable && '--prerelease' || '' }}
           "$RELEASE_NAME"
           docs.tar.gz* mix_sbom* source_sbom*
