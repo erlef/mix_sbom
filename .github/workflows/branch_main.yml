@@ -63,6 +63,18 @@ jobs:
 
     uses: ./.github/workflows/part_smoke_test.yml
 
+  attest_sbom:
+    name: "Attest SBOM"
+
+    needs: ["build", "licensing", "docs"]
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    uses: ./.github/workflows/part_attest_sbom.yml
+
   dependency_submission:
     name: "Mix Dependency Submission"
 

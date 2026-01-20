@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   sbom:
-    name: "Generate Source SBoM"
+    name: "Generate SBoM"
 
     runs-on: ubuntu-latest
 
@@ -30,34 +30,89 @@ jobs:
         uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
+
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      
-      - name: REUSE SPDX SBOM
-        uses: fsfe/reuse-action@676e2d560c9a403aa252096d99fcab3e1132b0f5 # v6.0.0
         with:
-          args: spdx -o source_sbom.spdx --creator-person "${{ github.actor }}" --creator-organization "Erlang Ecosystem Foundation"
+          submodules: true
+
+      - name: Use HTTPS instead of SSH for Git cloning
+        run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
+
+      - name: Run OSS Review Toolkit
+        id: ort
+        uses: oss-review-toolkit/ort-ci-github-action@1805edcf1f4f55f35ae6e4d2d9795ccfb29b6021 # v1.1.0
+        with:
+          # TODO: Use released ORT version
+          image: ghcr.io/erlef/ort:sosef-m7
+          run: >-
+            labels,
+            cache-dependencies,
+            cache-scan-results,
+            analyzer,
+            scanner,
+            advisor,
+            reporter
+          report-formats: "CycloneDx,SpdxDocument,WebApp"
+          # TODO: Remove workaround once https://github.com/oss-review-toolkit/ort/pull/11324 is merged
+          ort-cli-args: >-
+            -P ort.analyzer.skipExcluded=true
+            -P ort.scanner.scanners.ScanCode.options.commandLine=--copyright,--license,--info,--strip-root
+            -P ort.scanner.scanners.ScanCode.options.commandLineNonConfig=--timeout,300
+          ort-cli-report-args: >-
+            -O CycloneDX=output.file.formats=json,xml
+            -O SpdxDocument=outputFileFormats=JSON,YAML
+          sw-version: "${{ github.ref_type == 'tag' && github.ref_name || github.sha }}"
+
+      - name: "Rename SBOMs"
+        run: |
+          cp "$CYCLONEDX_XML" sbom.cdx.xml
+          cp "$CYCLONEDX_JSON" sbom.cdx.json
+          cp "$SPDX_YML" sbom.spdx.yml
+          cp "$SPDX_JSON" sbom.spdx.json
+        env:
+          CYCLONEDX_XML: "${{ steps.ort.outputs.results-sbom-cyclonedx-xml-path }}"
+          CYCLONEDX_JSON: "${{ steps.ort.outputs.results-sbom-cyclonedx-json-path }}"
+          SPDX_YML: "${{ steps.ort.outputs.results-sbom-spdx-yml-path }}"
+          SPDX_JSON: "${{ steps.ort.outputs.results-sbom-spdx-json-path }}"
 
       - name: "Attest provenance"
         uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         id: attest-provenance
         if: "${{ inputs.attest }}"
         with:
-          subject-path: 'source_sbom.spdx'
+          subject-path: |
+            sbom.cdx.xml
+            sbom.cdx.json
+            sbom.spdx.yml
+            sbom.spdx.json
+
       - name: "Copy provenance"
         if: "${{ inputs.attest }}"
-        run: cp "$ATTESTATION" source_sbom.spdx.sigstore
+        run: |
+          cp "$ATTESTATION" sbom.cdx.xml.sigstore
+          cp "$ATTESTATION" sbom.cdx.json.sigstore
+          cp "$ATTESTATION" sbom.spdx.yml.sigstore
+          cp "$ATTESTATION" sbom.spdx.json.sigstore
         env:
           ATTESTATION: "${{ steps.attest-provenance.outputs.bundle-path }}"
-      
+
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: source_sbom
+          name: sbom
           path: |
-            source_sbom.spdx
-            source_sbom.spdx.sigstore
+            sbom.cdx.xml
+            sbom.cdx.json
+            sbom.spdx.yml
+            sbom.spdx.json
+            sbom.*.sigstore
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: sbom_report
+          path: ${{ steps.ort.outputs.results-path }}/scan-report-web-app.html
 
   check:
-    name: "Check Licensing Compliance"
+    name: "Check REUSE Licensing Compliance"
 
     runs-on: ubuntu-latest
 
