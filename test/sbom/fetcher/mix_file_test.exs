@@ -24,7 +24,8 @@ defmodule SBoM.Fetcher.MixFileTest do
                    licenses: ["MIT"],
                    dependencies: [:logger, :elixir, :public_key, :credo, :os_mon, :expo, :mime, :heroicons],
                    root: true,
-                   source_url: "https://github.com/example/app"
+                   source_url: "https://github.com/example/app",
+                   description: "A test application for SBOM generation"
                  },
                  :credo => %{
                    scm: Hex.SCM,

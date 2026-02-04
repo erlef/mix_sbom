@@ -14,7 +14,8 @@ defmodule AppNameToReplace.MixProject do
          github: "tailwindlabs/heroicons", tag: "v2.1.5", sparse: "optimized", app: false, compile: false, depth: 1}
       ],
       licenses: ["MIT"],
-      source_url: "https://github.com/example/app"
+      source_url: "https://github.com/example/app",
+      description: "A test application for SBOM generation"
     ]
   end
 
