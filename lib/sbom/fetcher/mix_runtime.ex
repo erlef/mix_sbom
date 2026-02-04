@@ -147,8 +147,19 @@ defmodule SBoM.Fetcher.MixRuntime do
             end
           end
 
+      description =
+        metadata[:description] ||
+          if load_from_app_spec? do
+            case Application.spec(app, :description) do
+              nil -> nil
+              desc when is_list(desc) -> to_string(desc)
+              desc -> desc
+            end
+          end
+
       {app,
        Map.merge(metadata, %{
+         description: description,
          scm: dep_scm,
          version: version,
          runtime: true,

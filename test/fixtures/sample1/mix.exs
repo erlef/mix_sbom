@@ -8,6 +8,7 @@ defmodule Sample1.MixProject do
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      description: "A sample application for testing SBOM generation",
       package: [
         links: %{
           Github: "https://github.com/sample1",

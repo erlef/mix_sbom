@@ -23,7 +23,8 @@ defmodule SBoM.Fetcher.MixRuntimeTest do
                    scm: Hex.SCM,
                    dependencies: [],
                    optional: false,
-                   runtime: true
+                   runtime: true,
+                   description: "Arbitrary precision decimal arithmetic."
                  },
                  number: %{
                    version: "1.0.5",

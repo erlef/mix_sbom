@@ -312,6 +312,7 @@ defmodule SBoM.CycloneDX do
       licenses: component[:licenses] |> List.wrap() |> convert_licenses(schema_version),
       bom_ref: generate_bom_ref(component.package_url),
       cpe: cpe,
+      description: component[:description],
       external_references:
         Enum.reject(
           [
