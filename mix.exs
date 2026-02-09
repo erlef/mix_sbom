@@ -108,7 +108,7 @@ defmodule SBoM.MixProject do
         {:hex_core, "~> 0.12.0"},
         {:jason, "~> 1.4", optional: true},
         {:optimus, "~> 0.6.1"},
-        {:protobuf, "~> 0.15.0"},
+        {:protobuf, "~> 0.16.0"},
         {:purl, "~> 0.3.0"},
         {:stream_data, "~> 1.2", only: [:test]},
         {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
