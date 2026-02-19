@@ -2,12 +2,6 @@
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
 { pkgs, lib, config, inputs, ... }:
-let
-  pkgs-unstable = import inputs.nixpkgs-unstable {
-    system = pkgs.stdenv.system;
-    config.allowUnfree = true;
-  };
-in
 {
   packages = with pkgs; [
     git
@@ -22,19 +16,17 @@ in
 
   languages.elixir = {
     enable = true;
-    # Switch back to normal packages when Erlang 28.1 is available there
-    package = pkgs-unstable.beam28Packages.elixir_1_19;
+    package = pkgs.beam28Packages.elixir_1_19;
   };
 
   languages.erlang = {
     enable = true;
-    # Switch back to normal packages when Erlang 28.1 is available there
-    package = pkgs-unstable.beam28Packages.erlang;
+    package = pkgs.beam28Packages.erlang;
   };
 
   languages.zig = {
     enable = true;
-    package = pkgs-unstable.zig_0_15;
+    package = pkgs.zig_0_15;
   };
 
   scripts = {
@@ -80,8 +72,8 @@ in
         mix format
       '';
       packages = with pkgs; [
-        pkgs-unstable.beam28Packages.erlang
-        pkgs-unstable.beam28Packages.elixir_1_19
+        beam28Packages.erlang
+        beam28Packages.elixir_1_19
         protobuf
         gnused
         curl
