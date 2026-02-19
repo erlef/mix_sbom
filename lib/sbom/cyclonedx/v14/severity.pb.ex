@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V14.Severity do
   @moduledoc "CycloneDX Severity model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_4.Severity",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:SEVERITY_UNKNOWN, 0)
   field(:SEVERITY_CRITICAL, 1)

@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.Swid do
   Specifies metadata and content for ISO-IEC 19770-2 Software Identification (SWID) Tags.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.Swid",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:tag_id, 1, type: :string, json_name: "tagId")
   field(:name, 2, type: :string)

@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.Evidence do
   Provides the ability to document evidence collected through various forms of extraction or analysis.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.Evidence",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:licenses, 1, repeated: true, type: SBoM.CycloneDX.V16.LicenseChoice)
   field(:copyright, 2, repeated: true, type: SBoM.CycloneDX.V16.EvidenceCopyright)

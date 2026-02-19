@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V15.ModelCard.ModelParameters do
   @moduledoc "CycloneDX ModelCard.ModelParameters model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_5.ModelCard.ModelParameters",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   alias SBoM.CycloneDX.V15.ModelCard.ModelParameters.MachineLearningInputOutputParameters
 

@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V16.ExternalReferenceType do
   @moduledoc "CycloneDX ExternalReferenceType model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_6.ExternalReferenceType",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:EXTERNAL_REFERENCE_TYPE_OTHER, 0)
   field(:EXTERNAL_REFERENCE_TYPE_VCS, 1)

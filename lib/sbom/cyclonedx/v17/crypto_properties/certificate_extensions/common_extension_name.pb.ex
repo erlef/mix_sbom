@@ -3,7 +3,11 @@ defmodule SBoM.CycloneDX.V17.CryptoProperties.CertificateExtensions.CommonExtens
   Common extension names
   """
 
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.CryptoProperties.CertificateExtensions.CommonExtensionName",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:COMMON_EXTENSION_NAME_UNSPECIFIED, 0)
   field(:COMMON_EXTENSION_NAME_BASIC_CONSTRAINTS, 1)

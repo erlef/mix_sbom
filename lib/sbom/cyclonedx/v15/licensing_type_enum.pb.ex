@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V15.LicensingTypeEnum do
   @moduledoc "CycloneDX LicensingTypeEnum model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_5.LicensingTypeEnum",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:LICENSING_TYPE_NULL, 0)
   field(:LICENSING_TYPE_ACADEMIC, 1)

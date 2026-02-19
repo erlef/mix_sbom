@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.Definition.Standard do
   A standard may consist of regulations, industry or organizational-specific standards, maturity models, best practices, or any other requirements which can be evaluated against or attested to.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.Definition.Standard",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:bom_ref, 1, proto3_optional: true, type: :string, json_name: "bomRef")
   field(:name, 2, proto3_optional: true, type: :string)

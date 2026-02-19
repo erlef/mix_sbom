@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.Step do
   Executes specific commands or tools in order to accomplish its owning task as part of a sequence.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.Step",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:name, 1, proto3_optional: true, type: :string)
   field(:description, 2, proto3_optional: true, type: :string)

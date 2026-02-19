@@ -56,7 +56,7 @@ in
 
         PATH="$HOME/.mix/escripts:$PATH"
         mix local.hex --force --if-missing
-        mix escript.install hex protobuf 0.15.0 --force
+        mix escript.install hex protobuf 0.16.0 --force
         rm -rf lib/sbom/cyclonedx/v*;
         for PROTO in "$PROTO_DIR"/bom-1.*.proto; do
           protoc \

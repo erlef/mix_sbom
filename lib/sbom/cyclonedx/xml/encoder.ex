@@ -23,27 +23,24 @@ defmodule SBoM.CycloneDX.XML.Encoder do
   def encode_fields_as_elements(field_mappings, struct) when is_list(field_mappings) do
     for_result =
       for {xml_name, struct_field, action} <- field_mappings do
-        case struct_field do
-          {oneof_field, choice_name} ->
-            # Handle oneof pattern: {oneof_field, choice_name}
-            case Map.get(struct, oneof_field) do
-              {^choice_name, value} ->
-                # Choice matches, proceed with action on the value
-                apply_action(xml_name, value, action)
-
-              _other_choice ->
-                # Choice doesn't match, skip this element
-                nil
-            end
-
-          struct_field when is_atom(struct_field) ->
-            # Handle regular field
-            value = Map.get(struct, struct_field)
-            apply_action(xml_name, value, action)
-        end
+        encode_element_field(xml_name, struct_field, action, struct)
       end
 
     filter_present_fields(for_result)
+  end
+
+  @spec encode_element_field(atom(), atom() | {atom(), atom()}, action(), struct()) ::
+          :xmerl.simple_element() | nil
+  defp encode_element_field(xml_name, {oneof_field, choice_name}, action, struct) do
+    case Map.get(struct, oneof_field) do
+      {^choice_name, value} -> apply_action(xml_name, value, action)
+      _other_choice -> nil
+    end
+  end
+
+  defp encode_element_field(xml_name, struct_field, action, struct) when is_atom(struct_field) do
+    value = Map.get(struct, struct_field)
+    apply_action(xml_name, value, action)
   end
 
   @spec apply_action(atom(), term(), action()) :: :xmerl.simple_element() | nil

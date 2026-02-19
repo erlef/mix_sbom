@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V15.EvidenceIdentity do
   @moduledoc "CycloneDX EvidenceIdentity model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_5.EvidenceIdentity",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:field, 1, type: SBoM.CycloneDX.V15.EvidenceFieldType, enum: true)
   field(:confidence, 2, proto3_optional: true, type: :float)

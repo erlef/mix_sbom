@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.DataFlow do
   Specifies the data flow.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.DataFlow",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:flow, 1, type: SBoM.CycloneDX.V17.DataFlowDirection, enum: true)
   field(:value, 2, type: :string)

@@ -3,7 +3,11 @@ defmodule SBoM.CycloneDX.V16.Severity do
   Textual representation of the severity of the vulnerability adopted by the analysis method. If the analysis method uses values other than what is provided, the user is expected to translate appropriately.
   """
 
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_6.Severity",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:SEVERITY_UNKNOWN, 0)
   field(:SEVERITY_CRITICAL, 1)

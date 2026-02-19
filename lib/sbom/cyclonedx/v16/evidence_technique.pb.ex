@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V16.EvidenceTechnique do
   @moduledoc "CycloneDX EvidenceTechnique model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_6.EvidenceTechnique",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:EVIDENCE_TECHNIQUE_SOURCE_CODE_ANALYSIS, 0)
   field(:EVIDENCE_TECHNIQUE_BINARY_ANALYSIS, 1)

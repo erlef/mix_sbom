@@ -141,20 +141,13 @@ defmodule SBoM.Fetcher.MixRuntime do
       version =
         config[:version] ||
           if load_from_app_spec? do
-            case Application.spec(app, :vsn) do
-              nil -> nil
-              vsn -> to_string(vsn)
-            end
+            get_app_version(app)
           end
 
       description =
         metadata[:description] ||
           if load_from_app_spec? do
-            case Application.spec(app, :description) do
-              nil -> nil
-              desc when is_list(desc) -> to_string(desc)
-              desc -> desc
-            end
+            get_app_description(app)
           end
 
       {app,
@@ -169,6 +162,23 @@ defmodule SBoM.Fetcher.MixRuntime do
        })}
     else
       :error -> nil
+    end
+  end
+
+  @spec get_app_version(app :: Fetcher.app_name()) :: String.t() | nil
+  defp get_app_version(app) do
+    case Application.spec(app, :vsn) do
+      nil -> nil
+      vsn -> to_string(vsn)
+    end
+  end
+
+  @spec get_app_description(app :: Fetcher.app_name()) :: String.t() | nil
+  defp get_app_description(app) do
+    case Application.spec(app, :description) do
+      nil -> nil
+      desc when is_list(desc) -> to_string(desc)
+      desc -> desc
     end
   end
 

@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V16.ImpactAnalysisState do
   @moduledoc "CycloneDX ImpactAnalysisState model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_6.ImpactAnalysisState",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:IMPACT_ANALYSIS_STATE_NULL, 0)
   field(:IMPACT_ANALYSIS_STATE_RESOLVED, 1)

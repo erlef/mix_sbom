@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.PostalAddressType do
   An address used to identify a contactable location.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.PostalAddressType",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:bom_ref, 1, proto3_optional: true, type: :string, json_name: "bomRef")
   field(:country, 2, proto3_optional: true, type: :string)

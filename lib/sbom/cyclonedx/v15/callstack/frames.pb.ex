@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V15.Callstack.Frames do
   @moduledoc "CycloneDX Callstack.Frames model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_5.Callstack.Frames",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:package, 1, proto3_optional: true, type: :string)
   field(:module, 2, type: :string)

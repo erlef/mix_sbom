@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V16.Classification do
   @moduledoc "CycloneDX Classification model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_6.Classification",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:CLASSIFICATION_NULL, 0)
   field(:CLASSIFICATION_APPLICATION, 1)

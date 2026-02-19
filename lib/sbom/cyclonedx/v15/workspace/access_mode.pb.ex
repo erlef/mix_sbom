@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V15.Workspace.AccessMode do
   @moduledoc "CycloneDX Workspace.AccessMode model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_5.Workspace.AccessMode",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:ACCESS_MODE_READ_ONLY, 0)
   field(:ACCESS_MODE_READ_WRITE, 1)

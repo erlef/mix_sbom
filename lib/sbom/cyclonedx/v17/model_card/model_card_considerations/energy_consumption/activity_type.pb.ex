@@ -3,7 +3,11 @@ defmodule SBoM.CycloneDX.V17.ModelCard.ModelCardConsiderations.EnergyConsumption
   An activity that is part of a machine learning model development or operational lifecycle.
   """
 
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.ModelCard.ModelCardConsiderations.EnergyConsumption.ActivityType",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:ACTIVITY_TYPE_UNSPECIFIED, 0)
   field(:ACTIVITY_TYPE_OTHER, 1)

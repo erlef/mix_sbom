@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V15.Swid do
   @moduledoc "CycloneDX Swid model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_5.Swid",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:tag_id, 1, type: :string, json_name: "tagId")
   field(:name, 2, type: :string)
