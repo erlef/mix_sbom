@@ -302,11 +302,24 @@ defmodule SBoM.CycloneDX do
       |> to_string()
       |> SBoM.CPE.hex(component[:version] || "", component[:source_url])
 
+    version_range =
+      case component[:version_requirement] do
+        nil ->
+          nil
+
+        range ->
+          case Version.Requirement.Vers.to_vers(range, "hex") do
+            {:ok, vers} -> vers
+            :error -> nil
+          end
+      end
+
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
       group: component[:group],
       version: component_version(component, schema_version),
+      versionRange: version_range,
       purl: to_string(component.package_url),
       scope: dependency_scope(component),
       hashes: hashes,
