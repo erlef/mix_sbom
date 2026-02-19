@@ -58,10 +58,7 @@ runs:
               $COMMAND_ARGS >> "$LOG_FILE" 2>&1; then
               
               # Validate SBoM
-              if [ "$CYCLONE_VERSION" == "1.7" ]; then
-                echo "⚠️ (validation skipped for 1.7)" >> "$LOG_FILE" 2>&1
-                echo "⚠️ (validation skipped for 1.7)"
-              elif [ "$FORMAT" == "protobuf" ]; then
+              if [ "$FORMAT" == "protobuf" ]; then
                 if cyclonedx convert \
                   --input-file "$OUTPUT_FILE" \
                   --output-file "$OUTPUT_FILE.json" \
