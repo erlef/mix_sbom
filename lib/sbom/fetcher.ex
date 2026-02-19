@@ -37,7 +37,8 @@ defmodule SBoM.Fetcher do
           optional(:root) => boolean(),
           optional(:source_url) => String.t(),
           optional(:links) => SBoM.Fetcher.Links.t(),
-          optional(:description) => String.t()
+          optional(:description) => String.t(),
+          optional(:group) => String.t()
         }
 
   @typedoc """
@@ -236,13 +237,11 @@ defmodule SBoM.Fetcher do
         url -> %{purl | qualifiers: Map.put_new(purl.qualifiers, "vcs_url", url)}
       end
 
-    Map.merge(
-      dependency,
-      %{
-        package_url: purl,
-        dependencies: sub_dependencies
-      }
-    )
+    Map.merge(dependency, %{
+      package_url: purl,
+      dependencies: sub_dependencies,
+      group: get_group(app, dependency)
+    })
   end
 
   @spec package_url(dependency(), app_name()) :: Purl.t()
@@ -307,6 +306,16 @@ defmodule SBoM.Fetcher do
       end
     else
       _otherwise -> %{}
+    end
+  end
+
+  @spec get_group(app_name(), dependency()) :: String.t() | nil
+  defp get_group(app, dependency) do
+    with scm when not is_nil(scm) <- dependency[:scm],
+         impl when not is_nil(impl) <- SCM.implementation(scm) do
+      impl.group(app, dependency)
+    else
+      _otherwise -> nil
     end
   end
 

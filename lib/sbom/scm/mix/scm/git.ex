@@ -115,4 +115,23 @@ defmodule SBoM.SCM.Mix.SCM.Git do
     [:git, _repo_url, revision | _rest] = lock
     revision
   end
+
+  @impl SCM
+  def group(app, %{mix_lock: mix_lock}) do
+    app
+    |> mix_lock_to_purl(mix_lock)
+    |> purl_namespace()
+  end
+
+  def group(_app, %{mix_dep: mix_dep} = dependency) do
+    mix_dep
+    |> mix_dep_to_purl(dependency[:version])
+    |> purl_namespace()
+  end
+
+  def group(_app, _dependency), do: nil
+
+  @spec purl_namespace(Purl.t()) :: String.t() | nil
+  defp purl_namespace(%Purl{namespace: []}), do: nil
+  defp purl_namespace(%Purl{namespace: namespace}), do: Enum.join(namespace, "/")
 end

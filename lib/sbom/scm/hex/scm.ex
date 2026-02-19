@@ -277,6 +277,12 @@ defmodule SBoM.SCM.Hex.SCM do
     )
   end
 
+  @impl SCM
+  def group(_app, %{mix_lock: [:hex, _name, _version, _checksum, _managers, _deps, repo | _rest]}), do: repo
+
+  def group(_app, %{mix_dep: {_name, _requirement, opts}}), do: opts[:repo]
+  def group(_app, _dependency), do: nil
+
   @spec hex_namespace(repo :: String.t() | nil) :: Purl.namespace()
   defp hex_namespace(repo)
   defp hex_namespace(nil), do: []

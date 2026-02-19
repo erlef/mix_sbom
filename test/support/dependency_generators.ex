@@ -302,6 +302,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:source_url, source_url)
       |> maybe_put(:links, links)
       |> maybe_put(:description, description)
+      |> maybe_put(:group, repo)
     end
   end
 
@@ -332,6 +333,7 @@ defmodule SBoM.DependencyGenerators do
       git_opts = [{:git, git_url}, {ref_type, ref_value}]
       mix_dep = {app, req, git_opts}
       mix_lock = [:git, git_url, commit_hash]
+      group = git_group(git_url)
 
       base_fields = %{
         scm: Mix.SCM.Git,
@@ -353,6 +355,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:root, root)
       |> maybe_put(:links, links)
       |> maybe_put(:description, description)
+      |> maybe_put(:group, group)
     end
   end
 
@@ -429,6 +432,8 @@ defmodule SBoM.DependencyGenerators do
         ) do
       mix_dep = {app, nil, []}
 
+      group = system_group(app)
+
       base_fields = %{
         scm: SBoM.SCM.System,
         mix_dep: mix_dep,
@@ -446,6 +451,7 @@ defmodule SBoM.DependencyGenerators do
       |> maybe_put(:root, root)
       |> maybe_put(:links, links)
       |> maybe_put(:description, description)
+      |> maybe_put(:group, group)
     end
   end
 
@@ -495,4 +501,21 @@ defmodule SBoM.DependencyGenerators do
   defp maybe_put(map, _key, []), do: map
   defp maybe_put(map, _key, %{} = value) when map_size(value) == 0, do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  # Derives group from git URL using Purl.from_resource_uri
+  @spec git_group(String.t()) :: String.t() | nil
+  defp git_group(url) do
+    case Purl.from_resource_uri(url, "HEAD") do
+      {:ok, %Purl{namespace: []}} -> nil
+      {:ok, %Purl{namespace: namespace}} -> Enum.join(namespace, "/")
+      :error -> nil
+    end
+  end
+
+  # Derives group from system app name
+  @spec system_group(atom()) :: String.t()
+  defp system_group(app) when app in @elixir_applications, do: "elixir.stdlib"
+  defp system_group(app) when app in @erlang_applications, do: "erlang.otp"
+  defp system_group(:hex), do: "hex"
+  defp system_group(_app), do: nil
 end

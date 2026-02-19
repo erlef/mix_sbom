@@ -49,4 +49,7 @@ defmodule SBoM.SCM.Mix.SCM.Path do
       version: requirement || version
     })
   end
+
+  @impl SCM
+  def group(_app, _dependency), do: nil
 end

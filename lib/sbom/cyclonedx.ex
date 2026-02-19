@@ -305,6 +305,7 @@ defmodule SBoM.CycloneDX do
     bom_struct(:Component, schema_version,
       type: :CLASSIFICATION_LIBRARY,
       name: name,
+      group: component[:group],
       version: component_version(component, schema_version),
       purl: to_string(component.package_url),
       scope: dependency_scope(component),
