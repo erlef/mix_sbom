@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.DataGovernance do
   Data governance captures information regarding data ownership, stewardship, and custodianship, providing insights into the individuals or entities responsible for managing, overseeing, and safeguarding the data throughout its lifecycle.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.DataGovernance",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   alias SBoM.CycloneDX.V16.DataGovernance.DataGovernanceResponsibleParty
 

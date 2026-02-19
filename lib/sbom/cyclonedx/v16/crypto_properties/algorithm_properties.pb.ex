@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.CryptoProperties.AlgorithmProperties do
   Algorithm Propertie
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.CryptoProperties.AlgorithmProperties",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:primitive, 1,
     proto3_optional: true,

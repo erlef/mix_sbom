@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.ExternalReference do
   External references provide a way to document systems, sites, and information that may be relevant but are not included with the BOM. They may also establish specific relationships within or external to the BOM.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.ExternalReference",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:type, 1, type: SBoM.CycloneDX.V17.ExternalReferenceType, enum: true)
   field(:url, 2, type: :string)

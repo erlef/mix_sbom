@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V17.CO2MeasureType.CO2MeasureUnitType do
   @moduledoc "CycloneDX CO2MeasureType.CO2MeasureUnitType model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.CO2MeasureType.CO2MeasureUnitType",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:CO2_MEASURE_UNIT_TYPE_UNSPECIFIED, 0)
   field(:CO2_MEASURE_UNIT_TYPE_TONNES_CO2_EQUIVALENT, 1)

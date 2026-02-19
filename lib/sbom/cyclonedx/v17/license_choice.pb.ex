@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V17.LicenseChoice do
   @moduledoc "CycloneDX LicenseChoice model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.LicenseChoice",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   oneof(:choice, 0)
 

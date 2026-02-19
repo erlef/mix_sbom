@@ -3,7 +3,11 @@ defmodule SBoM.CycloneDX.V17.PatentLegalStatus do
   Indicates the current legal status of the patent or patent application, based on the WIPO ST.27 standard. This status reflects administrative, procedural, or legal events. Values include both active and inactive states and are useful for determining enforceability, procedural history, and maintenance status.
   """
 
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.PatentLegalStatus",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:PATENT_LEGAL_STATUS_UNSPECIFIED, 0)
   field(:PATENT_LEGAL_STATUS_PENDING, 1)

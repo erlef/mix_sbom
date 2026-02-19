@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V17.ModelParameterApproachType do
   @moduledoc "CycloneDX ModelParameterApproachType model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.ModelParameterApproachType",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:MODEL_PARAMETER_APPROACH_TYPE_SUPERVISED, 0)
   field(:MODEL_PARAMETER_APPROACH_TYPE_UNSUPERVISED, 1)

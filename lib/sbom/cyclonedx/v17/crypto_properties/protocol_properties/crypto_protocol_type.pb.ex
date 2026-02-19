@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V17.CryptoProperties.ProtocolProperties.CryptoProtocolType do
   @moduledoc "CycloneDX CryptoProperties.ProtocolProperties.CryptoProtocolType model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.CryptoProperties.ProtocolProperties.CryptoProtocolType",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:CRYPTO_PROTOCOL_TYPE_UNSPECIFIED, 0)
   field(:CRYPTO_PROTOCOL_TYPE_UNKNOWN, 1)

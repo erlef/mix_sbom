@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V17.ModelCard.ModelParameters.Datasets do
   @moduledoc "CycloneDX ModelCard.ModelParameters.Datasets model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.ModelCard.ModelParameters.Datasets",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   oneof(:choice, 0)
 

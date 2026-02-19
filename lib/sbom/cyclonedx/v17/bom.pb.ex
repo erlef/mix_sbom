@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V17.Bom do
   @moduledoc "CycloneDX Bom model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.Bom",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:spec_version, 1, type: :string, json_name: "specVersion")
   field(:version, 2, proto3_optional: true, type: :int32)

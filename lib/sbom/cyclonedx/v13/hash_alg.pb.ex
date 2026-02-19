@@ -1,6 +1,10 @@
 defmodule SBoM.CycloneDX.V13.HashAlg do
   @moduledoc "CycloneDX HashAlg model."
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_3.HashAlg",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:HASH_ALG_NULL, 0)
   field(:HASH_ALG_MD_5, 1)

@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.Workspace do
   A named filesystem or data resource shareable by workflow tasks.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.Workspace",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:bom_ref, 1, type: :string, json_name: "bomRef")
   field(:uid, 2, type: :string)

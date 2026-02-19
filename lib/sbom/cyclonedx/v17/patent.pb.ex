@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.Patent do
   A patent is a legal instrument, granted by an authority, that confers certain rights over an invention for a specified period, contingent on public disclosure and adherence to relevant legal requirements. The summary information in this object is aligned with [WIPO ST.96](https://www.wipo.int/standards/en/st96/) principles where applicable.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.Patent",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   alias Google.Protobuf.Timestamp
 

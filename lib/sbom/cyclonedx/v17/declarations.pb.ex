@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.Declarations do
   The list of declarations which describe the conformance to standards. Each declaration may include attestations, claims, and evidence.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.Declarations",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:assessors, 1, repeated: true, type: SBoM.CycloneDX.V17.Declarations.Assessor)
   field(:attestations, 2, repeated: true, type: SBoM.CycloneDX.V17.Declarations.Attestation)

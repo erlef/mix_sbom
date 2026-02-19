@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.Formula do
   Describes workflows and resources that captures rules and other aspects of how the associated BOM component or service was formed.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.Formula",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:bom_ref, 1, proto3_optional: true, type: :string, json_name: "bomRef")
   field(:components, 2, repeated: true, type: SBoM.CycloneDX.V17.Component)

@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.Workflow do
   A specialized orchestration task.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.Workflow",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   alias Google.Protobuf.Timestamp
   alias SBoM.CycloneDX.V16.Dependency

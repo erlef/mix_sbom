@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V17.CryptoProperties.CertificateProperties do
   Certificate Properties
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.CryptoProperties.CertificateProperties",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   alias Google.Protobuf.Timestamp
 

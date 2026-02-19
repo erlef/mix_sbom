@@ -7,7 +7,10 @@ defmodule SBoM.CycloneDX.V17.ModelCard do
   Model card support in CycloneDX is derived from TensorFlow Model Card Toolkit released under the Apache 2.0 license and available from https://github.com/tensorflow/model-card-toolkit/blob/main/model_card_toolkit/schema/v0.0.2/model_card.schema.json. In addition, CycloneDX model card support includes portions of VerifyML, also released under the Apache 2.0 license and available from https://github.com/cylynx/verifyml/blob/main/verifyml/model_card_toolkit/schema/v0.0.4/model_card.schema.json.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_7.ModelCard",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:bom_ref, 1, proto3_optional: true, type: :string, json_name: "bomRef")
 

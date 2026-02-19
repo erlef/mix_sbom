@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V16.Event do
   Represents something that happened that may trigger a response.
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.Event",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   alias SBoM.CycloneDX.V16.ResourceReferenceChoice
 

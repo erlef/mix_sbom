@@ -1,6 +1,9 @@
 defmodule SBoM.CycloneDX.V16.ModelCard.ModelCardConsiderations do
   @moduledoc "CycloneDX ModelCard.ModelCardConsiderations model."
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_6.ModelCard.ModelCardConsiderations",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:users, 1, repeated: true, type: :string)
   field(:useCases, 2, repeated: true, type: :string)

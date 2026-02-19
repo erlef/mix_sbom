@@ -3,7 +3,10 @@ defmodule SBoM.CycloneDX.V13.Property do
   Specifies a property
   """
 
-  use Protobuf, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    full_name: "cyclonedx.v1_3.Property",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:name, 1, type: :string)
   field(:value, 2, proto3_optional: true, type: :string)

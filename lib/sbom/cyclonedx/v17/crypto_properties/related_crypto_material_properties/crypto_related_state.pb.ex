@@ -3,7 +3,11 @@ defmodule SBoM.CycloneDX.V17.CryptoProperties.RelatedCryptoMaterialProperties.Cr
   State
   """
 
-  use Protobuf, enum: true, protoc_gen_elixir_version: "0.15.0", syntax: :proto3
+  use Protobuf,
+    enum: true,
+    full_name: "cyclonedx.v1_7.CryptoProperties.RelatedCryptoMaterialProperties.CryptoRelatedState",
+    protoc_gen_elixir_version: "0.16.0",
+    syntax: :proto3
 
   field(:CRYPTO_RELATED_STATE_UNSPECIFIED, 0)
   field(:CRYPTO_RELATED_STATE_PRE_ACTIVATION, 1)
