@@ -236,4 +236,15 @@ defmodule SBoM.CycloneDXTest do
       end)
     end
   end
+
+  describe "component group" do
+    test "group field is populated in components" do
+      components = Fetcher.fetch()
+      bom = CycloneDX.bom_for_components(components)
+
+      # Verify group is set for system components
+      stdlib_component = Enum.find(bom.components, &(&1.name == "stdlib"))
+      assert stdlib_component.group == "erlang.otp"
+    end
+  end
 end

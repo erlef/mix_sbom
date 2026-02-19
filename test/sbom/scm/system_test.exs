@@ -61,6 +61,30 @@ defmodule SBoM.SCM.SystemTest do
     end
   end
 
+  describe "group/2" do
+    test "returns elixir.stdlib for elixir apps" do
+      for app <- [:elixir, :mix, :logger, :eex, :ex_unit, :iex] do
+        assert SystemSCM.group(app, %{}) == "elixir.stdlib",
+               "Expected #{app} to have group elixir.stdlib"
+      end
+    end
+
+    test "returns erlang.otp for erlang apps" do
+      for app <- [:kernel, :stdlib, :crypto, :ssl] do
+        assert SystemSCM.group(app, %{}) == "erlang.otp",
+               "Expected #{app} to have group erlang.otp"
+      end
+    end
+
+    test "returns hex for hex app" do
+      assert SystemSCM.group(:hex, %{}) == "hex"
+    end
+
+    test "returns nil for unknown apps" do
+      assert SystemSCM.group(:unknown_app, %{}) == nil
+    end
+  end
+
   describe "mix_dep_to_purl/2" do
     test "includes download_url and vcs_url in qualifiers for elixir apps" do
       purl = SystemSCM.mix_dep_to_purl({:elixir, nil, []}, "1.15.0")

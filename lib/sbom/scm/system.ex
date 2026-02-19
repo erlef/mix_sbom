@@ -197,4 +197,10 @@ defmodule SBoM.SCM.SBoM.SCM.System do
   end
 
   def enhance_metadata(_app, _dependency), do: %{}
+
+  @impl SBoM.SCM
+  def group(app, _dependency) when is_elixir_app(app), do: "elixir.stdlib"
+  def group(app, _dependency) when is_erlang_app(app), do: "erlang.otp"
+  def group(app, _dependency) when is_hex_app(app), do: "hex"
+  def group(_app, _dependency), do: nil
 end

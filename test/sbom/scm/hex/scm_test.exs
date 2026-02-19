@@ -104,4 +104,42 @@ defmodule SBoM.SCM.Hex.SCMTest do
         assert.(response)
     end
   end
+
+  describe "group/2" do
+    test "returns repo from mix_lock" do
+      dependency = %{
+        mix_lock: [:hex, :jason, "1.4.0", "checksum", [:mix], [], "hexpm", "checksum"]
+      }
+
+      assert SCM.group(:jason, dependency) == "hexpm"
+    end
+
+    test "returns repo with org from mix_lock" do
+      dependency = %{
+        mix_lock: [:hex, :private_pkg, "1.0.0", "checksum", [:mix], [], "hexpm:myorg", "checksum"]
+      }
+
+      assert SCM.group(:private_pkg, dependency) == "hexpm:myorg"
+    end
+
+    test "returns repo from mix_dep when no mix_lock" do
+      dependency = %{
+        mix_dep: {:jason, "~> 1.0", [hex: :jason, repo: "hexpm"]}
+      }
+
+      assert SCM.group(:jason, dependency) == "hexpm"
+    end
+
+    test "returns repo with org from mix_dep" do
+      dependency = %{
+        mix_dep: {:private_pkg, "~> 1.0", [hex: :private_pkg, repo: "hexpm:myorg"]}
+      }
+
+      assert SCM.group(:private_pkg, dependency) == "hexpm:myorg"
+    end
+
+    test "returns nil when no hex info available" do
+      assert SCM.group(:app, %{}) == nil
+    end
+  end
 end

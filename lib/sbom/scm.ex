@@ -66,6 +66,17 @@ defmodule SBoM.SCM do
   @callback enhance_metadata(app :: atom(), dependency :: map()) :: map()
 
   @doc """
+  Returns the group identifier for the given dependency.
+
+  Used to categorize components in the SBOM by their origin. For example:
+  - Erlang OTP applications → `"erlang.otp"`
+  - Elixir stdlib applications → `"elixir.stdlib"`
+
+  Returns `nil` if no group applies.
+  """
+  @callback group(app :: atom(), dependency :: map()) :: String.t() | nil
+
+  @doc """
   Returns a list of app names representing sub-dependencies found in the lock.
 
   Only used if the SCM implementation supports this and provides custom logic.
