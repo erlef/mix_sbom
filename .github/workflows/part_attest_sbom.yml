@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+on:
+  workflow_call: {}
+
+name: "Attest SBOM"
+
+permissions:
+  contents: read
+
+jobs:
+  attest:
+    name: "Attest Build Artifacts with SBOM"
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          egress-policy: audit
+
+      - name: "Download Docs Artifact"
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: docs
+          path: .
+
+      - name: "Download Binary Artifact"
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: binary
+          path: .
+
+      - name: "Download Source SBoM Artifact"
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: sbom
+          path: .
+
+      - name: "Attest build artifacts with SBOM"
+        uses: actions/attest-sbom@115c3be05ff3974bcbd596578934b3f9ce39bf68 # v2.2.0
+        with:
+          subject-path: |
+            docs.tar.gz
+            mix_sbom_*
+          sbom-path: sbom.spdx.json

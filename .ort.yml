@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+excludes:
+  scopes:
+    - pattern: "excluded"
+      reason: "DEV_DEPENDENCY_OF"
+      comment: "Development dependencies not included in production builds"
+  paths:
+    # CI/CD and build configuration
+    - pattern: ".github/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "GitHub Actions workflows and configuration"
+    - pattern: "devenv.*"
+      reason: "BUILD_TOOL_OF"
+      comment: "Devenv configuration"
+    - pattern: ".envrc"
+      reason: "BUILD_TOOL_OF"
+      comment: "Direnv configuration"
+    - pattern: ".tool-versions"
+      reason: "BUILD_TOOL_OF"
+      comment: "asdf version manager configuration"
+
+    # Documentation
+    - pattern: "README.md"
+      reason: "DOCUMENTATION_OF"
+      comment: "Project readme"
+
+    # Tests
+    - pattern: "test/**"
+      reason: "TEST_OF"
+      comment: "Test files"
+    - pattern: "coveralls.json*"
+      reason: "TEST_TOOL_OF"
+      comment: "Coverage configuration"
+    - pattern: "config/**"
+      reason: "BUILD_TOOL_OF"
+      comment: "Test Application configuration"
+
+    # Static analysis configuration
+    - pattern: ".credo.exs"
+      reason: "BUILD_TOOL_OF"
+      comment: "Credo linter configuration"
+    - pattern: ".dialyzer_ignore.exs"
+      reason: "BUILD_TOOL_OF"
+      comment: "Dialyzer ignore configuration"
+    - pattern: ".formatter.exs"
+      reason: "BUILD_TOOL_OF"
+      comment: "Elixir formatter configuration"
+
+    # License metadata files
+    - pattern: "REUSE.toml"
+      reason: "DOCUMENTATION_OF"
+      comment: "REUSE configuration"
