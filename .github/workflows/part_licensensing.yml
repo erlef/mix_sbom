@@ -40,7 +40,7 @@ jobs:
 
       - name: Run OSS Review Toolkit
         id: ort
-        uses: oss-review-toolkit/ort-ci-github-action@1805edcf1f4f55f35ae6e4d2d9795ccfb29b6021 # v1.1.0
+        uses: oss-review-toolkit/ort-ci-github-action@086d928d24ef1653dc0777296b312fda5faaaf52 # v1.2.0
         with:
           image: ghcr.io/oss-review-toolkit/ort:80.0.0
           run: >-
