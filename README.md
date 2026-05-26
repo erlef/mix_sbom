@@ -120,6 +120,9 @@ output; the task should normally be run in the default (dev) environment*
 - `-r, --recurse`: Recurse into umbrella applications
 - `-x, --exclude-system-dependencies`: Exclude system dependencies (Erlang/OTP,
   Elixir, Hex) from the SBoM
+- `--hex-api-key KEY`: Hex.pm API key used to authenticate metadata requests,
+  avoiding rate limits. Falls back to the `HEX_API_KEY` environment variable
+  if not provided. Omitted entirely when neither is set.
 
 For more information:
 

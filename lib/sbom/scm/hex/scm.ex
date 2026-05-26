@@ -258,12 +258,14 @@ defmodule SBoM.SCM.Hex.SCM do
   defp fetch_hex_metadata(app, version) do
     package_payload =
       :hex_core.default_config()
+      |> maybe_put_api_key()
       |> :hex_api_package.get(Atom.to_string(app))
       |> hex_response()
 
     release_payload =
       if version do
         :hex_core.default_config()
+        |> maybe_put_api_key()
         |> :hex_api_release.get(Atom.to_string(app), version)
         |> hex_response()
       else
@@ -275,6 +277,15 @@ defmodule SBoM.SCM.Hex.SCM do
       Metadata.from_hex_payload(package_payload),
       Metadata.from_hex_payload(release_payload)
     )
+  end
+
+  @spec maybe_put_api_key(map()) :: map()
+  defp maybe_put_api_key(config) do
+    case Application.get_env(:sbom, :hex_api_key) do
+      nil -> config
+      "" -> config
+      key when is_binary(key) -> Map.put(config, :api_key, key)
+    end
   end
 
   @impl SCM
