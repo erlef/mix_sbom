@@ -44,6 +44,8 @@ defmodule SBoM.CLI do
 
   @spec generate_bom_content(Optimus.ParseResult.t()) :: :ok
   defp generate_bom_content(parse_result) do
+    set_hex_api_key(parse_result.options[:hex_api_key])
+
     case parse_result.args[:project_path] do
       nil ->
         generate_bom_content_in_project(parse_result)
@@ -52,6 +54,15 @@ defmodule SBoM.CLI do
         SBoM.Util.in_project(path, fn _mix_project ->
           generate_bom_content_in_project(parse_result)
         end)
+    end
+  end
+
+  @spec set_hex_api_key(String.t() | nil) :: :ok
+  defp set_hex_api_key(cli_key) do
+    case cli_key || System.get_env("HEX_API_KEY") do
+      nil -> Application.delete_env(:sbom, :hex_api_key)
+      "" -> Application.delete_env(:sbom, :hex_api_key)
+      key -> Application.put_env(:sbom, :hex_api_key, key)
     end
   end
 
@@ -222,6 +233,15 @@ defmodule SBoM.CLI do
               required: false,
               default: @default_classification,
               parser: &parse_classification/1
+            ],
+            hex_api_key: [
+              value_name: "HEX_API_KEY",
+              long: "--hex-api-key",
+              help:
+                "Hex.pm API key used to authenticate metadata requests, avoiding rate limits. " <>
+                  "Falls back to the HEX_API_KEY environment variable if not provided.",
+              required: false,
+              parser: :string
             ]
           ],
           flags: [
