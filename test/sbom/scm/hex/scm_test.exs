@@ -45,7 +45,7 @@ defmodule SBoM.SCM.Hex.SCMTest do
                  description: "A blazing fast JSON parser and generator in pure Elixir.",
                  licenses: ["Apache-2.0"],
                  links: %{
-                   "docs" => "https://hexdocs.pm/jason/",
+                   "docs" => "https://jason.hexdocs.pm/",
                    "github" => "https://github.com/michalmuskala/jason",
                    "homepage" => "https://hex.pm/packages/jason"
                  },
@@ -62,7 +62,7 @@ defmodule SBoM.SCM.Hex.SCMTest do
                  description: "A blazing fast JSON parser and generator in pure Elixir.",
                  licenses: ["Apache-2.0"],
                  links: %{
-                   "docs" => "https://hexdocs.pm/jason/1.4.4/",
+                   "docs" => "https://jason.hexdocs.pm/1.4.4/",
                    "github" => "https://github.com/michalmuskala/jason",
                    "homepage" => "https://hex.pm/packages/jason/1.4.4"
                  },
@@ -82,7 +82,7 @@ defmodule SBoM.SCM.Hex.SCMTest do
                  description: "A blazing fast JSON parser and generator in pure Elixir.",
                  licenses: ["Apache-2.0"],
                  links: %{
-                   "docs" => "https://hexdocs.pm/jason/1.4.4/",
+                   "docs" => "https://jason.hexdocs.pm/1.4.4/",
                    "github" => "https://github.com/michalmuskala/jason",
                    "homepage" => "https://hex.pm/packages/jason/1.4.4"
                  },

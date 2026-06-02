@@ -55,7 +55,7 @@ defmodule Number.Mixfile do
       maintainers: ["Daniel Berkompas"],
       licenses: ["MIT"],
       links: %{
-        "Changelog" => "https://hexdocs.pm/number/changelog.html",
+        "Changelog" => "https://number.hexdocs.pm/changelog.html",
         "GitHub" => @source_url
       }
     ]

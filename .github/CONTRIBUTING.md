@@ -114,7 +114,7 @@ $ cd mix_sbom
 ```
 
 Install `mix_sbom`'s dependencies using
-[mix](https://hexdocs.pm/mix/Mix.html):
+[mix](https://mix.hexdocs.pm/Mix.html):
 
 ```bash
 $ mix deps.get

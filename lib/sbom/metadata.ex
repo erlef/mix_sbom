@@ -108,7 +108,7 @@ defmodule SBoM.Metadata do
         "GitHub": "https://github.com/example/repo"
       }
     },
-    "docs_html_url": "https://hexdocs.pm/package/",
+    "docs_html_url": "https://package.hexdocs.pm/",
     "html_url": "https://hex.pm/packages/package"
   }
   ```
@@ -126,7 +126,7 @@ defmodule SBoM.Metadata do
       ...>       "GitHub" => "https://github.com/example/repo"
       ...>     }
       ...>   },
-      ...>   "docs_html_url" => "https://hexdocs.pm/package/",
+      ...>   "docs_html_url" => "https://package.hexdocs.pm/",
       ...>   "html_url" => "https://hex.pm/packages/package"
       ...> }
       ...>
@@ -136,7 +136,7 @@ defmodule SBoM.Metadata do
         source_url: "https://github.com/example/repo",
         links: %{
           "github" => "https://github.com/example/repo",
-          "docs" => "https://hexdocs.pm/package/",
+          "docs" => "https://package.hexdocs.pm/",
           "homepage" => "https://hex.pm/packages/package"
         }
       }
@@ -150,7 +150,7 @@ defmodule SBoM.Metadata do
       ...>       "Homepage" => "https://example.com"
       ...>     }
       ...>   },
-      ...>   "docs_html_url" => "https://hexdocs.pm/package/",
+      ...>   "docs_html_url" => "https://package.hexdocs.pm/",
       ...>   "html_url" => "https://hex.pm/packages/package"
       ...> }
       ...>
@@ -161,7 +161,7 @@ defmodule SBoM.Metadata do
         links: %{
           "github" => "https://github.com/example/repo",
           "homepage" => "https://example.com",
-          "docs" => "https://hexdocs.pm/package/"
+          "docs" => "https://package.hexdocs.pm/"
         }
       }
 

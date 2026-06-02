@@ -12,7 +12,7 @@ defmodule Sample1.MixProject do
       package: [
         links: %{
           Github: "https://github.com/sample1",
-          Changelog: "https://hexdocs.pm/sample1/changelog.html"
+          Changelog: "https://sample1.hexdocs.pm/changelog.html"
         }
       ]
     ]

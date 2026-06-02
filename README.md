@@ -19,7 +19,7 @@ Generates a Software Bill-of-Materials (SBoM) for Mix projects, in [CycloneDX](h
 format.
 
 <!-- ex_doc_ignore_start -->
-Full documentation can be found at [https://hexdocs.pm/sbom](https://hexdocs.pm/sbom).
+Full documentation can be found at [https://sbom.hexdocs.pm/](https://sbom.hexdocs.pm/).
 <!-- ex_doc_ignore_end -->
 
 For a quick demo of how this might be used, check out [this blog post](https://blog.voltone.net/post/24).
