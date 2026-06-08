@@ -105,10 +105,10 @@ defmodule SBoM.MixProject do
         {:doctest_formatter, "~> 0.4.0", only: [:dev, :test], runtime: false},
         {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
         {:excoveralls, "~> 0.5", only: [:test], runtime: false},
-        {:hex_core, "~> 0.15.0"},
+        {:hex_core, "~> 0.18.0"},
         {:jason, "~> 1.4", optional: true},
         {:optimus, "~> 0.6.1"},
-        {:protobuf, "~> 0.16.0"},
+        {:protobuf, "~> 0.17.0"},
         {:purl, "~> 0.3.0"},
         {:stream_data, "~> 1.2", only: [:test]},
         {:styler, "~> 1.1", only: [:dev, :test], runtime: false}
