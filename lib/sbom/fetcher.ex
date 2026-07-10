@@ -204,31 +204,19 @@ defmodule SBoM.Fetcher do
 
   @spec only_contributions(%{app_name() => dependency()}, only_index()) :: [only_contribution()]
   defp only_contributions(deps, effective) do
-    Enum.flat_map(deps, fn {app, dep} ->
-      case Map.get(effective, app) do
-        nil ->
-          []
+    for {app, dep} <- deps,
+        parent_only = Map.get(effective, app),
+        not is_nil(parent_only),
+        children = Map.get(dep, :dependencies, []),
+        child <- List.wrap(children),
+        {:ok, child_dep} <- [Map.fetch(deps, child)] do
+      declared =
+        dep
+        |> declared_only(child_dep)
+        |> restrict_only(parent_only)
 
-        parent_only ->
-          dep
-          |> Map.get(:dependencies, [])
-          |> List.wrap()
-          |> Enum.flat_map(fn child ->
-            case Map.fetch(deps, child) do
-              {:ok, child_dep} ->
-                declared =
-                  dep
-                  |> declared_only(child_dep)
-                  |> restrict_only(parent_only)
-
-                [{child, declared}]
-
-              :error ->
-                []
-            end
-          end)
-      end
-    end)
+      {child, declared}
+    end
   end
 
   @spec declared_only(dependency(), dependency()) :: only_scope()
@@ -429,6 +417,5 @@ defmodule SBoM.Fetcher do
   @doc false
   @spec drop_empty(map :: %{key => value | nil}) :: %{key => value}
         when key: term(), value: term()
-  def drop_empty(map),
-    do: map |> Enum.reject(fn {_key, value} -> value in [nil, ""] end) |> Map.new()
+  def drop_empty(map), do: map |> Enum.reject(fn {_key, value} -> value in [nil, ""] end) |> Map.new()
 end
