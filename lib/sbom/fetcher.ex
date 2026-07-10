@@ -49,6 +49,10 @@ defmodule SBoM.Fetcher do
   """
   @type fetch_opts() :: [system_dependencies: boolean()]
 
+  @typep only_scope() :: :* | [atom()]
+  @typep only_index() :: %{app_name() => nil | only_scope()}
+  @typep only_contribution() :: {app_name(), only_scope()}
+
   @doc """
   Fetches dependencies from a specific source.
 
@@ -154,9 +158,81 @@ defmodule SBoM.Fetcher do
             filter_system_dependencies(deps)
           end
 
-        transform_all(deps)
+        deps
+        |> propagate_only()
+        |> transform_all()
     end
   end
+
+  @doc false
+  @spec propagate_only(%{app_name() => dependency()}) :: %{app_name() => dependency()}
+  def propagate_only(deps) do
+    seed =
+      Map.new(deps, fn
+        {app, %{root: true}} -> {app, :*}
+        {app, _dep} -> {app, nil}
+      end)
+
+    effective = resolve_only(deps, seed)
+
+    Map.new(deps, fn {app, dep} ->
+      case Map.get(effective, app) do
+        nil -> {app, dep}
+        only -> {app, Map.put(dep, :only, only)}
+      end
+    end)
+  end
+
+  @spec resolve_only(%{app_name() => dependency()}, only_index()) :: only_index()
+  defp resolve_only(deps, effective) do
+    reducer =
+      fn {child, contribution}, acc ->
+        Map.update(acc, child, contribution, &union_only(&1, contribution))
+      end
+
+    next =
+      deps
+      |> only_contributions(effective)
+      |> Enum.reduce(effective, reducer)
+
+    if next == effective do
+      effective
+    else
+      resolve_only(deps, next)
+    end
+  end
+
+  @spec only_contributions(%{app_name() => dependency()}, only_index()) :: [only_contribution()]
+  defp only_contributions(deps, effective) do
+    for {app, dep} <- deps,
+        parent_only = Map.get(effective, app),
+        not is_nil(parent_only),
+        children = Map.get(dep, :dependencies, []),
+        child <- List.wrap(children),
+        {:ok, child_dep} <- [Map.fetch(deps, child)] do
+      declared =
+        dep
+        |> declared_only(child_dep)
+        |> restrict_only(parent_only)
+
+      {child, declared}
+    end
+  end
+
+  @spec declared_only(dependency(), dependency()) :: only_scope()
+  defp declared_only(%{root: true}, child_dep), do: Map.get(child_dep, :only, :*)
+  defp declared_only(_parent_dep, _child_dep), do: :*
+
+  @spec restrict_only(only_scope(), only_scope()) :: only_scope()
+  defp restrict_only(declared, :*), do: declared
+  defp restrict_only(:*, parent), do: parent
+  defp restrict_only(declared, parent), do: parent -- (parent -- declared)
+
+  @spec union_only(nil | only_scope(), only_scope()) :: only_scope()
+  defp union_only(nil, right), do: right
+  defp union_only(:*, _right), do: :*
+  defp union_only(_left, :*), do: :*
+  defp union_only(left, right), do: Enum.uniq(left ++ right)
 
   @spec filter_system_dependencies(%{app_name() => dependency()}) :: %{app_name() => dependency()}
   defp filter_system_dependencies(deps) do
