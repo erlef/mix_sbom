@@ -80,6 +80,43 @@ defmodule SBoM.FetcherTest do
     end
   end
 
+  describe inspect(&Fetcher.propagate_only/1) do
+    test "inherits dev-only parent's scope for transitive dependencies" do
+      deps =
+        Fetcher.propagate_only(%{
+          root: %{root: true, only: :*, dependencies: [:credo]},
+          credo: %{only: [:dev], dependencies: [:bunt]},
+          bunt: %{only: :*, dependencies: []}
+        })
+
+      assert %{only: [:dev]} = deps.credo
+      assert %{only: [:dev]} = deps.bunt
+    end
+
+    test "unions scopes for shared dependencies" do
+      deps =
+        Fetcher.propagate_only(%{
+          root: %{root: true, only: :*, dependencies: [:credo, :jason]},
+          credo: %{only: [:dev], dependencies: [:shared]},
+          jason: %{only: :*, dependencies: [:shared]},
+          shared: %{only: :*, dependencies: []}
+        })
+
+      assert %{only: :*} = deps.shared
+    end
+
+    test "a dev only dep pulled by a prod dep resolves to prod" do
+      deps =
+        Fetcher.propagate_only(%{
+          root: %{root: true, only: :*, dependencies: [:jason, :oban]},
+          jason: %{only: [:dev], dependencies: []},
+          oban: %{only: :*, dependencies: [:jason]}
+        })
+
+      assert %{only: :*} = deps.jason
+    end
+  end
+
   @tag :tmp_dir
   @tag fixture_app: "umbrella"
   test "does umbrella correctly", %{app_path: app_path, app_name: app_name} do
