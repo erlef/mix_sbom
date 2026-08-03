@@ -26,7 +26,7 @@
 
   languages.zig = {
     enable = true;
-    package = pkgs.zig_0_15;
+    package = pkgs.zig_0_16;
   };
 
   scripts = {
