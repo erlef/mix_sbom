@@ -12,8 +12,6 @@ defmodule SBoM.Fetcher.MixRuntime do
 
   @behaviour SBoM.Fetcher
 
-  import SBoM.SCM.System, only: [is_system_app: 1]
-
   alias SBoM.Fetcher
   alias SBoM.Metadata
 
@@ -136,19 +134,8 @@ defmodule SBoM.Fetcher.MixRuntime do
       # Extract metadata using centralized normalization
       metadata = Metadata.from_mix_config(config)
 
-      load_from_app_spec? = not is_system_app(app) or not in_burrito?()
-
-      version =
-        config[:version] ||
-          if load_from_app_spec? do
-            get_app_version(app)
-          end
-
-      description =
-        metadata[:description] ||
-          if load_from_app_spec? do
-            get_app_description(app)
-          end
+      version = config[:version] || get_app_version(app)
+      description = metadata[:description] || get_app_description(app)
 
       {app,
        Map.merge(metadata, %{
@@ -167,7 +154,7 @@ defmodule SBoM.Fetcher.MixRuntime do
 
   @spec get_app_version(app :: Fetcher.app_name()) :: String.t() | nil
   defp get_app_version(app) do
-    case Application.spec(app, :vsn) do
+    case app_spec(app, :vsn) do
       nil -> nil
       vsn -> to_string(vsn)
     end
@@ -175,21 +162,31 @@ defmodule SBoM.Fetcher.MixRuntime do
 
   @spec get_app_description(app :: Fetcher.app_name()) :: String.t() | nil
   defp get_app_description(app) do
-    case Application.spec(app, :description) do
+    case app_spec(app, :description) do
       nil -> nil
       desc when is_list(desc) -> to_string(desc)
       desc -> desc
     end
   end
 
-  @spec in_burrito?() :: boolean()
-  defp in_burrito?
+  @spec app_spec(app :: Fetcher.app_name(), key :: atom()) :: term()
+  defp app_spec(app, key)
 
   case Code.ensure_loaded(Burrito.Util) do
     {:module, Burrito.Util} ->
-      defp in_burrito?, do: Burrito.Util.running_standalone?()
+      # Inside a Burrito binary the bundled system apps describe the build
+      # environment rather than the project, so their specs are not read.
+      defp app_spec(app, key) do
+        import SBoM.SCM.System, only: [is_system_app: 1]
+
+        if is_system_app(app) and Burrito.Util.running_standalone?() do
+          nil
+        else
+          Application.spec(app, key)
+        end
+      end
 
     _otherwise ->
-      defp in_burrito?, do: false
+      defp app_spec(app, key), do: Application.spec(app, key)
   end
 end

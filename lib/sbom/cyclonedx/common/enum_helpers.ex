@@ -152,7 +152,7 @@ defmodule SBoM.CycloneDX.Common.EnumHelpers do
   # Note: For XML encoding, this returns "" for :CLASSIFICATION_NULL instead of nil
   @spec classification_to_string_xml(classification()) :: String.t()
   def classification_to_string_xml(:CLASSIFICATION_NULL), do: ""
-  def classification_to_string_xml(type), do: classification_to_string(type) || ""
+  def classification_to_string_xml(type), do: classification_to_string(type)
 
   @spec scope_to_string(scope() | nil) :: String.t() | nil
   for {enum_value, string_value} <- @scope_mappings do
