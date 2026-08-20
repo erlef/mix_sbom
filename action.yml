@@ -28,6 +28,30 @@ inputs:
     required: false
     description: "Include system dependencies (Erlang/OTP, Elixir, Hex) in the SBoM."
     default: "true"
+  only:
+    required: false
+    description: "Only include components used in the specified environments. Space-separated, e.g. 'dev test prod'. Defaults to all environments."
+    default: ""
+  targets:
+    required: false
+    description: "Only include components used for the specified Mix targets. Space-separated. Defaults to all targets."
+    default: ""
+  classification:
+    required: false
+    description: "Type of application being described. One of: application, framework, library, operating-system, device, file, container, firmware, device-driver, platform, machine-learning-model, data, cryptographic-asset."
+    default: ""
+  hex-api-key:
+    required: false
+    description: "Hex.pm API key used to authenticate metadata requests, avoiding rate limits."
+    default: ""
+  recurse:
+    required: false
+    description: "Recurse into umbrella applications to generate SBoM for all apps."
+    default: "false"
+  pretty:
+    required: false
+    description: "Pretty print the SBoM."
+    default: "false"
 outputs:
   sbom-path:
     description: "Path to the generated SBoM"
@@ -80,13 +104,44 @@ runs:
 
         OUTPUT_TEMP="$RUNNER_TEMP/$RANDOM.cdx.$FORMAT"
 
-        mix_sbom \
-          cyclonedx \
-          --schema="$SCHEMA" \
-          --format="$FORMAT" \
-          --output="$OUTPUT_TEMP" \
-          ${{ inputs.include-system-dependencies == 'true' && '' || '--exclude-system-dependencies' }} \
-          "$PROJECT_PATH"
+        ARGS=(
+          cyclonedx
+          --schema="$SCHEMA"
+          --format="$FORMAT"
+          --output="$OUTPUT_TEMP"
+        )
+
+        if [ "$EXCLUDE_SYSTEM_DEPENDENCIES" = "true" ]; then
+          ARGS+=(--exclude-system-dependencies)
+        fi
+
+        for value in $ONLY; do
+          ARGS+=(--only "$value")
+        done
+
+        for value in $TARGETS; do
+          ARGS+=(--targets "$value")
+        done
+
+        if [ -n "$CLASSIFICATION" ]; then
+          ARGS+=(--classification "$CLASSIFICATION")
+        fi
+
+        if [ -n "$HEX_API_KEY" ]; then
+          ARGS+=(--hex-api-key "$HEX_API_KEY")
+        fi
+
+        if [ "$RECURSE" = "true" ]; then
+          ARGS+=(--recurse)
+        fi
+
+        if [ "$PRETTY" = "true" ]; then
+          ARGS+=(--pretty)
+        fi
+
+        ARGS+=("$PROJECT_PATH")
+
+        mix_sbom "${ARGS[@]}"
 
         echo "output=$OUTPUT_TEMP" >> "$GITHUB_OUTPUT"
       shell: "bash"
@@ -94,3 +149,10 @@ runs:
         PROJECT_PATH: "${{ inputs.project-path }}"
         SCHEMA: "${{ inputs.schema }}"
         FORMAT: "${{ inputs.format }}"
+        EXCLUDE_SYSTEM_DEPENDENCIES: "${{ inputs.include-system-dependencies == 'true' && 'false' || 'true' }}"
+        ONLY: "${{ inputs.only }}"
+        TARGETS: "${{ inputs.targets }}"
+        CLASSIFICATION: "${{ inputs.classification }}"
+        HEX_API_KEY: "${{ inputs.hex-api-key }}"
+        RECURSE: "${{ inputs.recurse }}"
+        PRETTY: "${{ inputs.pretty }}"

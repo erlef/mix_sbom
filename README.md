@@ -163,6 +163,20 @@ an SBoM for your project.
   (defaults to "false")
 - `include-system-dependencies`: Include system dependencies (Erlang/OTP,
   Elixir, Hex) in the SBoM (defaults to "true")
+- `only`: Only include components used in the specified environments,
+  space-separated, e.g. `"dev test prod"` (defaults to all environments)
+- `targets`: Only include components used for the specified Mix targets,
+  space-separated (defaults to all targets)
+- `classification`: Type of application being described. One of
+  `application`, `framework`, `library`, `operating-system`, `device`,
+  `file`, `container`, `firmware`, `device-driver`, `platform`,
+  `machine-learning-model`, `data`, `cryptographic-asset`
+  (defaults to `application`)
+- `hex-api-key`: Hex.pm API key used to authenticate metadata requests,
+  avoiding rate limits
+- `recurse`: Recurse into umbrella applications to generate SBoM for all apps
+  (defaults to "false")
+- `pretty`: Pretty print the SBoM (defaults to "false")
 
 ### Outputs
 
