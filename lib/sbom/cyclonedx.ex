@@ -307,6 +307,7 @@ defmodule SBoM.CycloneDX do
       name: name,
       group: component[:group],
       version: component_version(component, schema_version),
+      versionRange: version_range(component),
       purl: to_string(component.package_url),
       scope: dependency_scope(component),
       hashes: hashes,
@@ -323,6 +324,17 @@ defmodule SBoM.CycloneDX do
           &is_nil/1
         )
     )
+  end
+
+  @spec version_range(component :: Fetcher.dependency()) :: String.t() | nil
+  defp version_range(component) do
+    with nil <- component[:version],
+         range when not is_nil(range) <- component[:version_requirement],
+         {:ok, vers} <- Version.Requirement.Vers.to_vers(range, "hex") do
+      vers
+    else
+      _version_or_no_range -> nil
+    end
   end
 
   @spec source_url_reference(
@@ -577,7 +589,7 @@ defmodule SBoM.CycloneDX do
   defp component_version(component, schema_version) do
     case schema_version do
       "1.3" -> component[:version] || component[:version_requirement] || "unknown"
-      # TODO: Handle VersionRequirement separately in 1.7+
+      "1.7" -> component[:version]
       _schema_version -> component[:version] || component[:version_requirement]
     end
   end

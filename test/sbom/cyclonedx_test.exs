@@ -247,4 +247,53 @@ defmodule SBoM.CycloneDXTest do
       assert stdlib_component.group == "erlang.otp"
     end
   end
+
+  describe "component version" do
+    @requirement_only %{
+      dep: %{
+        version_requirement: "~> 1.2.3",
+        package_url: Purl.new!("pkg:hex/dep"),
+        dependencies: []
+      }
+    }
+
+    test "1.7 carries the requirement in versionRange, leaving version empty" do
+      bom = CycloneDX.bom_for_components(@requirement_only, version: "1.7")
+      component = Enum.find(bom.components, &(&1.name == :dep))
+
+      assert component.version == nil
+      assert component.versionRange == "vers:hex/>=1.2.3|<1.3.0-0"
+    end
+
+    test "earlier schemas fall back to the requirement as the version" do
+      for schema <- ["1.6", "1.5", "1.4", "1.3"] do
+        bom = CycloneDX.bom_for_components(@requirement_only, version: schema)
+        component = Enum.find(bom.components, &(&1.name == :dep))
+
+        assert component.version == "~> 1.2.3", "unexpected version for schema #{schema}"
+        refute Map.has_key?(component, :versionRange), "unexpected versionRange for schema #{schema}"
+      end
+    end
+
+    test "a concrete version is used regardless of schema" do
+      components = %{dep: Map.put(@requirement_only.dep, :version, "1.2.5")}
+
+      for schema <- ["1.7", "1.6", "1.5", "1.4", "1.3"] do
+        bom = CycloneDX.bom_for_components(components, version: schema)
+        component = Enum.find(bom.components, &(&1.name == :dep))
+
+        assert component.version == "1.2.5", "unexpected version for schema #{schema}"
+      end
+    end
+
+    test "version and versionRange are never set at the same time" do
+      components = %{dep: Map.put(@requirement_only.dep, :version, "1.2.5")}
+
+      bom = CycloneDX.bom_for_components(components, version: "1.7")
+      component = Enum.find(bom.components, &(&1.name == :dep))
+
+      assert component.version == "1.2.5"
+      assert component.versionRange == nil
+    end
+  end
 end
