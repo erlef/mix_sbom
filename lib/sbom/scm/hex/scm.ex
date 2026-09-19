@@ -51,11 +51,28 @@ defmodule SBoM.SCM.Hex.SCM do
         ^repository_url -> %{"repository_url" => repository_url}
       end
 
+    {version, qualifiers} =
+      case {version, requirement} do
+        # Deps given as `{app, opts}` carry no requirement at all.
+        {nil, nil} ->
+          {nil, qualifiers}
+
+        {nil, requirement} ->
+          case {Version.parse(requirement), Version.Requirement.Vers.to_vers(requirement, "hex")} do
+            {{:ok, %Version{} = ver}, _vers} -> {to_string(ver), qualifiers}
+            {:error, {:ok, vers}} -> {nil, Map.put(qualifiers, "vers", vers)}
+            {:error, :error} -> {nil, qualifiers}
+          end
+
+        {version, _requirement} ->
+          {version, qualifiers}
+      end
+
     Purl.new!(%Purl{
       type: "hex",
       namespace: hex_namespace(opts[:repo]),
       name: opts |> Keyword.fetch!(:hex) |> to_string(),
-      version: version || requirement,
+      version: version,
       qualifiers: qualifiers
     })
   end
