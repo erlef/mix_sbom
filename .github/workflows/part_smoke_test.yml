@@ -49,7 +49,7 @@ jobs:
       - name: "Download Burrito Binary"
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v5.0.0
         with:
-          name: binary
+          name: binary-Linux_X64
           path: ./burrito_artifacts
 
       - name: "Make Binary Executable"
