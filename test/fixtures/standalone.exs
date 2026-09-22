@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
 
 # Drives SBoM.Application.start/2 down the Burrito standalone path in a
 # subprocess, to prove the callback halts instead of returning.

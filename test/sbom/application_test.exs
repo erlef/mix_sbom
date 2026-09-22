@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
 
 defmodule SBoM.ApplicationTest do
   use SBoM.FixtureCase, async: false
