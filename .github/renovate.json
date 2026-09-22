@@ -1,3 +1,16 @@
 {
-  "enabledManagers": ["asdf"]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabledManagers": ["asdf", "custom.regex"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update the pinned CycloneDX CLI release binary and its checksum",
+      "managerFilePatterns": ["/^\\.github/actions/install-cyclonedx-cli/action\\.yml$/"],
+      "matchStrings": [
+        "VERSION:\\s*\"(?<currentValue>[^\"]+)\"[\\s\\S]*?SHA256:\\s*\"(?<currentDigest>[^\"]+)\""
+      ],
+      "depNameTemplate": "CycloneDX/cyclonedx-cli",
+      "datasourceTemplate": "github-release-attachments"
+    }
+  ]
 }
