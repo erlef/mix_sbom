@@ -96,12 +96,7 @@ jobs:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
 
-      - name: "Install Test OS Dependencies"
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
-          brew tap cyclonedx/cyclonedx
-          brew install cyclonedx/cyclonedx/cyclonedx-cli
+      - uses: ./.github/actions/install-cyclonedx-cli
 
       - run: mix coveralls.lcov --exclude property
         continue-on-error: ${{ matrix.unstable }}
@@ -129,12 +124,7 @@ jobs:
         with:
           mix-env: test
 
-      - name: "Install Test OS Dependencies"
-        run: |
-          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
-          brew tap cyclonedx/cyclonedx
-          brew install cyclonedx/cyclonedx/cyclonedx-cli
+      - uses: ./.github/actions/install-cyclonedx-cli
 
       - run: |
           mix coveralls.lcov \

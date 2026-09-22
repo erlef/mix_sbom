@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# SPDX-FileCopyrightText: 2026 Erlang Ecosystem Foundation
+
+name: "Install CycloneDX CLI"
+description: "Installs the CycloneDX CLI from a pinned, checksum-verified release binary"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Install CycloneDX CLI"
+      run: |
+        set -euo pipefail
+
+        curl \
+          --fail \
+          --silent \
+          --show-error \
+          --location \
+          --retry 3 \
+          --retry-delay 5 \
+          --output "$RUNNER_TEMP/cyclonedx" \
+          "https://github.com/CycloneDX/cyclonedx-cli/releases/download/${VERSION}/${ASSET}"
+
+        echo "${SHA256}  $RUNNER_TEMP/cyclonedx" | sha256sum --check --strict
+
+        install -m 0755 "$RUNNER_TEMP/cyclonedx" /usr/local/bin/cyclonedx
+
+        # The binary is a self-contained .NET app and needs libicu, which the
+        # GitHub runner image ships but a slimmer image may not.
+        if ! ldconfig -p | grep -q libicuuc; then
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libicu-dev
+        fi
+
+        cyclonedx --version
+      shell: bash
+      env:
+        VERSION: "v0.33.1"
+        ASSET: "cyclonedx-linux-x64"
+        SHA256: "bfc8b2538da86fe239bc53658bbb63c1c8c510a293c1e6891aa5bea5d3c58746"
