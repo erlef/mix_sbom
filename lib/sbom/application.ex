@@ -30,10 +30,12 @@ defmodule SBoM.Application do
           try do
             CLI.run(Util.Args.argv(), :burrito)
 
-            System.stop(0)
+            Logger.flush()
+            System.halt(0)
           rescue
             e in Mix.Error ->
               IO.write(:stderr, "#{e.message}\n")
+              Logger.flush()
               System.halt(e.mix)
           end
         end
