@@ -311,7 +311,7 @@ defmodule SBoM.Fetcher do
       Enum.uniq((dependency[:dependencies] || []) ++ lock_dependencies(dependency))
 
     # Fetch package metadata from SCM if available
-    package_metadata = get_package_metadata(app, dependency, enhance_metadata?)
+    package_metadata = if enhance_metadata?, do: get_package_metadata(app, dependency), else: %{}
 
     # Merge package metadata with dependency (prefer existing values, fill gaps)
     dependency =
@@ -380,13 +380,8 @@ defmodule SBoM.Fetcher do
     end
   end
 
-  @spec get_package_metadata(app_name(), dependency(), enhance_metadata? :: boolean()) ::
-          dependency()
-  defp get_package_metadata(app, dependency, enhance_metadata?)
-
-  defp get_package_metadata(_app, _dependency, false), do: %{}
-
-  defp get_package_metadata(app, dependency, true) do
+  @spec get_package_metadata(app_name(), dependency()) :: dependency()
+  defp get_package_metadata(app, dependency) do
     with scm when not is_nil(scm) <- dependency[:scm],
          impl when not is_nil(impl) <- SCM.implementation(scm),
          true <- function_exported?(impl, :enhance_metadata, 2) do
