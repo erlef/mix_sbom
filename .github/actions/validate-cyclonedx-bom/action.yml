@@ -18,13 +18,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Install CycloneDX CLI"
-      run: |
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        echo "PATH=$PATH" >> "$GITHUB_ENV"
-        brew tap cyclonedx/cyclonedx
-        brew install cyclonedx/cyclonedx/cyclonedx-cli
-      shell: bash
+    - uses: ./.github/actions/install-cyclonedx-cli
 
     - name: "Test All Combinations"
       env:
