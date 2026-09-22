@@ -163,7 +163,7 @@ end
 defimpl SBoM.CycloneDX.XML.Encodable, for: BitString do
   @impl Encodable
   def to_xml_element(value) do
-    [[value]]
+    [[SBoM.CycloneDX.XML.Encoder.replace_illegal_characters(value)]]
   end
 end
 
