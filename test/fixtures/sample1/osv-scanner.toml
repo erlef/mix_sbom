@@ -1,11 +1,95 @@
-[[IgnoredVulns]]
-id = "GHSA-9fm9-hp7p-53mf"
+[[PackageOverrides]]
+name = "certifi"
+ecosystem = "Hex"
+ignore = true
 reason = "This is only a fixture"
 
-[[IgnoredVulns]]
-id = "GHSA-vq52-99r9-h5pw"
+[[PackageOverrides]]
+name = "earmark"
+ecosystem = "Hex"
+ignore = true
 reason = "This is only a fixture"
 
-[[IgnoredVulns]]
-id = "GHSA-qpmc-wprv-x746"
+[[PackageOverrides]]
+name = "ex_doc"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "hackney"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "idna"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "jason"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "makeup"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "makeup_elixir"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "meck"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "metrics"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "mimerl"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "nimble_parsec"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "parse_trans"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "ssl_verify_fun"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "sweet_xml"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "unicode_util_compat"
+ecosystem = "Hex"
+ignore = true
 reason = "This is only a fixture"

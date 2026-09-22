@@ -1,17 +1,29 @@
 [[PackageOverrides]]
-name = "certifi"
+name = "bunt"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "hackney"
+name = "credo"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "idna"
+name = "expo"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "file_system"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "heroicons"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
@@ -23,37 +35,7 @@ ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "metrics"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "mimerl"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "parse_trans"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "ssl_verify_fun"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "sweet_xml"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "unicode_util_compat"
+name = "mime"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
