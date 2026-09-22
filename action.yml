@@ -52,6 +52,10 @@ inputs:
     required: false
     description: "Pretty print the SBoM."
     default: "false"
+  enhance-metadata:
+    required: false
+    description: "Enrich components with metadata from external sources (e.g. the Hex.pm API). Requires additional HTTP requests. Set to 'false' to disable."
+    default: "true"
 outputs:
   sbom-path:
     description: "Path to the generated SBoM"
@@ -139,6 +143,10 @@ runs:
           ARGS+=(--pretty)
         fi
 
+        if [ "$NO_ENHANCE_METADATA" = "true" ]; then
+          ARGS+=(--no-enhance-metadata)
+        fi
+
         ARGS+=("$PROJECT_PATH")
 
         mix_sbom "${ARGS[@]}"
@@ -156,3 +164,4 @@ runs:
         HEX_API_KEY: "${{ inputs.hex-api-key }}"
         RECURSE: "${{ inputs.recurse }}"
         PRETTY: "${{ inputs.pretty }}"
+        NO_ENHANCE_METADATA: "${{ inputs.enhance-metadata == 'true' && 'false' || 'true' }}"

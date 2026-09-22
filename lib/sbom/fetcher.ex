@@ -46,8 +46,16 @@ defmodule SBoM.Fetcher do
 
     * `:system_dependencies` - When `true` (default), includes system dependencies
       (Erlang/OTP, Elixir, Hex). When `false`, excludes them from the result.
+    * `:enhance_metadata` - When `true` (default), enriches dependencies with
+      metadata from external sources (for example the Hex.pm API), which
+      requires additional HTTP requests. When `false`, no such requests are
+      made and only locally available data is used.
   """
-  @type fetch_opts() :: [system_dependencies: boolean()]
+  @type fetch_opts() :: [system_dependencies: boolean(), enhance_metadata: boolean()]
+
+  # Options for `transform_all/2`. `:enhance_metadata` - see `t:fetch_opts/0`.
+  @typedoc false
+  @type transform_opts() :: [enhance_metadata: boolean()]
 
   @typep only_scope() :: :* | [atom()]
   @typep only_index() :: %{app_name() => nil | only_scope()}
@@ -136,6 +144,7 @@ defmodule SBoM.Fetcher do
   @spec fetch(fetch_opts()) :: %{String.t() => dependency()} | nil
   def fetch(opts \\ []) do
     include_system = Keyword.get(opts, :system_dependencies, true)
+    transform_opts = Keyword.take(opts, [:enhance_metadata])
 
     @manifest_fetchers
     |> Enum.map(& &1.fetch())
@@ -160,7 +169,7 @@ defmodule SBoM.Fetcher do
 
         deps
         |> propagate_only()
-        |> transform_all()
+        |> transform_all(transform_opts)
     end
   end
 
@@ -266,15 +275,18 @@ defmodule SBoM.Fetcher do
   defp merge_property(_key, _left, right), do: right
 
   @doc false
-  @spec transform_all(dependencies :: %{app_name() => dependency()}) :: %{
-          String.t() => dependency()
-        }
-  def transform_all(dependencies) do
+  @spec transform_all(dependencies :: %{app_name() => dependency()}, opts :: transform_opts()) ::
+          %{
+            String.t() => dependency()
+          }
+  def transform_all(dependencies, opts \\ []) do
+    enhance_metadata? = Keyword.get(opts, :enhance_metadata, true)
+
     dependencies =
       dependencies
       |> Task.async_stream(
         fn {app, dependency} ->
-          {app, transform(app, drop_empty(dependency))}
+          {app, transform(app, drop_empty(dependency), enhance_metadata?)}
         end,
         ordered: false
       )
@@ -293,13 +305,13 @@ defmodule SBoM.Fetcher do
     end)
   end
 
-  @spec transform(app_name(), dependency()) :: dependency()
-  defp transform(app, dependency) do
+  @spec transform(app_name(), dependency(), enhance_metadata? :: boolean()) :: dependency()
+  defp transform(app, dependency, enhance_metadata?) do
     sub_dependencies =
       Enum.uniq((dependency[:dependencies] || []) ++ lock_dependencies(dependency))
 
     # Fetch package metadata from SCM if available
-    package_metadata = get_package_metadata(app, dependency)
+    package_metadata = get_package_metadata(app, dependency, enhance_metadata?)
 
     # Merge package metadata with dependency (prefer existing values, fill gaps)
     dependency =
@@ -368,8 +380,13 @@ defmodule SBoM.Fetcher do
     end
   end
 
-  @spec get_package_metadata(app_name(), dependency()) :: dependency()
-  defp get_package_metadata(app, dependency) do
+  @spec get_package_metadata(app_name(), dependency(), enhance_metadata? :: boolean()) ::
+          dependency()
+  defp get_package_metadata(app, dependency, enhance_metadata?)
+
+  defp get_package_metadata(_app, _dependency, false), do: %{}
+
+  defp get_package_metadata(app, dependency, true) do
     with scm when not is_nil(scm) <- dependency[:scm],
          impl when not is_nil(impl) <- SCM.implementation(scm),
          true <- function_exported?(impl, :enhance_metadata, 2) do

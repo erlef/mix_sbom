@@ -35,10 +35,10 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
           Mix.Task.rerun("deps.get")
           Mix.Shell.Process.flush()
 
-          Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", bom_path])
+          Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", bom_path])
           assert_received {:mix_shell, :info, ["* creating bom.cdx"]}
 
-          Mix.Task.rerun("sbom.cyclonedx", ["-o", bom_path])
+          Mix.Task.rerun("sbom.cyclonedx", ["-n", "-o", bom_path])
           assert_received {:mix_shell, :info, ["* unchanged bom.cdx"]}
 
           assert_valid_cyclonedx_bom(bom_path, :protobuf)
@@ -58,7 +58,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
           Mix.Task.rerun("deps.get")
           Mix.Shell.Process.flush()
 
-          Mix.Task.rerun("sbom.cyclonedx", ["-o", "-"])
+          Mix.Task.rerun("sbom.cyclonedx", ["-n", "-o", "-"])
         end)
       end)
 
@@ -71,7 +71,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
   @tag fixture_app: "sample1"
   test "schema validation", %{app_path: app_path} do
     Util.in_project(app_path, fn _mix_module ->
-      Mix.Task.rerun("sbom.cyclonedx", ["-f", "-s", "1.3"])
+      Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-s", "1.3"])
       assert_received {:mix_shell, :info, ["* creating bom.cdx.json"]}
 
       msg = Regex.escape("invalid value \"invalid\" for --schema(-s) option")
@@ -90,7 +90,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
         Util.in_project(app_path, fn _mix_module ->
           bom_path = Path.join(app_path, "bom.cdx.json")
 
-          Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", bom_path])
+          Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", bom_path])
           assert_received {:mix_shell, :info, ["* creating bom.cdx.json"]}
 
           assert_valid_cyclonedx_bom(bom_path, :json)
@@ -107,7 +107,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
         Util.in_project(app_path, fn _mix_module ->
           bom_path = Path.join([app_path, "apps", "child_app_name_to_replace", "bom.cdx.json"])
 
-          Mix.Task.rerun("sbom.cyclonedx", ["-f", "-r"])
+          Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-r"])
           assert_received {:mix_shell, :info, ["==> child_app_name_to_replace"]}
           assert_received {:mix_shell, :info, ["* creating bom.cdx.json"]}
 
@@ -124,7 +124,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       Util.in_project(app_path, fn _mix_module ->
         # Test filtering for dev only
         dev_bom_path = Path.join(app_path, "bom_dev.cdx.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", dev_bom_path, "--only", "dev"])
+        Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", dev_bom_path, "--only", "dev"])
         assert_received {:mix_shell, :info, ["* creating bom_dev.cdx.json"]}
 
         dev_bom_content = File.read!(dev_bom_path)
@@ -150,7 +150,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
 
         # Test filtering for test only
         test_bom_path = Path.join(app_path, "bom_test.cdx.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", test_bom_path, "--only", "test"])
+        Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", test_bom_path, "--only", "test"])
         assert_received {:mix_shell, :info, ["* creating bom_test.cdx.json"]}
 
         test_bom_content = File.read!(test_bom_path)
@@ -181,7 +181,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       Util.in_project(app_path, fn _mix_module ->
         # Test filtering for host target
         host_bom_path = Path.join(app_path, "bom_host.cdx.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", host_bom_path, "--targets", "host"])
+        Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", host_bom_path, "--targets", "host"])
         assert_received {:mix_shell, :info, ["* creating bom_host.cdx.json"]}
 
         host_bom_content = File.read!(host_bom_path)
@@ -200,7 +200,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
 
         # Test filtering for rpi target
         rpi_bom_path = Path.join(app_path, "bom_rpi.cdx.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", rpi_bom_path, "--targets", "rpi"])
+        Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", rpi_bom_path, "--targets", "rpi"])
         assert_received {:mix_shell, :info, ["* creating bom_rpi.cdx.json"]}
 
         rpi_bom_content = File.read!(rpi_bom_path)
@@ -224,7 +224,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
       Util.in_project(app_path, fn _mix_module ->
         # Test filtering for dev + host combination
         combined_bom_path = Path.join(app_path, "bom_dev_host.cdx.json")
-        Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", combined_bom_path, "--only", "dev", "--targets", "host"])
+        Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", combined_bom_path, "--only", "dev", "--targets", "host"])
         assert_received {:mix_shell, :info, ["* creating bom_dev_host.cdx.json"]}
 
         combined_bom_content = File.read!(combined_bom_path)
@@ -267,7 +267,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
             Mix.Shell.Process.flush()
 
             bom_path = Path.join(app_path, "bom.cdx.json")
-            Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", bom_path])
+            Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", bom_path])
 
             bom_content = File.read!(bom_path)
 
@@ -291,7 +291,7 @@ defmodule Mix.Tasks.Sbom.CyclonedxTest do
             Mix.Shell.Process.flush()
 
             bom_path = Path.join(app_path, "bom.cdx.json")
-            Mix.Task.rerun("sbom.cyclonedx", ["-f", "-o", bom_path, "--exclude-system-dependencies"])
+            Mix.Task.rerun("sbom.cyclonedx", ["-n", "-f", "-o", bom_path, "--exclude-system-dependencies"])
 
             bom_content = File.read!(bom_path)
 

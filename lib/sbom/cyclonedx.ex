@@ -95,7 +95,8 @@ defmodule SBoM.CycloneDX do
           only: [atom()],
           targets: [atom()],
           classification: classification(),
-          system_dependencies: boolean()
+          system_dependencies: boolean(),
+          enhance_metadata: boolean()
         ]
 
   @doc """
@@ -104,7 +105,15 @@ defmodule SBoM.CycloneDX do
   @spec bom(bom_opts()) :: t()
   def bom(opts \\ []) do
     system_dependencies = Keyword.get(opts, :system_dependencies, true)
-    bom_for_components(Fetcher.fetch(system_dependencies: system_dependencies), opts)
+    enhance_metadata = Keyword.get(opts, :enhance_metadata, true)
+
+    bom_for_components(
+      Fetcher.fetch(
+        system_dependencies: system_dependencies,
+        enhance_metadata: enhance_metadata
+      ),
+      opts
+    )
   end
 
   @doc false
