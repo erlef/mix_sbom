@@ -42,7 +42,7 @@ jobs:
         id: ort
         uses: oss-review-toolkit/ort-ci-github-action@086d928d24ef1653dc0777296b312fda5faaaf52 # v1.2.0
         with:
-          image: ghcr.io/oss-review-toolkit/ort:80.0.0
+          image: ghcr.io/oss-review-toolkit/ort:94.1.0
           run: >-
             labels,
             cache-dependencies,
@@ -52,11 +52,10 @@ jobs:
             advisor,
             reporter
           report-formats: "CycloneDx,SpdxDocument,WebApp"
-          # TODO: Remove workaround once https://github.com/oss-review-toolkit/ort/pull/11324 is merged
           ort-cli-args: >-
             -P ort.analyzer.skipExcluded=true
-            -P ort.scanner.scanners.ScanCode.options.commandLine=--copyright,--license,--info,--strip-root
-            -P ort.scanner.scanners.ScanCode.options.commandLineNonConfig=--timeout,300
+          ort-cli-scan-args: >-
+            --scanners Provenant
           ort-cli-report-args: >-
             -O CycloneDX=output.file.formats=json,xml
             -O SpdxDocument=outputFileFormats=JSON,YAML
