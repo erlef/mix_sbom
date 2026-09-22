@@ -135,9 +135,7 @@ defmodule SBoM.Fetcher.MixFileTest do
 
     @tag :tmp_dir
     test "skips manifest for project without mix.exs", %{tmp_dir: tmp_dir} do
-      Util.in_project(tmp_dir, fn _mix_module ->
-        assert nil == MixFile.fetch()
-      end)
+      assert is_nil(Util.in_project(tmp_dir, fn _mix_module -> MixFile.fetch() end))
     end
   end
 end
