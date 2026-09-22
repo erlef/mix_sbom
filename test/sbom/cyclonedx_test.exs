@@ -27,7 +27,7 @@ defmodule SBoM.CycloneDXTest do
           {String.to_existing_atom(app_string), dep}
         end)
 
-      dependencies = Fetcher.transform_all(atom_dependencies)
+      dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
       bom = CycloneDX.bom_for_components(dependencies, version: schema)
 
@@ -49,7 +49,7 @@ defmodule SBoM.CycloneDXTest do
   end
 
   test "classification option sets root component type" do
-    components = Fetcher.fetch()
+    components = Fetcher.fetch(enhance_metadata: false)
 
     # Default classification
     bom_default = CycloneDX.bom_for_components(components)
@@ -75,7 +75,7 @@ defmodule SBoM.CycloneDXTest do
           {String.to_existing_atom(app_string), dep}
         end)
 
-      dependencies = Fetcher.transform_all(atom_dependencies)
+      dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
       # Generate original BOM
       original_bom = CycloneDX.bom_for_components(dependencies, version: schema)
@@ -101,7 +101,7 @@ defmodule SBoM.CycloneDXTest do
           {String.to_existing_atom(app_string), dep}
         end)
 
-      dependencies = Fetcher.transform_all(atom_dependencies)
+      dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
       # Generate original BOM
       original_bom = CycloneDX.bom_for_components(dependencies, version: schema)
@@ -127,7 +127,7 @@ defmodule SBoM.CycloneDXTest do
           {String.to_existing_atom(app_string), dep}
         end)
 
-      dependencies = Fetcher.transform_all(atom_dependencies)
+      dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
       # Generate original BOM
       original_bom = CycloneDX.bom_for_components(dependencies, version: schema)
@@ -153,7 +153,7 @@ defmodule SBoM.CycloneDXTest do
           {String.to_existing_atom(app_string), dep}
         end)
 
-      dependencies = Fetcher.transform_all(atom_dependencies)
+      dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
       bom = CycloneDX.bom_for_components(dependencies)
 
@@ -179,7 +179,7 @@ defmodule SBoM.CycloneDXTest do
               {String.to_existing_atom(app_string), dep}
             end)
 
-          dependencies = Fetcher.transform_all(atom_dependencies)
+          dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
           bom = CycloneDX.bom_for_components(dependencies)
 
@@ -196,7 +196,7 @@ defmodule SBoM.CycloneDXTest do
       {:error, _reason} ->
         @tag :tmp_dir
         test "errors when not available" do
-          components = Fetcher.fetch()
+          components = Fetcher.fetch(enhance_metadata: false)
           bom = CycloneDX.bom_for_components(components)
 
           # Pretty not available: we expect your helpful RuntimeError
@@ -211,7 +211,7 @@ defmodule SBoM.CycloneDXTest do
 
   describe "bom_ref generation" do
     test "generates readable bom_ref for components" do
-      components = Fetcher.fetch()
+      components = Fetcher.fetch(enhance_metadata: false)
       bom = CycloneDX.bom_for_components(components)
 
       Enum.each(bom.components, fn comp ->
@@ -239,7 +239,7 @@ defmodule SBoM.CycloneDXTest do
 
   describe "component group" do
     test "group field is populated in components" do
-      components = Fetcher.fetch()
+      components = Fetcher.fetch(enhance_metadata: false)
       bom = CycloneDX.bom_for_components(components)
 
       # Verify group is set for system components

@@ -11,7 +11,7 @@ defmodule SBoM.FetcherTest do
 
   describe "system dependencies option" do
     test "includes system dependencies by default" do
-      deps = Fetcher.fetch()
+      deps = Fetcher.fetch(enhance_metadata: false)
 
       assert Map.has_key?(deps, "elixir")
       assert Map.has_key?(deps, "kernel")
@@ -19,7 +19,7 @@ defmodule SBoM.FetcherTest do
     end
 
     test "excludes system dependencies when option is false" do
-      deps = Fetcher.fetch(system_dependencies: false)
+      deps = Fetcher.fetch(system_dependencies: false, enhance_metadata: false)
 
       refute Map.has_key?(deps, "elixir")
       refute Map.has_key?(deps, "kernel")
@@ -76,7 +76,7 @@ defmodule SBoM.FetcherTest do
     @tag fixture_app: "filterable"
     test "correctly sets only and targets for dependencies", %{app_path: app_path} do
       Util.in_project(app_path, fn _mix_module ->
-        deps = Fetcher.fetch()
+        deps = Fetcher.fetch(enhance_metadata: false)
 
         # Dependencies with no restrictions (default [:*])
         assert %{only: :*, targets: :*} = deps["jason"]
@@ -175,7 +175,7 @@ defmodule SBoM.FetcherTest do
                  version: "0.0.0-dev"
                },
                "child_app_name_to_replace" => %{}
-             } = Fetcher.fetch()
+             } = Fetcher.fetch(enhance_metadata: false)
     end)
   end
 end
