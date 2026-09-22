@@ -9,6 +9,7 @@ defmodule SBoM.CycloneDXTest do
   use ExUnitProperties
 
   alias SBoM.CycloneDX
+  alias SBoM.CycloneDX.XML.Encoder
   alias SBoM.DependencyGenerators
   alias SBoM.Fetcher
 
@@ -86,9 +87,60 @@ defmodule SBoM.CycloneDXTest do
       # Decode from XML
       decoded_bom = CycloneDX.decode(xml_string, :xml)
 
-      # Compare canonicalized versions
-      assert cannonicalize_bom(original_bom) == cannonicalize_bom(decoded_bom)
+      # Compare canonicalized versions. Characters XML cannot represent come
+      # back as U+FFFD, so the original is held to the same substitution.
+      assert original_bom |> replace_xml_illegal_characters() |> cannonicalize_bom() ==
+               cannonicalize_bom(decoded_bom)
     end
+  end
+
+  @spec replace_xml_illegal_characters(term()) :: term()
+  defp replace_xml_illegal_characters(value)
+
+  defp replace_xml_illegal_characters(%struct{} = value) do
+    struct(struct, value |> Map.from_struct() |> replace_xml_illegal_characters())
+  end
+
+  defp replace_xml_illegal_characters(value) when is_map(value) do
+    Map.new(value, fn {key, val} -> {key, replace_xml_illegal_characters(val)} end)
+  end
+
+  defp replace_xml_illegal_characters(value) when is_list(value), do: Enum.map(value, &replace_xml_illegal_characters/1)
+
+  defp replace_xml_illegal_characters(value) when is_binary(value), do: Encoder.replace_illegal_characters(value)
+
+  defp replace_xml_illegal_characters(value), do: value
+
+  test "XML round-trip replaces characters XML cannot represent" do
+    # \f and \e are printable to Elixir, so they arrive via package metadata,
+    # but XML 1.0 cannot represent them even as a character reference.
+    dependencies =
+      Fetcher.transform_all(
+        %{
+          somedep: %{
+            scm: Mix.SCM.Hex,
+            version: "1.0.0",
+            mix_dep: {:somedep, "~> 1.0", []},
+            optional: false,
+            runtime: true,
+            targets: :*,
+            only: :*,
+            description: "before\fafter\eend"
+          }
+        },
+        enhance_metadata: false
+      )
+
+    bom = CycloneDX.bom_for_components(dependencies, version: "1.6")
+    xml = bom |> CycloneDX.encode(:xml) |> IO.iodata_to_binary()
+
+    refute xml =~ "\f"
+    refute xml =~ "\e"
+
+    # The document is well-formed and the surrounding text survives; only the
+    # unrepresentable characters become U+FFFD.
+    decoded = CycloneDX.decode(xml, :xml)
+    assert [%{description: "before\uFFFDafter\uFFFDend"}] = decoded.components
   end
 
   property "JSON round-trip preserves BOM structure" do

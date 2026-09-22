@@ -10,6 +10,35 @@ defmodule SBoM.CycloneDX.XML.Encoder do
   @type element_field_mapping() :: {atom(), atom() | {atom(), atom()}, action()}
   @type attr_field_mapping() :: {atom(), atom() | {:static, term()}}
 
+  @replacement_character "\uFFFD"
+
+  @doc """
+  Replaces characters that XML cannot represent with `U+FFFD`.
+
+  The XML 1.0 `Char` production allows `#x9`, `#xA`, `#xD`, `#x20-#xD7FF`,
+  `#xE000-#xFFFD` and `#x10000-#x10FFFF`. The remaining code points have no
+  representation at all - a numeric character reference such as `&#12;` is
+  rejected just like the raw character, because references are resolved before
+  the document is checked against `Char`.
+
+  Five of them (`\a`, `\b`, `\v`, `\f` and `\e`) are printable to Elixir, so
+  they reach us through package metadata. Substituting the replacement
+  character keeps the surrounding text intact and the document well-formed,
+  rather than dropping the character silently.
+
+  Escaping of `&`, `<` and `>` is left to xmerl.
+  """
+  @spec replace_illegal_characters(String.t()) :: String.t()
+  def replace_illegal_characters(value) when is_binary(value) do
+    for <<codepoint::utf8 <- value>>, into: "" do
+      if :xmerl_lib.is_char(codepoint) do
+        <<codepoint::utf8>>
+      else
+        @replacement_character
+      end
+    end
+  end
+
   @doc """
   Converts struct fields to XML child elements using explicit 3-tuple syntax.
   Format: {:"xml-element-name", :struct_field_name, :wrap|:unwrap|:keep}
