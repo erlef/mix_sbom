@@ -120,6 +120,9 @@ output; the task should normally be run in the default (dev) environment*
 - `-r, --recurse`: Recurse into umbrella applications
 - `-x, --exclude-system-dependencies`: Exclude system dependencies (Erlang/OTP,
   Elixir, Hex) from the SBoM
+- `-n, --no-enhance-metadata`: Do not enrich components with metadata from
+  external sources (e.g. the Hex.pm API). Avoids additional HTTP requests at
+  the cost of less complete metadata. Enabled by default.
 - `--hex-api-key KEY`: Hex.pm API key used to authenticate metadata requests,
   avoiding rate limits. Falls back to the `HEX_API_KEY` environment variable
   if not provided. Omitted entirely when neither is set.
@@ -177,6 +180,9 @@ an SBoM for your project.
 - `recurse`: Recurse into umbrella applications to generate SBoM for all apps
   (defaults to "false")
 - `pretty`: Pretty print the SBoM (defaults to "false")
+- `enhance-metadata`: Enrich components with metadata from external sources
+  (e.g. the Hex.pm API). Requires additional HTTP requests. Set to `"false"`
+  to disable (defaults to "true")
 
 ### Outputs
 

@@ -100,7 +100,8 @@ defmodule SBoM.CLI do
       only: parse_result.options.only,
       targets: parse_result.options.targets,
       classification: parse_result.options.classification,
-      system_dependencies: not parse_result.flags.exclude_system_dependencies
+      system_dependencies: not parse_result.flags.exclude_system_dependencies,
+      enhance_metadata: not parse_result.flags.no_enhance_metadata
     ]
     |> CycloneDX.bom()
     |> CycloneDX.encode(parse_result.options.format, parse_result.flags.pretty)
@@ -264,6 +265,13 @@ defmodule SBoM.CLI do
               short: "-x",
               long: "--exclude-system-dependencies",
               help: "Exclude system dependencies (Erlang/OTP, Elixir, Hex) from the SBoM"
+            ],
+            no_enhance_metadata: [
+              short: "-n",
+              long: "--no-enhance-metadata",
+              help:
+                "Do not enrich components with metadata from external sources (e.g. the Hex.pm " <>
+                  "API). Avoids additional HTTP requests at the cost of less complete metadata."
             ]
           ]
         ]

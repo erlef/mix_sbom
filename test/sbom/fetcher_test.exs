@@ -29,6 +29,48 @@ defmodule SBoM.FetcherTest do
     end
   end
 
+  describe "enhance metadata option" do
+    # SBoM.SCM.System.enhance_metadata/2 resolves purely local data, so it
+    # exercises the option without depending on network access.
+    @system_dep %{
+      elixir: %{
+        scm: SBoM.SCM.System,
+        mix_dep: {:elixir, nil, []},
+        optional: false,
+        runtime: true,
+        targets: :*,
+        only: :*
+      }
+    }
+
+    test "enhances metadata by default" do
+      deps = Fetcher.transform_all(@system_dep)
+
+      assert %{source_url: source_url, licenses: [_license | _rest]} = deps["elixir"]
+      assert is_binary(source_url)
+    end
+
+    test "skips enhancement when option is false" do
+      deps = Fetcher.transform_all(@system_dep, enhance_metadata: false)
+
+      refute Map.has_key?(deps["elixir"], :source_url)
+      refute Map.has_key?(deps["elixir"], :licenses)
+    end
+
+    test "fetch/1 passes the option through to the transformation" do
+      enhanced = Fetcher.fetch()
+      plain = Fetcher.fetch(enhance_metadata: false)
+
+      # Other fetchers may already supply an (empty) :licenses key, so compare
+      # the enriched values rather than key presence.
+      assert [_license | _rest] = enhanced["elixir"][:licenses]
+      assert is_binary(enhanced["elixir"][:source_url])
+
+      assert plain["elixir"][:licenses] in [nil, []]
+      assert is_nil(plain["elixir"][:source_url])
+    end
+  end
+
   describe inspect(&Fetcher.fetch/1) do
     @tag :tmp_dir
     @tag fixture_app: "filterable"
