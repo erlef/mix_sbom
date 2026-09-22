@@ -1,0 +1,11 @@
+[[PackageOverrides]]
+name = "decimal"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "number"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"

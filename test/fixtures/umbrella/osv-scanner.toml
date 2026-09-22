@@ -1,0 +1,29 @@
+[[PackageOverrides]]
+name = "bunt"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "credo"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "file_system"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "jason"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "mime"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"

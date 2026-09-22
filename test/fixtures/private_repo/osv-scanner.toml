@@ -1,17 +1,23 @@
 [[PackageOverrides]]
-name = "certifi"
+name = "db_connection"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "hackney"
+name = "decimal"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "idna"
+name = "ecto"
+ecosystem = "Hex"
+ignore = true
+reason = "This is only a fixture"
+
+[[PackageOverrides]]
+name = "ecto_sql"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
@@ -23,37 +29,19 @@ ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "metrics"
+name = "oban"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "mimerl"
+name = "oban_pro"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
 
 [[PackageOverrides]]
-name = "parse_trans"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "ssl_verify_fun"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "sweet_xml"
-ecosystem = "Hex"
-ignore = true
-reason = "This is only a fixture"
-
-[[PackageOverrides]]
-name = "unicode_util_compat"
+name = "telemetry"
 ecosystem = "Hex"
 ignore = true
 reason = "This is only a fixture"
