@@ -112,19 +112,14 @@ defmodule SBoM.SCM.SBoM.SCM.System do
   end
 
   def mix_dep_to_purl({app, _version_requirement, _opts}, version) when is_erlang_app(app) do
-    git_ref =
-      case version do
-        nil -> "heads/master"
-        v -> "tags/OTP-#{v}"
-      end
-
     Purl.new!(%Purl{
       type: "otp",
       name: to_string(app),
       subpath: ["lib", to_string(app)],
+      version: version,
       qualifiers: %{
         "repository_url" => "https://github.com/erlang/otp",
-        "download_url" => "https://github.com/erlang/otp/archive/refs/#{git_ref}.zip",
+        "download_url" => "https://github.com/erlang/otp/archive/refs/heads/master.zip",
         "vcs_url" => "git+https://github.com/erlang/otp.git"
       }
     })
