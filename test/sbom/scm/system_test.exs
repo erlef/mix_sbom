@@ -102,9 +102,15 @@ defmodule SBoM.SCM.SystemTest do
 
       assert purl.type == "otp"
       assert purl.name == "kernel"
+      assert purl.version == "9.0"
       assert purl.qualifiers["repository_url"] == "https://github.com/erlang/otp"
-      assert purl.qualifiers["download_url"] == "https://github.com/erlang/otp/archive/refs/tags/OTP-9.0.zip"
+      assert purl.qualifiers["download_url"] == "https://github.com/erlang/otp/archive/refs/heads/master.zip"
       assert purl.qualifiers["vcs_url"] == "git+https://github.com/erlang/otp.git"
+    end
+
+    test "keeps the application version for erlang apps, as it does for elixir ones" do
+      assert SystemSCM.mix_dep_to_purl({:crypto, nil, []}, "5.9.3").version == "5.9.3"
+      assert SystemSCM.mix_dep_to_purl({:crypto, nil, []}, nil).version == nil
     end
 
     test "includes download_url and vcs_url in qualifiers for hex app" do
