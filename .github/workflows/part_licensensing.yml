@@ -42,7 +42,7 @@ jobs:
         id: ort
         uses: oss-review-toolkit/ort-ci-github-action@086d928d24ef1653dc0777296b312fda5faaaf52 # v1.2.0
         with:
-          image: ghcr.io/oss-review-toolkit/ort:94.1.0
+          image: ghcr.io/oss-review-toolkit/ort:94.2.0
           run: >-
             labels,
             cache-dependencies,
