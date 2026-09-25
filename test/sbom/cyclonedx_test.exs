@@ -299,4 +299,59 @@ defmodule SBoM.CycloneDXTest do
       assert stdlib_component.group == "erlang.otp"
     end
   end
+
+  describe "vulnerabilities" do
+    @tag :tmp_dir
+    test "generates valid SBOM files with vulnerabilities", %{tmp_dir: tmp_dir} do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      # TODO: Add "1.7" when CycloneDX CLI supports it
+      for schema <- ["1.6", "1.5", "1.4"], format <- [:json, :xml, :protobuf] do
+        vulnerabilities =
+          CycloneDX.convert_vulnerabilities(%{"GHSA-0000-0000-0000" => ["jason", "kernel"]}, components, schema)
+
+        bom =
+          components
+          |> CycloneDX.bom_for_components(version: schema)
+          |> Map.put(:vulnerabilities, vulnerabilities)
+
+        assert [%{id: "GHSA-0000-0000-0000", affects: [_jason, _kernel]}] = bom.vulnerabilities
+
+        file_path = Path.join(tmp_dir, "bom_vulnerabilities_#{schema}.#{format}")
+        File.write!(file_path, CycloneDX.encode(bom, format))
+
+        assert_valid_cyclonedx_bom(file_path, format)
+      end
+    end
+
+    test "survive a JSON and XML round-trip" do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      for schema <- ["1.7", "1.6", "1.5", "1.4"], format <- [:json, :xml] do
+        vulnerabilities =
+          CycloneDX.convert_vulnerabilities(%{"GHSA-0000-0000-0000" => ["jason", "kernel"]}, components, schema)
+
+        bom =
+          components
+          |> CycloneDX.bom_for_components(version: schema)
+          |> Map.put(:vulnerabilities, vulnerabilities)
+
+        decoded_bom = bom |> CycloneDX.encode(format) |> IO.iodata_to_binary() |> CycloneDX.decode(format)
+
+        assert decoded_bom.vulnerabilities == vulnerabilities
+      end
+    end
+
+    test "are not looked up when disabled" do
+      assert CycloneDX.bom(enhance_metadata: false, vulnerabilities: false).vulnerabilities == []
+    end
+
+    test "are not attached to schema 1.3" do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      bom = CycloneDX.bom_for_components(components, version: "1.3", vulnerabilities: true)
+
+      refute Map.has_key?(bom, :vulnerabilities)
+    end
+  end
 end

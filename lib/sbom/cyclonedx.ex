@@ -9,6 +9,7 @@ defmodule SBoM.CycloneDX do
   alias SBoM.CycloneDX.Protobuf
   alias SBoM.CycloneDX.XML
   alias SBoM.Fetcher
+  alias SBoM.OSV
 
   @type t() ::
           SBoM.CycloneDX.V13.Bom.t()
@@ -96,11 +97,15 @@ defmodule SBoM.CycloneDX do
           targets: [atom()],
           classification: classification(),
           system_dependencies: boolean(),
-          enhance_metadata: boolean()
+          enhance_metadata: boolean(),
+          vulnerabilities: boolean()
         ]
 
   @doc """
   Generate a BOM for the current Mix project and its dependencies.
+
+  Known vulnerabilities of the components are looked up on OSV.dev unless
+  `vulnerabilities: false` is given.
   """
   @spec bom(bom_opts()) :: t()
   def bom(opts \\ []) do
@@ -112,7 +117,7 @@ defmodule SBoM.CycloneDX do
         system_dependencies: system_dependencies,
         enhance_metadata: enhance_metadata
       ),
-      opts
+      Keyword.put_new(opts, :vulnerabilities, true)
     )
   end
 
@@ -125,18 +130,58 @@ defmodule SBoM.CycloneDX do
     only = Keyword.get(opts, :only, [:*])
     targets = Keyword.get(opts, :targets, [:*])
     classification = Keyword.get(opts, :classification, :CLASSIFICATION_APPLICATION)
+    vulnerabilities = Keyword.get(opts, :vulnerabilities, false)
 
     %{spec_version: version} = starting_bom
 
     filtered_components = filter_components(components, only, targets)
     bom_components = attach_components(filtered_components, version)
 
-    starting_bom
-    |> Map.put(:serial_number, serial)
-    |> Map.update!(:version, &(&1 + 1))
-    |> Map.update!(:metadata, &attach_metadata(&1, version, filtered_components, classification))
-    |> Map.put(:components, bom_components)
-    |> Map.put(:dependencies, attach_dependencies(filtered_components, version))
+    bom =
+      starting_bom
+      |> Map.put(:serial_number, serial)
+      |> Map.update!(:version, &(&1 + 1))
+      |> Map.update!(
+        :metadata,
+        &attach_metadata(&1, version, filtered_components, classification)
+      )
+      |> Map.put(:components, bom_components)
+      |> Map.put(:dependencies, attach_dependencies(filtered_components, version))
+
+    if vulnerabilities, do: attach_vulnerabilities(bom, filtered_components, version), else: bom
+  end
+
+  # Vulnerabilities are part of the schema since 1.4.
+  @spec attach_vulnerabilities(t(), components_map(), schema_version()) :: t()
+  defp attach_vulnerabilities(bom, components, version)
+  defp attach_vulnerabilities(bom, _components, "1.3"), do: bom
+
+  defp attach_vulnerabilities(bom, components, version) do
+    vulnerabilities =
+      components |> OSV.vulnerabilities() |> convert_vulnerabilities(components, version)
+
+    Map.put(bom, :vulnerabilities, vulnerabilities)
+  end
+
+  @doc false
+  @spec convert_vulnerabilities(
+          %{String.t() => [String.t()]},
+          components_map(),
+          schema_version()
+        ) :: [struct()]
+  def convert_vulnerabilities(vulnerabilities, components, version) do
+    for {id, names} <- Enum.sort(vulnerabilities) do
+      affects =
+        for name <- Enum.sort(names) do
+          bom_struct(:VulnerabilityAffects, version, ref: generate_bom_ref(components[name].package_url))
+        end
+
+      bom_struct(:Vulnerability, version,
+        id: id,
+        source: bom_struct(:Source, version, name: "OSV", url: "https://osv.dev/vulnerability/#{id}"),
+        affects: affects
+      )
+    end
   end
 
   @doc "Encode a BOM"

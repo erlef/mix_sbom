@@ -655,3 +655,87 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V13.Dependency,
     {:dependency, :dependencies, :keep}
   ]
 )
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Vulnerability,
+  attributes: [{:"bom-ref", :bom_ref}],
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap},
+    {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Source,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.VulnerabilityAffects,
+  element_name: :target,
+  elements: [{:ref, :ref, :wrap}]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Vulnerability,
+  attributes: [{:"bom-ref", :bom_ref}],
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap},
+    {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Source,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.VulnerabilityAffects,
+  element_name: :target,
+  elements: [{:ref, :ref, :wrap}]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Vulnerability,
+  attributes: [{:"bom-ref", :bom_ref}],
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap},
+    {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Source,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.VulnerabilityAffects,
+  element_name: :target,
+  elements: [{:ref, :ref, :wrap}]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Vulnerability,
+  attributes: [{:"bom-ref", :bom_ref}],
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap},
+    {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Source,
+  elements: [
+    {:name, :name, :wrap},
+    {:url, :url, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.VulnerabilityAffects,
+  element_name: :target,
+  elements: [{:ref, :ref, :wrap}]
+)
