@@ -194,6 +194,41 @@ defmodule SBoM.SCM.SBoM.SCM.System do
   def enhance_metadata(_app, _dependency), do: %{}
 
   @impl SBoM.SCM
+  def osv_query(app, dependency)
+
+  # Inside a Burrito binary the versions of the system apps are not read (see
+  # `SBoM.Fetcher.MixRuntime`), so a missing version also skips the query.
+  def osv_query(app, %{version: version}) when is_elixir_app(app) and is_binary(version) do
+    git_osv_query("https://github.com/elixir-lang/elixir.git", version)
+  end
+
+  def osv_query(app, %{version: version}) when is_erlang_app(app) and is_binary(version) do
+    case otp_version() do
+      nil -> nil
+      otp_version -> git_osv_query("https://github.com/erlang/otp.git", otp_version)
+    end
+  end
+
+  def osv_query(_app, _dependency), do: nil
+
+  @spec git_osv_query(repository :: String.t(), version :: String.t()) :: map()
+  defp git_osv_query(repository, version) do
+    %{"package" => %{"name" => repository, "ecosystem" => "GIT"}, "version" => version}
+  end
+
+  # `System.otp_release/0` only returns the major version.
+  @spec otp_version() :: String.t() | nil
+  defp otp_version do
+    [:code.root_dir(), "releases", System.otp_release(), "OTP_VERSION"]
+    |> Path.join()
+    |> File.read()
+    |> case do
+      {:ok, version} -> String.trim(version)
+      {:error, _reason} -> nil
+    end
+  end
+
+  @impl SBoM.SCM
   def group(app, _dependency) when is_elixir_app(app), do: "elixir.stdlib"
   def group(app, _dependency) when is_erlang_app(app), do: "erlang.otp"
   def group(app, _dependency) when is_hex_app(app), do: "hex"

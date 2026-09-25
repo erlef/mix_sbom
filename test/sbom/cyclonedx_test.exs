@@ -12,6 +12,7 @@ defmodule SBoM.CycloneDXTest do
   alias SBoM.CycloneDX.XML.Encoder
   alias SBoM.DependencyGenerators
   alias SBoM.Fetcher
+  alias SBoM.VulnerabilityGenerators
 
   doctest CycloneDX
 
@@ -21,7 +22,8 @@ defmodule SBoM.CycloneDXTest do
             raw_dependencies <- DependencyGenerators.dependency_map(),
             # TODO: Add "1.7" when CycloneDX CLI supports it
             schema <- member_of(["1.6", "1.5", "1.4", "1.3"]),
-            format <- member_of([:json, :xml, :protobuf])
+            format <- member_of([:json, :xml, :protobuf]),
+            osv_vulnerabilities <- list_of(VulnerabilityGenerators.osv_vulnerability(), max_length: 3)
           ) do
       atom_dependencies =
         Map.new(raw_dependencies, fn {app_string, dep} ->
@@ -31,6 +33,17 @@ defmodule SBoM.CycloneDXTest do
       dependencies = Fetcher.transform_all(atom_dependencies, enhance_metadata: false)
 
       bom = CycloneDX.bom_for_components(dependencies, version: schema)
+
+      # Vulnerabilities are part of the schema since 1.4
+      bom =
+        if schema == "1.3" do
+          bom
+        else
+          affected = dependencies |> Map.keys() |> Enum.take(2)
+          osv_vulnerabilities = Enum.map(osv_vulnerabilities, &{&1, affected})
+
+          Map.put(bom, :vulnerabilities, CycloneDX.convert_vulnerabilities(osv_vulnerabilities, dependencies, schema))
+        end
 
       encoded_bom = CycloneDX.encode(bom, format)
 
@@ -297,6 +310,101 @@ defmodule SBoM.CycloneDXTest do
       # Verify group is set for system components
       stdlib_component = Enum.find(bom.components, &(&1.name == "stdlib"))
       assert stdlib_component.group == "erlang.otp"
+    end
+  end
+
+  describe "vulnerabilities" do
+    @osv_vulnerability %{
+      "id" => "GHSA-0000-0000-0000",
+      "aliases" => ["CVE-2026-0000"],
+      "summary" => "Example vulnerability",
+      "details" => "Details of the example vulnerability.",
+      "references" => [
+        %{"type" => "ADVISORY", "url" => "https://example.com/advisory"},
+        %{"type" => "WEB", "url" => "https://example.com"}
+      ],
+      "published" => "2026-01-01T00:00:00Z",
+      "modified" => "2026-01-02T00:00:00.123456Z"
+    }
+
+    test "are converted from OSV.dev records" do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      assert [vulnerability] =
+               CycloneDX.convert_vulnerabilities([{@osv_vulnerability, ["kernel", "jason"]}], components, "1.6")
+
+      assert %{
+               id: "GHSA-0000-0000-0000",
+               source: %{name: "OSV", url: "https://osv.dev/vulnerability/GHSA-0000-0000-0000"},
+               references: [%{id: "CVE-2026-0000", source: %{url: "https://osv.dev/vulnerability/CVE-2026-0000"}}],
+               description: "Example vulnerability",
+               detail: "Details of the example vulnerability.",
+               advisories: [%{url: "https://example.com/advisory"}],
+               affects: [_jason, _kernel]
+             } = vulnerability
+
+      assert vulnerability.published |> Google.Protobuf.to_datetime() |> DateTime.compare(~U[2026-01-01 00:00:00Z]) == :eq
+      assert vulnerability.updated |> Google.Protobuf.to_datetime() |> DateTime.compare(~U[2026-01-02 00:00:00Z]) == :eq
+    end
+
+    test "keep only the id when OSV.dev returned no details" do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      assert [%{id: "GHSA-0000-0000-0000", description: nil, references: [], advisories: [], published: nil}] =
+               CycloneDX.convert_vulnerabilities([{%{"id" => "GHSA-0000-0000-0000"}, ["jason"]}], components, "1.6")
+    end
+
+    @tag :tmp_dir
+    test "generates valid SBOM files with vulnerabilities", %{tmp_dir: tmp_dir} do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      # TODO: Add "1.7" when CycloneDX CLI supports it
+      for schema <- ["1.6", "1.5", "1.4"], format <- [:json, :xml, :protobuf] do
+        vulnerabilities =
+          CycloneDX.convert_vulnerabilities([{@osv_vulnerability, ["jason", "kernel"]}], components, schema)
+
+        bom =
+          components
+          |> CycloneDX.bom_for_components(version: schema)
+          |> Map.put(:vulnerabilities, vulnerabilities)
+
+        assert [%{id: "GHSA-0000-0000-0000", affects: [_jason, _kernel]}] = bom.vulnerabilities
+
+        file_path = Path.join(tmp_dir, "bom_vulnerabilities_#{schema}.#{format}")
+        File.write!(file_path, CycloneDX.encode(bom, format))
+
+        assert_valid_cyclonedx_bom(file_path, format)
+      end
+    end
+
+    test "survive a JSON and XML round-trip" do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      for schema <- ["1.7", "1.6", "1.5", "1.4"], format <- [:json, :xml] do
+        vulnerabilities =
+          CycloneDX.convert_vulnerabilities([{@osv_vulnerability, ["jason", "kernel"]}], components, schema)
+
+        bom =
+          components
+          |> CycloneDX.bom_for_components(version: schema)
+          |> Map.put(:vulnerabilities, vulnerabilities)
+
+        decoded_bom = bom |> CycloneDX.encode(format) |> IO.iodata_to_binary() |> CycloneDX.decode(format)
+
+        assert decoded_bom.vulnerabilities == vulnerabilities
+      end
+    end
+
+    test "are not looked up when disabled" do
+      assert CycloneDX.bom(enhance_metadata: false, vulnerabilities: false).vulnerabilities == []
+    end
+
+    test "are not attached to schema 1.3" do
+      components = Fetcher.fetch(enhance_metadata: false)
+
+      bom = CycloneDX.bom_for_components(components, version: "1.3", vulnerabilities: true)
+
+      refute Map.has_key?(bom, :vulnerabilities)
     end
   end
 end

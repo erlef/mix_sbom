@@ -88,10 +88,19 @@ defmodule SBoM.SCM do
   """
   @callback mix_lock_version(lock :: lock()) :: String.t()
 
+  @doc """
+  Returns the OSV.dev query for the given dependency.
+
+  The query is sent to the OSV.dev `querybatch` API to look up known
+  vulnerabilities. Returns `nil` if the dependency can not be queried.
+  """
+  @callback osv_query(app :: atom(), dependency :: map()) :: map() | nil
+
   @optional_callbacks mix_lock_deps: 1,
                       mix_lock_to_purl: 2,
                       enhance_metadata: 2,
-                      mix_lock_version: 1
+                      mix_lock_version: 1,
+                      osv_query: 2
 
   @doc """
   Returns the module implementing SCM-specific behavior for a given SCM module.

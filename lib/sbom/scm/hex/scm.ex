@@ -288,6 +288,34 @@ defmodule SBoM.SCM.Hex.SCM do
     end
   end
 
+  @doc """
+  Returns the OSV.dev query for a locked dependency from hex.pm.
+
+  Packages from other repositories are not known to OSV.dev and are skipped.
+
+  ## Examples
+
+      iex> lock = [:hex, :jason, "1.4.0", "checksum", [:mix], [], "hexpm", "checksum"]
+      ...> SBoM.SCM.Hex.SCM.osv_query(:jason, %{mix_lock: lock})
+      %{"package" => %{"name" => "jason", "ecosystem" => "Hex"}, "version" => "1.4.0"}
+
+      iex> lock = [:hex, :jason, "1.4.0", "checksum", [:mix], [], "hexpm:acme", "checksum"]
+      ...> SBoM.SCM.Hex.SCM.osv_query(:jason, %{mix_lock: lock})
+      nil
+
+  """
+  @impl SCM
+  def osv_query(app, dependency)
+
+  def osv_query(_app, %{mix_lock: [:hex, package_name, version, _checksum, _managers, _deps, "hexpm" | _rest]}) do
+    %{
+      "package" => %{"name" => Atom.to_string(package_name), "ecosystem" => "Hex"},
+      "version" => version
+    }
+  end
+
+  def osv_query(_app, _dependency), do: nil
+
   @impl SCM
   def group(_app, %{mix_lock: [:hex, _name, _version, _checksum, _managers, _deps, repo | _rest]}), do: repo
 

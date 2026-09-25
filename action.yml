@@ -56,6 +56,10 @@ inputs:
     required: false
     description: "Enrich components with metadata from external sources (e.g. the Hex.pm API). Requires additional HTTP requests. Set to 'false' to disable."
     default: "true"
+  vulnerabilities:
+    required: false
+    description: "Look up known vulnerabilities of the components on OSV.dev. Requires additional HTTP requests. Set to 'false' to disable."
+    default: "true"
 outputs:
   sbom-path:
     description: "Path to the generated SBoM"
@@ -147,6 +151,10 @@ runs:
           ARGS+=(--no-enhance-metadata)
         fi
 
+        if [ "$NO_VULNERABILITIES" = "true" ]; then
+          ARGS+=(--no-vulnerabilities)
+        fi
+
         ARGS+=("$PROJECT_PATH")
 
         mix_sbom "${ARGS[@]}"
@@ -165,3 +173,4 @@ runs:
         RECURSE: "${{ inputs.recurse }}"
         PRETTY: "${{ inputs.pretty }}"
         NO_ENHANCE_METADATA: "${{ inputs.enhance-metadata == 'true' && 'false' || 'true' }}"
+        NO_VULNERABILITIES: "${{ inputs.vulnerabilities == 'true' && 'false' || 'true' }}"

@@ -116,6 +116,24 @@ defmodule SBoM.SCM.Mix.SCM.Git do
     revision
   end
 
+  @doc """
+  Returns the OSV.dev query for a locked Git dependency.
+
+  ## Examples
+
+      iex> SBoM.SCM.Mix.SCM.Git.osv_query(:my_app, %{
+      ...>   mix_lock: [:git, "https://github.com/example/my_app.git", "abc123"]
+      ...> })
+      %{"commit" => "abc123"}
+
+  """
+  @impl SCM
+  def osv_query(app, dependency)
+
+  def osv_query(_app, %{mix_lock: [:git, _repo_url, revision | _rest]}), do: %{"commit" => revision}
+
+  def osv_query(_app, _dependency), do: nil
+
   @impl SCM
   def group(app, %{mix_lock: mix_lock}) do
     app
