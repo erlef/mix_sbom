@@ -5,6 +5,7 @@
 defmodule SBoM.CycloneDX do
   @moduledoc "SBoM CycloneDX encoding and decoding."
 
+  alias Google.Protobuf.Timestamp
   alias SBoM.CycloneDX.JSON
   alias SBoM.CycloneDX.Protobuf
   alias SBoM.CycloneDX.XML
@@ -165,12 +166,26 @@ defmodule SBoM.CycloneDX do
 
   @doc false
   @spec convert_vulnerabilities(
-          %{String.t() => [String.t()]},
+          [{OSV.vulnerability(), affected :: [String.t()]}],
           components_map(),
           schema_version()
         ) :: [struct()]
   def convert_vulnerabilities(vulnerabilities, components, version) do
-    for {id, names} <- Enum.sort(vulnerabilities) do
+    for {%{"id" => id} = vulnerability, names} <-
+          Enum.sort_by(vulnerabilities, fn {%{"id" => id}, _names} -> id end) do
+      references =
+        for alias_id <- vulnerability["aliases"] || [] do
+          bom_struct(:VulnerabilityReference, version,
+            id: alias_id,
+            source: osv_source(alias_id, version)
+          )
+        end
+
+      advisories =
+        for %{"type" => "ADVISORY", "url" => url} <- vulnerability["references"] || [] do
+          bom_struct(:Advisory, version, url: url)
+        end
+
       affects =
         for name <- Enum.sort(names) do
           bom_struct(:VulnerabilityAffects, version, ref: generate_bom_ref(components[name].package_url))
@@ -178,9 +193,31 @@ defmodule SBoM.CycloneDX do
 
       bom_struct(:Vulnerability, version,
         id: id,
-        source: bom_struct(:Source, version, name: "OSV", url: "https://osv.dev/vulnerability/#{id}"),
+        source: osv_source(id, version),
+        references: references,
+        description: vulnerability["summary"],
+        detail: vulnerability["details"],
+        advisories: advisories,
+        published: osv_timestamp(vulnerability["published"]),
+        updated: osv_timestamp(vulnerability["modified"]),
         affects: affects
       )
+    end
+  end
+
+  @spec osv_source(id :: String.t(), schema_version()) :: struct()
+  defp osv_source(id, version) do
+    bom_struct(:Source, version, name: "OSV", url: "https://osv.dev/vulnerability/#{id}")
+  end
+
+  @spec osv_timestamp(String.t() | nil) :: Timestamp.t() | nil
+  defp osv_timestamp(value) do
+    case value && DateTime.from_iso8601(value) do
+      {:ok, datetime, _offset} ->
+        datetime |> DateTime.truncate(:second) |> Google.Protobuf.from_datetime()
+
+      _invalid ->
+        nil
     end
   end
 
@@ -263,7 +300,7 @@ defmodule SBoM.CycloneDX do
     |> Map.put(:component, root_component(components, version, classification))
   end
 
-  @spec timestamp_now() :: Google.Protobuf.Timestamp.t()
+  @spec timestamp_now() :: Timestamp.t()
   defp timestamp_now, do: DateTime.utc_now() |> DateTime.truncate(:second) |> Google.Protobuf.from_datetime()
 
   @spec root_component(components_map(), schema_version(), classification()) ::

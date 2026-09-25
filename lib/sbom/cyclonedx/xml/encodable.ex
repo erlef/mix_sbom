@@ -661,7 +661,28 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V17.Vulnerability,
   elements: [
     {:id, :id, :wrap},
     {:source, :source, :unwrap},
+    {:references, :references, :wrap},
+    {:description, :description, :wrap},
+    {:detail, :detail, :wrap},
+    {:advisories, :advisories, :wrap},
+    {:published, :published, :wrap},
+    {:updated, :updated, :wrap},
     {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.VulnerabilityReference,
+  element_name: :reference,
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V17.Advisory,
+  elements: [
+    {:title, :title, :wrap},
+    {:url, :url, :wrap}
   ]
 )
 
@@ -682,7 +703,28 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V16.Vulnerability,
   elements: [
     {:id, :id, :wrap},
     {:source, :source, :unwrap},
+    {:references, :references, :wrap},
+    {:description, :description, :wrap},
+    {:detail, :detail, :wrap},
+    {:advisories, :advisories, :wrap},
+    {:published, :published, :wrap},
+    {:updated, :updated, :wrap},
     {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.VulnerabilityReference,
+  element_name: :reference,
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V16.Advisory,
+  elements: [
+    {:title, :title, :wrap},
+    {:url, :url, :wrap}
   ]
 )
 
@@ -703,7 +745,28 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V15.Vulnerability,
   elements: [
     {:id, :id, :wrap},
     {:source, :source, :unwrap},
+    {:references, :references, :wrap},
+    {:description, :description, :wrap},
+    {:detail, :detail, :wrap},
+    {:advisories, :advisories, :wrap},
+    {:published, :published, :wrap},
+    {:updated, :updated, :wrap},
     {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.VulnerabilityReference,
+  element_name: :reference,
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V15.Advisory,
+  elements: [
+    {:title, :title, :wrap},
+    {:url, :url, :wrap}
   ]
 )
 
@@ -724,7 +787,28 @@ Protocol.derive(Encodable, SBoM.CycloneDX.V14.Vulnerability,
   elements: [
     {:id, :id, :wrap},
     {:source, :source, :unwrap},
+    {:references, :references, :wrap},
+    {:description, :description, :wrap},
+    {:detail, :detail, :wrap},
+    {:advisories, :advisories, :wrap},
+    {:published, :published, :wrap},
+    {:updated, :updated, :wrap},
     {:affects, :affects, :wrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.VulnerabilityReference,
+  element_name: :reference,
+  elements: [
+    {:id, :id, :wrap},
+    {:source, :source, :unwrap}
+  ]
+)
+
+Protocol.derive(Encodable, SBoM.CycloneDX.V14.Advisory,
+  elements: [
+    {:title, :title, :wrap},
+    {:url, :url, :wrap}
   ]
 )
 

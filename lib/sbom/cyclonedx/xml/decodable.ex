@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
+alias Google.Protobuf.Timestamp
 alias SBoM.CycloneDX
 alias SBoM.CycloneDX.Common.EnumHelpers
 alias SBoM.CycloneDX.XML.Decodable
@@ -433,12 +434,30 @@ for version <- schema_versions, version != "1.3" do
   vulnerability_module = CycloneDX.bom_struct_module(:Vulnerability, version)
   source_module = CycloneDX.bom_struct_module(:Source, version)
   affects_module = CycloneDX.bom_struct_module(:VulnerabilityAffects, version)
+  reference_module = CycloneDX.bom_struct_module(:VulnerabilityReference, version)
+  advisory_module = CycloneDX.bom_struct_module(:Advisory, version)
 
   Protocol.derive(Decodable, vulnerability_module, [
     {:bom_ref, "@bom-ref", :string},
     {:id, "child::id/text()", :string},
     {:source, "child::source", {:element, source_module}},
+    {:references, "child::references/child::reference", {:list, reference_module}},
+    {:description, "child::description/text()", :string},
+    {:detail, "child::detail/text()", :string},
+    {:advisories, "child::advisories/child::advisory", {:list, advisory_module}},
+    {:published, "child::published", {:element, Timestamp}},
+    {:updated, "child::updated", {:element, Timestamp}},
     {:affects, "child::affects/child::target", {:list, affects_module}}
+  ])
+
+  Protocol.derive(Decodable, reference_module, [
+    {:id, "child::id/text()", :string},
+    {:source, "child::source", {:element, source_module}}
+  ])
+
+  Protocol.derive(Decodable, advisory_module, [
+    {:title, "child::title/text()", :string},
+    {:url, "child::url/text()", :string}
   ])
 
   Protocol.derive(Decodable, source_module, [
@@ -490,7 +509,7 @@ for version <- schema_versions do
   tool_module = CycloneDX.bom_struct_module(:Tool, version)
 
   fields = [
-    {:timestamp, "child::timestamp", {:element, Google.Protobuf.Timestamp}},
+    {:timestamp, "child::timestamp", {:element, Timestamp}},
     {:component, "child::component", {:element, component_module}},
     {:manufacturer, "child::manufacturer", {:element, organizational_entity_module}},
     {:supplier, "child::supplier", {:element, organizational_entity_module}},

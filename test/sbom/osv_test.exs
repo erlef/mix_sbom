@@ -52,29 +52,60 @@ defmodule SBoM.OSVTest do
   end
 
   describe "vulnerabilities/2" do
-    test "maps vulnerabilities to all components sharing a query" do
+    test "fetches every vulnerability once and maps it to all affected components" do
+      {:ok, fetched} = Agent.start_link(fn -> [] end)
+
       vulnerabilities =
-        OSV.vulnerabilities(@components, fn queries ->
-          {:ok,
-           Enum.map(queries, fn
-             %{"package" => %{"name" => "https://github.com/erlang/otp.git"}} -> %{"vulns" => [%{"id" => "CVE-1"}]}
-             %{"commit" => _commit} -> %{"vulns" => [%{"id" => "CVE-1"}, %{"id" => "CVE-2"}]}
-             _query -> %{}
-           end)}
+        OSV.vulnerabilities(@components,
+          query_batch: &query_batch/1,
+          get_vulnerability: fn id ->
+            Agent.update(fetched, &[id | &1])
+            {:ok, %{"id" => id, "summary" => "Summary of #{id}"}}
+          end
+        )
+
+      assert fetched |> Agent.get(& &1) |> Enum.sort() == ["CVE-1", "CVE-2"]
+
+      assert %{"CVE-1" => {cve_1, cve_1_affected}, "CVE-2" => {cve_2, ["purl"]}} =
+               Map.new(vulnerabilities, fn {%{"id" => id} = vulnerability, names} -> {id, {vulnerability, names}} end)
+
+      assert cve_1 == %{"id" => "CVE-1", "summary" => "Summary of CVE-1"}
+      assert cve_2 == %{"id" => "CVE-2", "summary" => "Summary of CVE-2"}
+      assert Enum.sort(cve_1_affected) == ["kernel", "purl", "stdlib"]
+    end
+
+    test "keeps the id and logs a warning when the details can not be fetched" do
+      log =
+        capture_log(fn ->
+          vulnerabilities =
+            OSV.vulnerabilities(@components,
+              query_batch: &query_batch/1,
+              get_vulnerability: fn _id -> {:error, :timeout} end
+            )
+
+          assert vulnerabilities |> Enum.map(&elem(&1, 0)) |> Enum.sort() == [%{"id" => "CVE-1"}, %{"id" => "CVE-2"}]
         end)
 
-      assert Map.keys(vulnerabilities) == ["CVE-1", "CVE-2"]
-      assert Enum.sort(vulnerabilities["CVE-1"]) == ["kernel", "purl", "stdlib"]
-      assert vulnerabilities["CVE-2"] == ["purl"]
+      assert log =~ "Failed to fetch vulnerability CVE-1 from OSV.dev"
     end
 
     test "logs a warning and returns no vulnerabilities when OSV.dev is unreachable" do
       log =
         capture_log(fn ->
-          assert OSV.vulnerabilities(@components, fn _queries -> {:error, :nxdomain} end) == %{}
+          assert OSV.vulnerabilities(@components, query_batch: fn _queries -> {:error, :nxdomain} end) == []
         end)
 
       assert log =~ "Failed to fetch vulnerabilities from OSV.dev"
     end
+  end
+
+  @spec query_batch([OSV.query()]) :: {:ok, [map()]}
+  def query_batch(queries) do
+    {:ok,
+     Enum.map(queries, fn
+       %{"package" => %{"name" => "https://github.com/erlang/otp.git"}} -> %{"vulns" => [%{"id" => "CVE-1"}]}
+       %{"commit" => _commit} -> %{"vulns" => [%{"id" => "CVE-1"}, %{"id" => "CVE-2"}]}
+       _query -> %{}
+     end)}
   end
 end
