@@ -37,7 +37,7 @@ defmodule SBoM.OSVTest do
       assert queries[
                %{
                  "package" => %{"name" => "https://github.com/elixir-lang/elixir.git", "ecosystem" => "GIT"},
-                 "version" => "1.20.0"
+                 "version" => "v1.20.0"
                }
              ] == ["elixir"]
 
@@ -46,6 +46,7 @@ defmodule SBoM.OSVTest do
                |> Map.keys()
                |> Enum.filter(&match?(%{"package" => %{"name" => "https://github.com/erlang/otp.git"}}, &1))
 
+      assert "OTP-" <> _otp_version = otp_query["version"]
       assert Enum.sort(queries[otp_query]) == ["kernel", "stdlib"]
       assert map_size(queries) == 4
     end

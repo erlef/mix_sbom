@@ -199,13 +199,15 @@ defmodule SBoM.SCM.SBoM.SCM.System do
   # Inside a Burrito binary the versions of the system apps are not read (see
   # `SBoM.Fetcher.MixRuntime`), so a missing version also skips the query.
   def osv_query(app, %{version: version}) when is_elixir_app(app) and is_binary(version) do
-    git_osv_query("https://github.com/elixir-lang/elixir.git", version)
+    # OSV matches GIT versions by the full tag name, and Elixir tags are "v1.18.4".
+    git_osv_query("https://github.com/elixir-lang/elixir.git", "v" <> version)
   end
 
   def osv_query(app, %{version: version}) when is_erlang_app(app) and is_binary(version) do
     case otp_version() do
       nil -> nil
-      otp_version -> git_osv_query("https://github.com/erlang/otp.git", otp_version)
+      # OTP tags are "OTP-28.0.2".
+      otp_version -> git_osv_query("https://github.com/erlang/otp.git", "OTP-" <> otp_version)
     end
   end
 
