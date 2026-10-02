@@ -10,7 +10,7 @@ defmodule SBoM.CPETest do
   doctest CPE
 
   test "component includes CPE when GitHub link present" do
-    bom = SBoM.CycloneDX.bom(enhance_metadata: false)
+    bom = SBoM.CycloneDX.bom(enhance_metadata: false, vulnerabilities: false)
 
     if bom.metadata.component.cpe do
       assert String.starts_with?(bom.metadata.component.cpe, "cpe:2.3:a:")

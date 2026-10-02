@@ -101,7 +101,8 @@ defmodule SBoM.CLI do
       targets: parse_result.options.targets,
       classification: parse_result.options.classification,
       system_dependencies: not parse_result.flags.exclude_system_dependencies,
-      enhance_metadata: not parse_result.flags.no_enhance_metadata
+      enhance_metadata: not parse_result.flags.no_enhance_metadata,
+      vulnerabilities: not parse_result.flags.no_vulnerabilities
     ]
     |> CycloneDX.bom()
     |> CycloneDX.encode(parse_result.options.format, parse_result.flags.pretty)
@@ -272,6 +273,12 @@ defmodule SBoM.CLI do
               help:
                 "Do not enrich components with metadata from external sources (e.g. the Hex.pm " <>
                   "API). Avoids additional HTTP requests at the cost of less complete metadata."
+            ],
+            no_vulnerabilities: [
+              long: "--no-vulnerabilities",
+              help:
+                "Do not look up known vulnerabilities of the components on OSV.dev. " <>
+                  "Avoids additional HTTP requests."
             ]
           ]
         ]
