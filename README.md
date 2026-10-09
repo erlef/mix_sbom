@@ -123,6 +123,8 @@ output; the task should normally be run in the default (dev) environment*
 - `-n, --no-enhance-metadata`: Do not enrich components with metadata from
   external sources (e.g. the Hex.pm API). Avoids additional HTTP requests at
   the cost of less complete metadata. Enabled by default.
+- `--no-vulnerabilities`: Do not look up known vulnerabilities of the
+  components on [OSV.dev](https://osv.dev). Avoids additional HTTP requests.
 - `--hex-api-key KEY`: Hex.pm API key used to authenticate metadata requests,
   avoiding rate limits. Falls back to the `HEX_API_KEY` environment variable
   if not provided. Omitted entirely when neither is set.
@@ -183,6 +185,9 @@ an SBoM for your project.
 - `enhance-metadata`: Enrich components with metadata from external sources
   (e.g. the Hex.pm API). Requires additional HTTP requests. Set to `"false"`
   to disable (defaults to "true")
+- `vulnerabilities`: Look up known vulnerabilities of the components on
+  [OSV.dev](https://osv.dev). Requires additional HTTP requests. Set to
+  `"false"` to disable (defaults to "true")
 
 ### Outputs
 

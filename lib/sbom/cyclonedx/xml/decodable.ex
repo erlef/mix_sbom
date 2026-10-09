@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SPDX-FileCopyrightText: 2025 Erlang Ecosystem Foundation
 
+alias Google.Protobuf.Timestamp
 alias SBoM.CycloneDX
 alias SBoM.CycloneDX.Common.EnumHelpers
 alias SBoM.CycloneDX.XML.Decodable
@@ -428,6 +429,47 @@ for version <- schema_versions do
   ])
 end
 
+# Vulnerabilities are part of the schema since 1.4
+for version <- schema_versions, version != "1.3" do
+  vulnerability_module = CycloneDX.bom_struct_module(:Vulnerability, version)
+  source_module = CycloneDX.bom_struct_module(:Source, version)
+  affects_module = CycloneDX.bom_struct_module(:VulnerabilityAffects, version)
+  reference_module = CycloneDX.bom_struct_module(:VulnerabilityReference, version)
+  advisory_module = CycloneDX.bom_struct_module(:Advisory, version)
+
+  Protocol.derive(Decodable, vulnerability_module, [
+    {:bom_ref, "@bom-ref", :string},
+    {:id, "child::id/text()", :string},
+    {:source, "child::source", {:element, source_module}},
+    {:references, "child::references/child::reference", {:list, reference_module}},
+    {:description, "child::description/text()", :string},
+    {:detail, "child::detail/text()", :string},
+    {:advisories, "child::advisories/child::advisory", {:list, advisory_module}},
+    {:published, "child::published", {:element, Timestamp}},
+    {:updated, "child::updated", {:element, Timestamp}},
+    {:affects, "child::affects/child::target", {:list, affects_module}}
+  ])
+
+  Protocol.derive(Decodable, reference_module, [
+    {:id, "child::id/text()", :string},
+    {:source, "child::source", {:element, source_module}}
+  ])
+
+  Protocol.derive(Decodable, advisory_module, [
+    {:title, "child::title/text()", :string},
+    {:url, "child::url/text()", :string}
+  ])
+
+  Protocol.derive(Decodable, source_module, [
+    {:name, "child::name/text()", :string},
+    {:url, "child::url/text()", :string}
+  ])
+
+  Protocol.derive(Decodable, affects_module, [
+    {:ref, "child::ref/text()", :string}
+  ])
+end
+
 for version <- schema_versions do
   bom_module = CycloneDX.bom_struct_module(:Bom, version)
   metadata_module = CycloneDX.bom_struct_module(:Metadata, version)
@@ -435,14 +477,28 @@ for version <- schema_versions do
   external_reference_module = CycloneDX.bom_struct_module(:ExternalReference, version)
   dependency_module = CycloneDX.bom_struct_module(:Dependency, version)
 
-  Protocol.derive(Decodable, bom_module, [
+  fields = [
     {:version, "@version", :int32},
     {:serial_number, "@serialNumber", :string},
     {:metadata, "child::metadata", {:element, metadata_module}},
     {:components, "child::components/child::component", {:list, component_module}},
     {:external_references, "child::external-references/child::reference", {:list, external_reference_module}},
     {:dependencies, "child::dependencies/child::dependency", {:list, dependency_module}}
-  ])
+  ]
+
+  fields =
+    if version == "1.3" do
+      fields
+    else
+      vulnerability_module = CycloneDX.bom_struct_module(:Vulnerability, version)
+
+      [
+        {:vulnerabilities, "child::vulnerabilities/child::vulnerability", {:list, vulnerability_module}}
+        | fields
+      ]
+    end
+
+  Protocol.derive(Decodable, bom_module, fields)
 end
 
 for version <- schema_versions do
@@ -453,7 +509,7 @@ for version <- schema_versions do
   tool_module = CycloneDX.bom_struct_module(:Tool, version)
 
   fields = [
-    {:timestamp, "child::timestamp", {:element, Google.Protobuf.Timestamp}},
+    {:timestamp, "child::timestamp", {:element, Timestamp}},
     {:component, "child::component", {:element, component_module}},
     {:manufacturer, "child::manufacturer", {:element, organizational_entity_module}},
     {:supplier, "child::supplier", {:element, organizational_entity_module}},
