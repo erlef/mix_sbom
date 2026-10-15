@@ -134,6 +134,31 @@ defmodule SBoM.Fetcher.MixFileTest do
     end
 
     @tag :tmp_dir
+    @tag fixture_app: "app_optional_applications"
+    test "marks optional extra applications as optional", %{app_path: app_path} do
+      Util.in_project(app_path, fn _mix_module ->
+        assert %{
+                 logger: %{optional: false, runtime: true},
+                 tools: %{optional: true, runtime: true}
+               } = MixFile.fetch()
+      end)
+    end
+
+    @tag :tmp_dir
+    @tag fixture_app: "app_optional_applications_dedup"
+    test "keeps one component for an app listed in both application keys", %{app_path: app_path} do
+      Util.in_project(app_path, fn _mix_module ->
+        deps = MixFile.fetch()
+
+        assert %{observer: %{optional: true, runtime: true}, tools: %{optional: true}} = deps
+
+        # Before normalization the raw `{app, :optional}` tuple survived
+        # deduplication as a key of its own.
+        refute Enum.any?(Map.keys(deps), &match?({_app, :optional}, &1))
+      end)
+    end
+
+    @tag :tmp_dir
     test "skips manifest for project without mix.exs", %{tmp_dir: tmp_dir} do
       assert is_nil(Util.in_project(tmp_dir, fn _mix_module -> MixFile.fetch() end))
     end

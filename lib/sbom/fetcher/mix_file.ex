@@ -48,8 +48,8 @@ defmodule SBoM.Fetcher.MixFile do
       [
         Mix.Project.config()[:deps] || [],
         [{:elixir, Mix.Project.config()[:elixir], []}],
-        Enum.map(app_config[:applications] || [], &{&1, []}),
-        Enum.map(app_config[:extra_applications] || [], &{&1, []}),
+        Enum.map(app_config[:applications] || [], &application_dep/1),
+        Enum.map(app_config[:extra_applications] || [], &application_dep/1),
         Enum.map(app_config[:included_applications] || [], &{&1, included: true})
       ]
       |> Enum.concat()
@@ -111,6 +111,14 @@ defmodule SBoM.Fetcher.MixFile do
        root: true
      })}
   end
+
+  # Mix accepts `app` or `{app, :optional}` in `:applications` and
+  # `:extra_applications`. See `mix help compile.app`.
+  @spec application_dep(app :: Fetcher.app_name() | {Fetcher.app_name(), :optional}) ::
+          {Fetcher.app_name(), Keyword.t()}
+  defp application_dep(app)
+  defp application_dep({app, :optional}) when is_atom(app), do: {app, optional: true}
+  defp application_dep(app) when is_atom(app), do: {app, []}
 
   @spec normalize_dep(
           dep ::
