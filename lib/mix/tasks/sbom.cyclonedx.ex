@@ -17,6 +17,11 @@ defmodule Mix.Tasks.Sbom.Cyclonedx do
   @doc false
   @impl Mix.Task
   def run(args) do
+    # A task from a `runtime: false` dependency cannot rely on the host project
+    # keeping these on the code path: Mix prunes OTP applications the project's
+    # own runtime tree does not list.
+    Enum.each([:eex, :inets, :ssh, :ssl, :xmerl], &Mix.ensure_application!/1)
+
     {:ok, _apps} = Application.ensure_all_started(:sbom)
     CLI.run(["cyclonedx" | args], :mix)
   end
