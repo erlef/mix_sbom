@@ -70,8 +70,10 @@ jobs:
   publish:
     name: "Publish"
 
+    permissions:
+      contents: read
+      id-token: write
+
     uses: ./.github/workflows/part_publish.yml
     with:
       releaseName: "${{ github.ref_name }}"
-    secrets:
-      HEX_API_KEY: "${{ secrets.HEX_API_KEY }}"

@@ -7,9 +7,6 @@ on:
       releaseName:
         required: false
         type: string
-    secrets:
-      HEX_API_KEY:
-        required: false
 
 name: "Publish"
 
@@ -24,6 +21,10 @@ jobs:
 
     environment: "release"
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
@@ -34,5 +35,3 @@ jobs:
       - uses: ./.github/actions/setup-runtime-env
 
       - run: mix hex.publish --yes
-        env:
-          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
